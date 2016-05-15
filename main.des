@@ -1,0 +1,6 @@
+int num_of_objs;
+struct arr:nobjs[num_of_objs];
+struct arr:cons[num_of_cons];
+
+func stim_neur(int nobj_id, unsigned int neur_id, double stim)l
+TO BE CONT
