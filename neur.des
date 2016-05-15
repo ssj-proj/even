@@ -1,0 +1,1 @@
+unsigned in arr[6]:unsigned int id, unsigned int pre, unsigned int weight, unsigned int thresh, unsigned int fire, unsigned int post;
