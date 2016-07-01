@@ -1,26 +1,84 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nobj.h"
+typedef int bool;
+#define true 1
+#define false 0
 
 
-//initilizes object at index no with non neurs with props[] properties
+unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
+  FILE *fp = fopen(file,"r");
+  char buff[255];
+  int t;
+  bool has_neur_settings=false;
+  bool has_neur_count=false;
+  int max=10;
+  int i =0;
+  /* Loops until all meta data is read setting:\s val */
+  while(!(has_neur_settings&&has_neur_count)) {
+    i++;
+    //printf("bools %d   and   %d",has_neur_settings,has_neur_count);
+    fscanf(fp,"%[^:]:%u ",buff,&t);
+    printf(" READ (%s) %s %d\n",file,buff,t);
+    if(strcmp(buff,"non")==0) {
+      (*nobj_props).num_of_neurs=t;
+      has_neur_count=true;
+    } else if(strcmp(buff,"np")==0){
+      (*nobj_props).num_of_neur_properties=t;
+      has_neur_settings=true;
+    } else {
+      printf("Unkown setting %s in %s\n",buff,file);
+    }
 
-void init_nobj(int no, int non, unsigned int** props, struct nobj_meta obj_prop, unsigned int ****nobj) {
-  //printf("init_nobj1\n");
-  (*nobj[no])=malloc(sizeof(unsigned int*)*non); //initilize obj's array of neurs
-  //printf("init_nobj2\n");
-  int i = 0;
-  for(i;i<non;++i) {
-   // printf("init loop here: %d",i);
-    (*nobj)[no][i]=malloc(sizeof(unsigned int)*obj_prop.num_of_neur_properties);
-    //printf("init_nobj2\n");
-    int j = 0;
-    for(j;j<obj_prop.num_of_neur_properties;++j) {
-      printf(" trying to load prop %u\n",props[i][j]);
-      ((*nobj)[no][i][j])=props[i][j];
-      printf("Loaded prop: %u\n",(*nobj)[no][i][j]);
+    if(i>=max) { 
+       printf("ERROR READING %s\n",file);
+       fclose(fp);
+       return NULL;
     }
   }
+  
+  /* Read all neurs  */
+  unsigned int**props=malloc(sizeof(unsigned int*) * (*nobj_props).num_of_neurs);
+  int n =0;
+  for(n;n<(*nobj_props).num_of_neurs;++n) {
+    int p = 0;
+    props[n]=malloc(sizeof(unsigned int) * (*nobj_props).num_of_neur_properties);
+    for(p;p<(*nobj_props).num_of_neur_properties;++p) {
+      if(fscanf(fp,"%u%*[, \t\n]",&props[n][p])<1) {
+        printf("ERROR READING %s : MISSING AT LEAST 1 NEUR PROPERTY\n",file);
+        fclose(fp);
+        return NULL;
+      }
+      //printf("  props:%u\n",props[n][p]);
+    }
+  }
+  fclose(fp);
+  return props;
+}
+//initilizes(inserts) object at index no with non neurs with props[] properties
+void init_nobj(int no, unsigned int** props, struct nobj_meta obj_prop, unsigned int ****nobj) {
+  (*nobj[no])=malloc(sizeof(unsigned int*)*obj_prop.num_of_neurs); //initilize obj's array of neurs
+  int i = 0;
+  for(i;i<obj_prop.num_of_neurs;++i) {
+    (*nobj)[no][i]=malloc(sizeof(unsigned int)*obj_prop.num_of_neur_properties);
+    
+    int j = 0;
+    for(j;j<obj_prop.num_of_neur_properties;++j) {
+      
+      ((*nobj)[no][i][j])=props[i][j];
+     
+    }
+  }
+}
+/* TBI */
+void free_nobj(int no, struct nobj_meta obj_prop, unsigned int ****nobj){
+ 
+  int i = 0;
+  for(i;i<obj_prop.num_of_neurs;++i) {
+    free((*nobj)[no][i]);
+  }
+  free(*nobj[no]);
+
 }
 void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {
   unsigned int i =0,j=0;
@@ -34,3 +92,4 @@ void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {
     }
   }
 }
+

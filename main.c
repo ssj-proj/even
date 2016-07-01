@@ -27,15 +27,21 @@ void main() {
 
   nobj_props=malloc(num_of_objs * sizeof(struct nobj_meta));
   nobjs=malloc( num_of_objs *  sizeof(unsigned int**));
-  
+  char *file="./obj/obj_0.des";
+  unsigned int **props;
 
-  nobj_props[0].num_of_neurs=3;
-  nobj_props[0].num_of_neur_properties=6;
 
-  unsigned int **props=create_props(3,6);
+  unsigned int nobj_id=1;
 
-  init_nobj(0,nobj_props[0].num_of_neurs,props,nobj_props[0],&nobjs);
-  display_neur_props(0,nobjs,nobj_props);
+  for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
+
+    /* LOH - get seg fault when doing any object index > 0 */
+    print("   INIt OBJECT %u",nobj_id);
+    props = parse_nobj_file(file,&nobj_props[nobj_id]);
+    init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
+    display_neur_props(nobj_id,nobjs,nobj_props);
+    free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
+  }
 
   exit(0);
 
