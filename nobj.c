@@ -57,7 +57,13 @@ unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
 }
 //initilizes(inserts) object at index no with non neurs with props[] properties
 void init_nobj(int no, unsigned int** props, struct nobj_meta obj_prop, unsigned int ****nobj) {
-  (*nobj[no])=malloc(sizeof(unsigned int*)*obj_prop.num_of_neurs); //initilize obj's array of neurs
+  (*nobj)[no]=malloc(sizeof(unsigned int*)*obj_prop.num_of_neurs); //initilize obj's array of neurs
+
+  if( !(*nobj)[no]) {
+    printf("ERROR - failed to malloc nobj\n");
+    return;
+  }
+
   int i = 0;
   for(i;i<obj_prop.num_of_neurs;++i) {
     (*nobj)[no][i]=malloc(sizeof(unsigned int)*obj_prop.num_of_neur_properties);
@@ -77,7 +83,7 @@ void free_nobj(int no, struct nobj_meta obj_prop, unsigned int ****nobj){
   for(i;i<obj_prop.num_of_neurs;++i) {
     free((*nobj)[no][i]);
   }
-  free(*nobj[no]);
+  free((*nobj)[no]);
 
 }
 void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {

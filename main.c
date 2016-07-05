@@ -18,12 +18,22 @@ unsigned int** create_props(int neurs, int neur_props) {
 }
 void main() {
   int num_of_objs=3;
+  struct nobj_meta *nobj_props;
+
   //[object id][neur id][neur propert id]
   unsigned int ***nobjs;
   //[object id][neur id][to con neur id]
   unsigned int ***cons;
-  struct nobj_meta *nobj_props;
-
+  /* 
+    conid is associated to sending neur
+    conid is sent to receiving neur along with sitm upon firing
+    receiving neur using conid as an index to its weights array
+    these are 'dynimcally' generated at load time and not specified in confi files
+  */
+  //[object id][neur id][to con conid]
+  unsigned int ***conids;
+  //[object id][neur id][receiving weights]
+  double ***weights;
 
   nobj_props=malloc(num_of_objs * sizeof(struct nobj_meta));
   nobjs=malloc( num_of_objs *  sizeof(unsigned int**));
@@ -31,17 +41,18 @@ void main() {
   unsigned int **props;
 
 
-  unsigned int nobj_id=1;
+  unsigned int nobj_id=0;
 
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
 
-    /* LOH - get seg fault when doing any object index > 0 */
-    print("   INIt OBJECT %u",nobj_id);
+    printf("   INIT OBJECT %u\n",nobj_id);
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
     display_neur_props(nobj_id,nobjs,nobj_props);
     free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
   }
+  nobj_id=0;
+
 
   exit(0);
 
