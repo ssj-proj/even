@@ -24,6 +24,11 @@ void main() {
   unsigned int ***nobjs;
   //[object id][neur id][to con neur id]
   unsigned int ***cons;
+  //[object id][neur id][variable] -- TBDOC / TBI
+  /* A variable length list that holds variables for the neurs that are affected
+     By neur behavior. To Be planned and coded */
+  unsigned int ***nvar;
+
   /* 
     conid is associated to sending neur
     conid is sent to receiving neur along with sitm upon firing

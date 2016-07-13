@@ -76,7 +76,6 @@ void init_nobj(int no, unsigned int** props, struct nobj_meta obj_prop, unsigned
     }
   }
 }
-/* TBI */
 void free_nobj(int no, struct nobj_meta obj_prop, unsigned int ****nobj){
  
   int i = 0;
@@ -97,5 +96,13 @@ void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {
       printf("  Neur[%u] prop[%u] val:%u\n",i,j,nobjs[obj][i][j]);
     }
   }
+}
+void stim(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim) {
+//pre
+//weight
+//thresh
+//fire
+//post
+
 }
 
