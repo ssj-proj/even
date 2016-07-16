@@ -97,12 +97,4 @@ void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {
     }
   }
 }
-void stim(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim) {
-//pre
-//weight
-//thresh
-//fire
-//post
-
-}
 

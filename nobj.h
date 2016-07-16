@@ -10,11 +10,14 @@ struct nobj_meta{
   pre,fire and post are of type behav, these meant to modify neur vars
   thresh determines what causes neur to fire
 */
-void (*behav)(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
+typedef void (*behavior)(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) ;
+typedef int (*threshold)(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
    unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars);
-bool (*thresh)(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid,
-  double stim, unsigned int***nobj,unsigned int***cons, unsigned int***conids, double***weights,
-  double***vars );
+struct behav_pool {
+  behavior *behaviors;
+  threshold *threshholds;
+};
+
 
 
 //Reads file and generates prop array (read - File to read,Set - nobj meta dat:single object not 
