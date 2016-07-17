@@ -54,12 +54,14 @@ void main() {
   unsigned int nobj_id=0;
 
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
-
+    file="./obj/obj_0.des";
     printf("   INIT OBJECT %u\n",nobj_id);
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
     display_neur_props(nobj_id,nobjs,nobj_props);
     free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
+    file="./obj/obj_0.con";
+    parse_con_file(file,&nobj_props[nobj_id]);
   }
   nobj_id=0;
 
