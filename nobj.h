@@ -5,7 +5,7 @@ struct nobj_meta{
   unsigned int num_of_neurs;
   unsigned int num_of_neur_properties;
   unsigned int num_of_cons;
-  unsigned int num_of_properties;
+  unsigned int num_of_con_properties;
 };
 //got rid of weight func
 /*
