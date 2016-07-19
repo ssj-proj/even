@@ -109,14 +109,21 @@ unsigned int ** parse_con_file(char * file,struct nobj_meta *nobj_props) {
   return cons;
 }
 int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsigned int ****cons, unsigned int ****conids,double ****weights) {
-  (*cons)[no]=malloc(sizeof(unsigned int*)*obj_prop.num_of_neurs); //initilize obj's array of neurs
-  (*conids)[no]=malloc(sizeof(unsigned int*)*obj_prop.num_of_neurs); 
-  (*weights)[no]=malloc(sizeof(double*)*obj_prop.num_of_neurs); 
-  if( !(*cons)[no]||(*conids)[no]||(*weights)[no]) {
+   
+  if(weights[no]==NULL) {
+    printf("Error: WEIGHTS ARRAY IS NULL\n");
+    exit(-1);
+  }
+  (*cons)[no]   =malloc(sizeof(  unsigned int*)*obj_prop.num_of_cons); //initilize obj's array of neurs
+  (*conids)[no] =malloc(sizeof(  unsigned int*)*obj_prop.num_of_cons); 
+  (*weights)[no]=malloc(sizeof(        double*)*obj_prop.num_of_cons); 
+
+  if( !((*cons)[no]||(*conids)[no]||(*weights)[no]) ) {
     printf("ERROR - failed to malloc at least 1 of 3 con arrays\n");
-    return;
+    return -1;
   }
   unsigned int num_of_cons[obj_prop.num_of_neurs];//holds total neur count
+  unsigned int num_of_cons_rec[obj_prop.num_of_neurs];//holds total receiving cons
   unsigned int num_of_cons_ass[obj_prop.num_of_neurs];//tmp used for array init, holds amount assigned
   unsigned int nocw[obj_prop.num_of_neurs];//tmp used for indexing - numc of cons weight
   unsigned int i = 0;
@@ -124,6 +131,7 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
   for(i;i<obj_prop.num_of_neurs;++i) {
      num_of_cons[i]=0;
      num_of_cons_ass[i]=0;
+     num_of_cons_rec[i]=0;
      nocw[i]=0;
   }
   i = 0;
@@ -131,17 +139,20 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
   for(i;i<obj_prop.num_of_cons;++i) {
     if(con_props[i][0]<obj_prop.num_of_neurs) {//make sure its not an invalid indexx
       num_of_cons[con_props[i][0]]++;
+      num_of_cons_rec[con_props[i][1]]++;
     } else { 
       printf("ERROR LOADING CON FILE, REFERENCE TO NONEXISTENT NEUR\n");
       return -1;
     }
   }
-
+  i=0;
+  //printf("here!!!: %u\n",obj_prop.num_of_neurs);
   //allocate space for each array for each neur for the num of cons each neur has
   for(i;i<obj_prop.num_of_neurs;++i) {
     (*cons)[no][i]=malloc(sizeof(unsigned int)* num_of_cons[i]);
     (*conids)[no][i]=malloc(sizeof(unsigned int)* num_of_cons[i]);
-    (*weights)[no][i]=malloc(sizeof(double)* num_of_cons[i]);    
+    (*weights)[no][i]=malloc(sizeof(double)* num_of_cons_rec[i]);   
+    //printf("malloc for nobj %u for receiving nuer %u , rec count %u\n",no,i,num_of_cons_rec[i]);
   }
   i=0;
   for(i;i<obj_prop.num_of_cons;++i) {

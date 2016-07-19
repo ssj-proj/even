@@ -45,8 +45,17 @@ void main() {
   */
 
 
-  nobj_props=malloc(num_of_objs * sizeof(struct nobj_meta));
-  nobjs=malloc( num_of_objs *  sizeof(unsigned int**));
+  nobj_props=malloc( num_of_objs * sizeof(struct nobj_meta));
+  weights   =malloc( num_of_objs * sizeof(double**));
+  nobjs     =malloc( num_of_objs * sizeof(unsigned int**));
+  cons      =malloc( num_of_objs * sizeof(unsigned int**));
+  conids    =malloc( num_of_objs * sizeof(unsigned int**));
+  
+  weights[0];
+  if(weights==NULL) {
+    printf("Error: failed to malloc weights\n");
+    exit(-1);
+  }
   char *file="./obj/obj_0.des";
   unsigned int **props;
 
@@ -56,12 +65,18 @@ void main() {
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
     file="./obj/obj_0.des";
     printf("   INIT OBJECT %u\n",nobj_id);
+
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
     display_neur_props(nobj_id,nobjs,nobj_props);
     free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
+
     file="./obj/obj_0.con";
-    parse_con_file(file,&nobj_props[nobj_id]);
+    unsigned int **con_props = parse_con_file(file,&nobj_props[nobj_id]);
+
+    init_cons(nobj_id, con_props, (*nobj_props), &cons, &conids, &weights); 
+
+
   }
   nobj_id=0;
 
