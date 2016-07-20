@@ -31,7 +31,7 @@ void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np);
 
 int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsigned int ****cons, unsigned int ****conids,double ****weights);
 unsigned int ** parse_con_file(char * file,struct nobj_meta *nobj_props);
-
+void display_con_props(int obj,unsigned int***cons,unsigned int***conids,double***weights,struct nobj_meta *np);
 
 //nobject id, from, to, conid (index in weights array of receiving neur), stim
 void stim(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars);

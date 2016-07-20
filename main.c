@@ -73,9 +73,12 @@ void main() {
 
     file="./obj/obj_0.con";
     unsigned int **con_props = parse_con_file(file,&nobj_props[nobj_id]);
-
+    if(con_props==NULL) {
+      printf("ERROR parsing con file.\n");
+      exit(-1);
+    }
     init_cons(nobj_id, con_props, (*nobj_props), &cons, &conids, &weights); 
-
+    display_con_props(nobj_id,cons,conids,weights,nobj_props);
 
   }
   nobj_id=0;
