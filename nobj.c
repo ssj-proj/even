@@ -81,9 +81,20 @@ void free_nobj(int no, struct nobj_meta obj_prop, unsigned int ****nobj){
     free((*nobj)[no][i]);
   }
   free((*nobj)[no]);
+}
+void free_nobj_con(int no, struct nobj_meta obj_prop, unsigned int ****cons, unsigned int ****conids,double ****weights){
+ 
+  int i = 0;
+  for(i;i<obj_prop.num_of_neurs;++i) {
+    free((*cons)[no][i]);
+    free((*conids)[no][i]);
+    free((*weights)[no][i]);
+  }
+  free((*cons)[no]);
+  free((*conids)[no]);
+  free((*weights)[no]);
 
 }
-
 
 unsigned int ** parse_con_file(char * file,struct nobj_meta *nobj_props) {
   FILE *fp = fopen(file,"r");
@@ -185,12 +196,10 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
       return -1;
     }
   }
-  i=0;
-  //printf("here!!!: %u\n",obj_prop.num_of_neurs);
+  i=0;;
   //allocate space for each array for each neur for the num of cons each neur has
   for(i;i<obj_prop.num_of_neurs;++i) {
     (*cons)[no][i]=malloc(sizeof(unsigned int)* (num_of_cons[i]+1));
-    //printf("NEUR %u CON LENGTH %u\n", i, num_of_cons[i]);
     (*cons)[no][i][0]=num_of_cons[i];//first element in array specifies number of cons
     (*conids)[no][i]=malloc(sizeof(unsigned int)* (num_of_cons[i]+1));
     (*conids)[no][i][0]=num_of_cons[i];//first element in array specifies number of cons
@@ -244,6 +253,59 @@ void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {
     }
   }
 }
+double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
+  FILE *fp = fopen(file,"r");
+  char buff[255];
+  int t;
+  bool has_var_settings=false;
+  bool has_neur_count=false;
+  int max=10;
+  int i =0;
+  /* Loops until all meta data is read setting:\s val */
+  while(!(has_var_settings&&has_neur_count)) {
+    i++;
+    //printf("bools %d   and   %d",has_neur_settings,has_neur_count);
+    fscanf(fp,"%[^:]:%u ",buff,&t);
+    printf(" READ (%s) %s %d\n",file,buff,t);
+    if(strcmp(buff,"non")==0) {
+      has_neur_count=true;
+    } else if(strcmp(buff,"vp")==0){
+      (*nobj_props).num_of_neur_vars=t;
+      has_var_settings=true;
+    } else {
+      printf("Unkown setting %s in %s\n",buff,file);
+    }
+
+    if(i>=max) { 
+       printf("ERROR READING %s\n",file);
+       fclose(fp);
+       return NULL;
+    }
+  }  
+  /* Read all neurs  */
+  double**props=malloc(sizeof(props) * (*nobj_props).num_of_neurs);
+  int n =0;
+  for(n;n<(*nobj_props).num_of_neurs;++n) {
+    int p = 0;
+    props[n]=malloc(sizeof(*props) * (*nobj_props).num_of_neur_properties);
+    for(p;p<(*nobj_props).num_of_neur_properties;++p) {
+      if(fscanf(fp,"%u%*[, \t\n]",&props[n][p])<1) {
+        printf("ERROR READING %s : MISSING AT LEAST 1 NEUR PROPERTY\n",file);
+        fclose(fp);
+        return NULL;
+      }
+      //printf("  props:%u\n",props[n][p]);
+    }
+  }
+  fclose(fp);
+  return props;
+}
+
+
+
+
+
+
 void stim(int nobj_id,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
  struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights,
  double***vars) {
