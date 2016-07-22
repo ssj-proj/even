@@ -253,6 +253,7 @@ void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {
     }
   }
 }
+
 double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
   FILE *fp = fopen(file,"r");
   char buff[255];
@@ -270,7 +271,7 @@ double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
     if(strcmp(buff,"non")==0) {
       has_neur_count=true;
     } else if(strcmp(buff,"vp")==0){
-      (*nobj_props).num_of_neur_vars=t;
+      (*nobj_props).num_of_var_properties=t;
       has_var_settings=true;
     } else {
       printf("Unkown setting %s in %s\n",buff,file);
@@ -287,24 +288,61 @@ double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
   int n =0;
   for(n;n<(*nobj_props).num_of_neurs;++n) {
     int p = 0;
-    props[n]=malloc(sizeof(*props) * (*nobj_props).num_of_neur_properties);
-    for(p;p<(*nobj_props).num_of_neur_properties;++p) {
-      if(fscanf(fp,"%u%*[, \t\n]",&props[n][p])<1) {
+    props[n]=malloc(sizeof(*props) * (*nobj_props).num_of_var_properties);
+    for(p;p<(*nobj_props).num_of_var_properties;++p) {
+      if(fscanf(fp,"%lf%*[, \t\n]",&props[n][p])<1) {
         printf("ERROR READING %s : MISSING AT LEAST 1 NEUR PROPERTY\n",file);
         fclose(fp);
         return NULL;
       }
-      //printf("  props:%u\n",props[n][p]);
+      //printf(" VAR:%lf\n",props[n][p]);
     }
   }
   fclose(fp);
   return props;
 }
+void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****vars) {
+  (*vars)[no]=malloc(sizeof(double**)*obj_prop.num_of_neurs); //initilize obj's array of neurs
 
+  if((*vars)[no]==NULL) {
+    printf("ERROR - failed to malloc nobj\n");
+    return;
+  }
+  
+  unsigned int i = 0;
+  printf(" I vs non : %u v %u\n",i,obj_prop.num_of_neurs);
+  for(i;i<obj_prop.num_of_neurs;++i) {
+    (*vars)[no][i]=malloc(sizeof(double*)*obj_prop.num_of_var_properties);
+    //printf(":::--------:%u\n",obj_prop.num_of_var_properties);
+    int j = 0;
+    for(j;j<obj_prop.num_of_var_properties;++j) {
+      
+      ((*vars)[no][i][j])=props[i][j];
+      //printf(" varp:%lf\n",((*vars)[no][i][j]));
+    }
+  }
+}
+void free_vars(int no, struct nobj_meta obj_prop, double ****vars){
+ 
+  int i = 0;
+  for(i;i<obj_prop.num_of_neurs;++i) {
+    free((*vars)[no][i]);
+  }
+  free((*vars)[no]);
+}
+void display_vars_props(int obj,double***vars,struct nobj_meta *np) {
+  unsigned int i =0,j=0;
+  printf("OBJ[%d]\n",obj);
+  printf("  Total neurs: %u\n",np[obj].num_of_neurs);
 
-
-
-
+  for(i;i<np[obj].num_of_neurs;++i) {
+    j=0;
+    for(j;j<np[obj].num_of_var_properties;++j){
+      printf("  Neur[%u] var[%u] val:%lf\n",i,j,vars[obj][i][j]);
+      
+    }
+  }
+}
 
 void stim(int nobj_id,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
  struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights,

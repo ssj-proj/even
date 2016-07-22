@@ -43,14 +43,12 @@ void main() {
   /*   
     END NOBJ VARS
   */
-
-
   nobj_props=malloc( num_of_objs * sizeof(struct nobj_meta));
   weights   =malloc( num_of_objs * sizeof(double**));
   nobjs     =malloc( num_of_objs * sizeof(unsigned int**));
   cons      =malloc( num_of_objs * sizeof(unsigned int**));
   conids    =malloc( num_of_objs * sizeof(unsigned int**));
-  
+  nvar      =malloc( num_of_objs * sizeof(double**));
   weights[0];
   if(weights==NULL) {
     printf("Error: failed to malloc weights\n");
@@ -68,7 +66,7 @@ void main() {
 
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
-    display_neur_props(nobj_id,nobjs,nobj_props);
+    //display_neur_props(nobj_id,nobjs,nobj_props);
     free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
 
     file="./obj/obj_0.con";
@@ -77,8 +75,17 @@ void main() {
       printf("ERROR parsing con file.\n");
       exit(-1);
     }
-    init_cons(nobj_id, con_props, (*nobj_props), &cons, &conids, &weights); 
-    display_con_props(nobj_id,cons,conids,weights,nobj_props);
+    init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights); 
+    //display_con_props(nobj_id,cons,conids,weights,nobj_props);
+
+   file="./obj/obj_0.var";
+    double **var_props = parse_vars_file(file,&nobj_props[nobj_id]);
+    if(con_props==NULL) {
+      printf("ERROR parsing var file.\n");
+      exit(-1);
+    }
+    init_vars(nobj_id,var_props,nobj_props[nobj_id],&nvar);
+    display_vars_props(nobj_id,nvar,nobj_props);
 
   }
   nobj_id=0;
