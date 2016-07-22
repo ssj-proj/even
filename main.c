@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nobj.h"
-
+#include "behaviors.h"
 
 unsigned int** create_props(int neurs, int neur_props) {
  
@@ -49,15 +49,16 @@ void main() {
   cons      =malloc( num_of_objs * sizeof(unsigned int**));
   conids    =malloc( num_of_objs * sizeof(unsigned int**));
   nvar      =malloc( num_of_objs * sizeof(double**));
-  weights[0];
+  
   if(weights==NULL) {
     printf("Error: failed to malloc weights\n");
     exit(-1);
   }
-  char *file="./obj/obj_0.des";
+
+
+
+  char *file;
   unsigned int **props;
-
-
   unsigned int nobj_id=0;
 
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
@@ -67,7 +68,7 @@ void main() {
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
     //display_neur_props(nobj_id,nobjs,nobj_props);
-    free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
+    //free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
 
     file="./obj/obj_0.con";
     unsigned int **con_props = parse_con_file(file,&nobj_props[nobj_id]);
@@ -85,11 +86,15 @@ void main() {
       exit(-1);
     }
     init_vars(nobj_id,var_props,nobj_props[nobj_id],&nvar);
-    display_vars_props(nobj_id,nvar,nobj_props);
-
+    display_vars_props(nvar[nobj_id],nobj_props[nobj_id]);
   }
-  nobj_id=0;
-
+  struct behav_pool behaviors; 
+  behaviors.behaviors = malloc(sizeof(behavior) * 1 );
+  behaviors.behaviors[0]=&b1;
+  behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
+  behaviors.threshholds[0]=&t1;
+  //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
+  stim(0,1,0,10,behaviors,nobjs[0],cons[0],conids[0],weights[0],nvar[0],nobj_props[0]);
 
   exit(0);
 

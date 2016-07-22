@@ -240,15 +240,14 @@ void display_con_props(int obj,unsigned int***cons,unsigned int***conids,double*
     }
   }
 }
-void display_neur_props(int obj,unsigned int***nobjs,struct nobj_meta *np) {
+void display_neur_props(unsigned int**nobjs,struct nobj_meta np) {
   unsigned int i =0,j=0;
-  printf("OBJ[%d]\n",obj);
-  printf("  Total neurs: %u\n",np[obj].num_of_neurs);
+  printf("  Total neurs: %u\n",np.num_of_neurs);
 
-  for(i;i<np[obj].num_of_neurs;++i) {
+  for(i;i<np.num_of_neurs;++i) {
     j=0;
-    for(j;j<np[obj].num_of_neur_properties;++j){
-      printf("  Neur[%u] prop[%u] val:%u\n",i,j,nobjs[obj][i][j]);
+    for(j;j<np.num_of_neur_properties;++j){
+      printf("  Neur[%u] prop[%u] val:%u\n",i,j,nobjs[i][j]);
       
     }
   }
@@ -330,27 +329,36 @@ void free_vars(int no, struct nobj_meta obj_prop, double ****vars){
   }
   free((*vars)[no]);
 }
-void display_vars_props(int obj,double***vars,struct nobj_meta *np) {
+void display_vars_props(double**vars,struct nobj_meta np) {
   unsigned int i =0,j=0;
-  printf("OBJ[%d]\n",obj);
-  printf("  Total neurs: %u\n",np[obj].num_of_neurs);
+  
+  printf("  Total neurs: %u\n",np.num_of_neurs);
 
-  for(i;i<np[obj].num_of_neurs;++i) {
+  for(i;i<np.num_of_neurs;++i) {
     j=0;
-    for(j;j<np[obj].num_of_var_properties;++j){
-      printf("  Neur[%u] var[%u] val:%lf\n",i,j,vars[obj][i][j]);
+    for(j;j<np.num_of_var_properties;++j){
+      printf("  Neur[%u] var[%u] val:%lf\n",i,j,vars[i][j]);
       
     }
   }
 }
 
-void stim(int nobj_id,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
- struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights,
- double***vars) {
+void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta nobj_props) {
+//(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
   //PRE
-  bp.behaviors[nobj[nobj_id][neur_to][0]];
-  //vars[nobj_id][neur_to][0]+=//weights LOH 7-16-16
+  printf("behviors index: %u\n",nobj[neur_to][0]);
+  bp.behaviors[ nobj[neur_to][0]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);//PRE
 
+  vars[neur_to][0]+= (stim * weights[neur_to][conid] );
+  //Thresh
+  if(  bp.threshholds[ nobj[neur_to][1]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props) == 0 ) {
+    bp.behaviors[ nobj[neur_to][2]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);
+  } else { //POST
+    bp.behaviors[ nobj[neur_to][3]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);
+  }
+ 
+
+   //weights LOH 7-16-1
 
 }
 
