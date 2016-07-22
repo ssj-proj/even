@@ -342,23 +342,36 @@ void display_vars_props(double**vars,struct nobj_meta np) {
     }
   }
 }
-
-void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta nobj_props) {
+/* Stim func - the neur_to is the one this is executing this func */
+void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool (*bp),unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props) {
 //(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
   //PRE
   printf("behviors index: %u\n",nobj[neur_to][0]);
-  bp.behaviors[ nobj[neur_to][0]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);//PRE
+  (*bp).behaviors[ nobj[neur_to][0]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);//PRE
 
   vars[neur_to][0]+= (stim * weights[neur_to][conid] );
   //Thresh
-  if(  bp.threshholds[ nobj[neur_to][1]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props) == 0 ) {
-    bp.behaviors[ nobj[neur_to][2]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);
+  if(  (*bp).threshholds[ nobj[neur_to][1]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props) == 0 ) {
+
+    (*bp).behaviors[ nobj[neur_to][2]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);
+
   } else { //POST
-    bp.behaviors[ nobj[neur_to][3]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);
+
+    (*bp).behaviors[ nobj[neur_to][3]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props);
+
   }
- 
-
-   //weights LOH 7-16-1
-
+}
+void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool *bp,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props) {
+  neur_from = neur_to;
+  int num_to_send=cons[neur_from][0];
+  int i=1;
+  //iterate from index 1 to index 1+num_to_send - first index holds length of array
+  for(i =1; i < num_to_send;++i) {
+    // stim(neur_from, cons[neur_from][i],conids[neur_from][i], /* where to get Stim */, bp, nobj,cons,conids,weights,vars,nobj_props);
+     /* LOH 7-22-16 
+        everything except (unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim) should be pointer 
+          since stim functions be in a long or endless loop and will be modified by outside functions
+     */
+  }
 }
 

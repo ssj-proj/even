@@ -94,7 +94,7 @@ void main() {
   behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
   behaviors.threshholds[0]=&t1;
   //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
-  stim(0,1,0,10,behaviors,nobjs[0],cons[0],conids[0],weights[0],nvar[0],nobj_props[0]);
+  stim(0,1,0,10,&behaviors,nobjs[0],cons[0],conids[0],weights[0],nvar[0],&(nobj_props[0]));
 
   exit(0);
 

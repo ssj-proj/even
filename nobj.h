@@ -13,9 +13,9 @@ struct nobj_meta{
   pre,fire and post are of type behav, these meant to modify neur vars
   thresh determines what causes neur to fire
 */
-typedef void (*behavior)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta nobj_props) ;
+typedef void (*behavior)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props) ;
 typedef int (*threshhold)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
-   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta nobj_props);
+   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props);
 struct behav_pool {
   behavior *behaviors;
   threshhold *threshholds;
@@ -43,7 +43,8 @@ void display_vars_props(double **vars,struct nobj_meta np);
 
 
 //nobject id, from, to, conid (index in weights array of receiving neur), stim
-void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta nobj_props);
+void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props);
+void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props);
 
 
 #endif
