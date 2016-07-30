@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "nobj.h"
 #include "behaviors.h"
+#include <pthread.h>
+#include <unistd.h>
 
 unsigned int** create_props(int neurs, int neur_props) {
  
@@ -23,9 +25,11 @@ void main() {
     NOBJ VARS
   */
   //[object id][neur id][neur propert id]
-  unsigned int ***nobjs;
+  unsigned int ***nobjs;//should not change during obj runtime
+
   //[object id][neur id][to con neur id]
-  unsigned int ***cons;
+  unsigned int ***cons;//will change during runtime
+  pthread_t **cons_lock;//lock per neur
   /* 
     conid is associated to sending neur
     conid is used by sending neur, sent to receiving neur along with sitm upon firing
@@ -33,23 +37,37 @@ void main() {
     these are 'dynimcally' generated at load time and not specified in confi files
   */
   //[object id][neur id][to con conid]
-  unsigned int ***conids;
+  unsigned int ***conids;//will change during runtime
+  pthread_t **conids_lock;//lock per neuer
+
   //[object id][neur id][receiving weights]
-  double ***weights;
+  double ***weights;//will change during runtime
+  pthread_t **weights_lock;
+
   //[object id][neur id][variable] -- TBDOC / TBI
   /* A variable length list that holds variables for the neurs that are affected
      By neur behavior. To Be planned and coded */
-  double ***nvar;
+  double ***nvar;//will change during runtime
+  pthread_t **nvar_lock;
+
+
   /*   
     END NOBJ VARS
   */
-  nobj_props=malloc( num_of_objs * sizeof(struct nobj_meta));
-  weights   =malloc( num_of_objs * sizeof(double**));
-  nobjs     =malloc( num_of_objs * sizeof(unsigned int**));
-  cons      =malloc( num_of_objs * sizeof(unsigned int**));
-  conids    =malloc( num_of_objs * sizeof(unsigned int**));
-  nvar      =malloc( num_of_objs * sizeof(double**));
-  
+  //malloc nobj vars and their mutex's
+  nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
+  weights     =malloc( num_of_objs * sizeof(double**));
+  weights_lock=malloc( num_of_objs * sizeof(pthread_t*));
+  nobjs       =malloc( num_of_objs * sizeof(unsigned int**));
+  cons        =malloc( num_of_objs * sizeof(unsigned int**));
+  cons_lock   =malloc( num_of_objs * sizeof(pthread_t*));
+  conids      =malloc( num_of_objs * sizeof(unsigned int**));
+  conids_lock =malloc( num_of_objs * sizeof(pthread_t*));
+  nvar        =malloc( num_of_objs * sizeof(double**));
+  nvar_lock=malloc( num_of_objs * sizeof(pthread_t*));
+  struct lock_group *locks = malloc(sizeof(struct lock_group));
+
+   
   if(weights==NULL) {
     printf("Error: failed to malloc weights\n");
     exit(-1);
@@ -94,7 +112,7 @@ void main() {
   behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
   behaviors.threshholds[0]=&t1;
   //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
-  stim(0,1,0,10,&behaviors,nobjs[0],cons[0],conids[0],weights[0],nvar[0],&(nobj_props[0]));
+  stim(0,1,0,10,&behaviors,nobjs[0],cons[0],conids[0],weights[0],nvar[0],&(nobj_props[0]),locks);
 
   exit(0);
 
