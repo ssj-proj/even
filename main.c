@@ -105,6 +105,12 @@ void main() {
     }
     init_vars(nobj_id,var_props,nobj_props[nobj_id],&nvar);
     display_vars_props(nvar[nobj_id],nobj_props[nobj_id]);
+    //malloc locks - on lock for each neur for each of its array properties
+    (*locks).vars_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
+    (*locks).cons_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
+    (*locks).conids_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
+    (*locks).weights_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
+
   }
   struct behav_pool behaviors; 
   behaviors.behaviors = malloc(sizeof(behavior) * 1 );

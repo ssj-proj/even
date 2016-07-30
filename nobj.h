@@ -14,10 +14,10 @@ struct lock_group {
       Address to a 2 dimension array, not like the other 3 dimension arrays that hold multiple objs
       address to { [nobj id][neur_d] }
    */
-   pthread_t **weights_lock;
-   pthread_t **cons_lock;
-   pthread_t **conids_lock;
-   pthread_t **vars_lock;
+   pthread_mutex_t **weights_lock;
+   pthread_mutex_t **cons_lock;
+   pthread_mutex_t **conids_lock;
+   pthread_mutex_t **vars_lock;
 };
 struct obj_group {
   //TBI

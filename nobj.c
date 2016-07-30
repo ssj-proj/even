@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nobj.h"
+#include <pthread.h>
+
 typedef int bool;
 #define true 1
 #define false 0
@@ -342,14 +344,18 @@ void display_vars_props(double**vars,struct nobj_meta np) {
     }
   }
 }
+
 /* Stim func - the neur_to is the one this is executing this func */
 void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool (*bp),unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props, struct lock_group *locks) {
 //(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
   //PRE
   printf("behviors index: %u\n",nobj[neur_to][0]);
   (*bp).behaviors[ nobj[neur_to][0]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props,locks);//PRE
-  
+
+  pthread_mutex_lock( &((*(*locks).vars_lock)[neur_to]) );//lock the var array of neur_to neur
   vars[neur_to][0]+= (stim * weights[neur_to][conid] );
+  pthread_mutex_unlock( &((*(*locks).vars_lock)[neur_to]) );//unlock the var array of neur_to neur
+
   //Thresh
   if(  (*bp).threshholds[ nobj[neur_to][1]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props,locks) == 0 ) {
 
@@ -363,8 +369,11 @@ void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, doub
 }
 void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim_amount, struct behav_pool *bp,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props, struct lock_group *locks) {
   neur_from = neur_to;
-  int num_to_send=cons[neur_from][0];
+  int num_to_send;
   int i=1;
+//to lock
+   num_to_send=cons[neur_from][0];
+  
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
   for(i =1; i < num_to_send;++i) {
 
