@@ -39,9 +39,9 @@ struct obj_group {
   pre,fire and post are of type behav, these meant to modify neur vars
   thresh determines what causes neur to fire
 */
-typedef void (*behavior)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props, struct lock_group *locks) ;
+typedef void (*behavior)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */) ;
 typedef int (*threshhold)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
-   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props, struct lock_group *locks);
+   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */);
 struct behav_pool {
   behavior *behaviors;
   threshhold *threshholds;
@@ -70,9 +70,9 @@ void display_vars_props(double **vars,struct nobj_meta np);
 void init_locks(struct nobj_meta obj_prop, pthread_t **);
 
 //nobject id, from, to, conid (index in weights array of receiving neur), stim
-void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props, struct lock_group *locks);
+void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */);
 
-void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props, struct lock_group *locks);
+void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */);
 
 
 #endif

@@ -346,28 +346,28 @@ void display_vars_props(double**vars,struct nobj_meta np) {
 }
 
 /* Stim func - the neur_to is the one this is executing this func */
-void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool (*bp),unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props, struct lock_group *locks) {
+void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool (*bp),unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */) {
 //(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
   //PRE
   printf("behviors index: %u\n",nobj[neur_to][0]);
-  (*bp).behaviors[ nobj[neur_to][0]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props,locks);//PRE
+  (*bp).behaviors[ nobj[neur_to][0]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props/* ,locks */);//PRE
 
-  pthread_mutex_lock( &((*(*locks).vars_lock)[neur_to]) );//lock the var array of neur_to neur
+ // pthread_mutex_lock( &((*(*locks).vars_lock)[neur_to]) );//lock the var array of neur_to neur
   vars[neur_to][0]+= (stim * weights[neur_to][conid] );
-  pthread_mutex_unlock( &((*(*locks).vars_lock)[neur_to]) );//unlock the var array of neur_to neur
+  //pthread_mutex_unlock( &((*(*locks).vars_lock)[neur_to]) );//unlock the var array of neur_to neur
 
   //Thresh
-  if(  (*bp).threshholds[ nobj[neur_to][1]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props,locks) == 0 ) {
+  if(  (*bp).threshholds[ nobj[neur_to][1]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props/* ,locks */) == 0 ) {
 
-    (*bp).behaviors[ nobj[neur_to][2]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props,locks);
+    (*bp).behaviors[ nobj[neur_to][2]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props/* ,locks */);
 
   } else { //POST
 
-    (*bp).behaviors[ nobj[neur_to][3]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props,locks);
+    (*bp).behaviors[ nobj[neur_to][3]  ](neur_from,neur_to,conid,stim,nobj,cons,conids,weights,vars,nobj_props/* ,locks */);
 
   }
 }
-void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim_amount, struct behav_pool *bp,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props, struct lock_group *locks) {
+void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim_amount, struct behav_pool *bp,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */) {
   neur_from = neur_to;
   int num_to_send;
   int i=1;
@@ -377,7 +377,7 @@ void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int 
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
   for(i =1; i < num_to_send;++i) {
 
-     stim(neur_from, cons[neur_from][i],conids[neur_from][i], vars[neur_from][2], bp, nobj,cons,conids,weights,vars,nobj_props,locks);
+     stim(neur_from, cons[neur_from][i],conids[neur_from][i], vars[neur_from][2], bp, nobj,cons,conids,weights,vars,nobj_props/* ,locks */);
 
      /* LOH 7-22-16 
         everything except (unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim) should be pointer 
