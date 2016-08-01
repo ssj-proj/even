@@ -8,6 +8,8 @@ struct nobj_meta{
   unsigned int num_of_cons;
   unsigned int num_of_con_properties;
   unsigned int num_of_var_properties;
+
+  unsigned int time;//increments 1 per nobj input set - resets to 0 when limit is reached
 };
 struct lock_group {
    /*
@@ -32,16 +34,28 @@ struct obj_group {
   double  ***weights;
   double  ***vars;
 };
-
+//shorthand for all the stim parameters - tbi everywhere
+struct stim_param {
+  unsigned int neur_from;
+  unsigned int neur_to;
+  unsigned int conid;
+  double stim;
+  struct behav_pool *bp;
+  unsigned int**nobj;
+  unsigned int**cons;
+  unsigned int**conids;
+  double**weights;
+  double**vars;
+  struct nobj_meta *nobj_props;
+};
 
 //got rid of weight func
 /*
   pre,fire and post are of type behav, these meant to modify neur vars
   thresh determines what causes neur to fire
 */
-typedef void (*behavior)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */) ;
-typedef int (*threshhold)(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,
-   unsigned int**nobj,unsigned int**cons,unsigned int**conids,double**weights,double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */);
+typedef void (*behavior)(struct stim_param *sp) ;
+typedef int (*threshhold)(struct stim_param *sp);
 struct behav_pool {
   behavior *behaviors;
   threshhold *threshholds;
@@ -70,9 +84,9 @@ void display_vars_props(double **vars,struct nobj_meta np);
 void init_locks(struct nobj_meta obj_prop, pthread_t **);
 
 //nobject id, from, to, conid (index in weights array of receiving neur), stim
-void stim(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */);
+void stim(struct stim_param *sp);
 
-void fire_downstream(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool*,unsigned int**nobj,unsigned int**cons,unsigned int**conids, double**weights, double**vars, struct nobj_meta *nobj_props/* struct lock_group *locks */);
+void fire_downstream(struct stim_param *sp);
 
 
 #endif
