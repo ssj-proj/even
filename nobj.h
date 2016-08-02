@@ -8,8 +8,8 @@ struct nobj_meta{
   unsigned int num_of_cons;
   unsigned int num_of_con_properties;
   unsigned int num_of_var_properties;
-
   unsigned int time;//increments 1 per nobj input set - resets to 0 when limit is reached
+  unsigned int nobj_id;//TODO - set this value
 };
 struct lock_group {
    /*

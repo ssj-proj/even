@@ -6,7 +6,7 @@
 
 //hols data to be passed to workers
 struct contract {
-  char fired; //if not 0 - exit thread
+  int fired; //if not 0 - exit thread
   /*
     state
     -----
@@ -16,14 +16,17 @@ struct contract {
     3: ready - only here if last job push set jobs_in_queue > 0. Loops continiously without sleep.
   */
   char state;
-  char jobs_in_queue;//when manager thread see worker is sleeping, it will place next job in worker,
-    //if manager has more than 1 job to place, worker will not sleep after job is done. 0 = no jobs in queue (last job)
   unsigned int time_to_sleep;//after each empty check of work queue, sleep this many microseconds (1 millionth of a sec)
 
+  //should be thread safe by design. Element at current_job is being updated to worker
+  //Element at pool_size is being updated by manager
+  //if current_job = pool_size -> work_queue empty. Set both to 0
   /*Params to work on */
-  struct *stim_param param;//be sure to free when job is done
-  
-}
+  struct stim_param** work_pool[100];//todo - 100 probably needs to change
+  int pool_size;//index of last pool work s(total size of work)
+  int current_job;//index of job being currently worked on
 
+};
+void wait_for_threads() ;
 
 #endif
