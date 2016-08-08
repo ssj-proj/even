@@ -119,18 +119,18 @@ void main() {
   behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
   behaviors.threshholds[0]=&t1;
   //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
-  struct stim_param param;
-  param.neur_from=0;
-  param.neur_to=1;
-  param.conid=0;
-  param.stim=10;
-  param.bp=&behaviors;
-  param.nobj=nobjs[0];  
-  param.cons=cons[0];
-  param.conids=conids[0];
-  param.weights=weights[0];
-  param.vars=nvar[0];
-  param.nobj_props=&(nobj_props[0]);
+  struct stim_param *param = malloc(sizeof(struct stim_param));
+  (*param).neur_from=0;
+  (*param).neur_to=1;
+  (*param).conid=0;
+  (*param).stim=10;
+  (*param).bp=&behaviors;
+  (*param).nobj=nobjs[0];  
+  (*param).cons=cons[0];
+  (*param).conids=conids[0];
+  (*param).weights=weights[0];
+  (*param).vars=nvar[0];
+  (*param).nobj_props=&(nobj_props[0]);
 
 
   init_workers(4);

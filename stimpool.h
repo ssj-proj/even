@@ -6,6 +6,7 @@
 
 //hols data to be passed to workers
 struct contract {
+  int id;
   int fired; //if not 0 - exit thread
   /*
     state
@@ -22,11 +23,13 @@ struct contract {
   //Element at pool_size is being updated by manager
   //if current_job = pool_size -> work_queue empty. Set both to 0
   /*Params to work on */
-  struct stim_param** work_pool[100];//todo - 100 probably needs to change
+  //todo - 100 probably needs to change
   int pool_size;//index of last pool work s(total size of work)
   int current_job;//index of job being currently worked on
 
 };
 void wait_for_threads() ;
+void manager(struct stim_param **p);
+void * worker_thread(void *contract_v);
 
 #endif
