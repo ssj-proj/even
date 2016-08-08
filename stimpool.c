@@ -50,9 +50,9 @@ void * worker_thread(void *contract_v){
     } else{}
 
     if((*contract).pool_size==(*contract).current_job) {//last job in queue
-      printf("empty queue... %\n");
-      //usleep((*contract).time_to_sleep);
-      usleep(500000);
+      //printf("empty queue... %\n");
+      usleep((*contract).time_to_sleep);
+      //usleep(500000);
     }
   }
 }
@@ -61,9 +61,9 @@ void * worker_thread(void *contract_v){
 void manager(struct stim_param **par) {
   struct stim_param *p = (*par);
   int worker = (*(*p).nobj_props).nobj_id  % num_of_workers;
-  printf(" worker id: %u\n",worker);
-  printf(" pool: %d curjob: %d\n",contracts[worker].pool_size,contracts[worker].current_job);
-  if(contracts[worker].pool_size==max_queue) {
+ // printf(" worker id: %u\n",worker);
+ // printf(" pool: %d curjob: %d\n",contracts[worker].pool_size,contracts[worker].current_job);
+  if(contracts[worker].pool_size<max_queue) {
     if(contracts[worker].pool_size+1==contracts[worker].current_job) {
       printf("  OBJ ID: %u has a backed up work queue, dropping job!!!Sleeping current thread to slow down\n",(*(*p).nobj_props).nobj_id );
       usleep(1000000);
@@ -71,7 +71,7 @@ void manager(struct stim_param **par) {
       if(p != NULL) { 
         printf("    Setting work...\n");
         work_pool[worker][contracts[worker].pool_size+1]=par;
-        usleep(50000);
+        //usleep(50000);
         contracts[worker].pool_size++;
       } else {
         printf("  Manager: null work\n");
@@ -84,8 +84,7 @@ void manager(struct stim_param **par) {
       usleep(1000000);
     } else {
       contracts[worker].pool_size=0;
-
-        work_pool[worker][contracts[worker].pool_size]=par;
+      work_pool[worker][contracts[worker].pool_size]=par;
     }
   }
   

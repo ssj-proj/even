@@ -350,7 +350,7 @@ void stim(struct stim_param *sp) {
 //(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
   //PRE
 
-  printf("behviors index: %u\n",(*sp).nobj[(*sp).neur_to][0]);
+  //printf("behviors index: %u\n",(*sp).nobj[(*sp).neur_to][0]);
 
   (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][0]  ](sp);//PRE
 
@@ -361,7 +361,7 @@ void stim(struct stim_param *sp) {
   //Thresh
   if(  (*(*sp).bp).threshholds[ (*sp).nobj[(*sp).neur_to][1]  ](sp) == 0 ) {
 
-    (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][2]  ](sp);
+    fire_downstream(sp);
 
   } else { //POST
 
@@ -370,24 +370,17 @@ void stim(struct stim_param *sp) {
   }
 }
 void fire_downstream(struct stim_param *sp) {
-  ((*sp).neur_from) = ((*sp).neur_to);
+  printf("FIRE!!!!!\n");
+  ((*sp).neur_from) = ((*sp).neur_to);//last stimmed neur is now firing to
+
   int num_to_send;
   int i=1;
-//to lock
-   num_to_send=(*sp).cons[(*sp).neur_from][0];
+
+  num_to_send=(*sp).cons[(*sp).neur_from][0];
   
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
   for(i =1; i < num_to_send;++i) {
-
-     stim(sp);//needs to be placed in thread pool
-
-     /* Note
-        everything except (unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim) should be pointer 
-          since stim functions be in a long or endless loop and will be modified by outside functions
-     */
-    
-
-
+     manager(&sp);//put work on top of work queue
   }
 }
 

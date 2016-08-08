@@ -66,7 +66,7 @@ void main() {
   nvar        =malloc( num_of_objs * sizeof(double**));
   nvar_lock=malloc( num_of_objs * sizeof(pthread_t*));
   struct lock_group *locks = malloc(sizeof(struct lock_group));
-
+  struct stim_param **param = malloc(sizeof(*param)*num_of_objs);//used for thread distribution
    
   if(weights==NULL) {
     printf("Error: failed to malloc weights\n");
@@ -82,6 +82,7 @@ void main() {
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
     file="./obj/obj_0.des";
     printf("   INIT OBJECT %u\n",nobj_id);
+    param[nobj_id] = malloc(sizeof(struct stim_param));
 
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
@@ -105,7 +106,7 @@ void main() {
       exit(-1);
     }
     init_vars(nobj_id,var_props,nobj_props[nobj_id],&nvar);
-    display_vars_props(nvar[nobj_id],nobj_props[nobj_id]);
+    //display_vars_props(nvar[nobj_id],nobj_props[nobj_id]);
     //malloc locks - on lock for each neur for each of its array properties
     (*locks).vars_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
     (*locks).cons_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
@@ -119,23 +120,29 @@ void main() {
   behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
   behaviors.threshholds[0]=&t1;
   //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
-  struct stim_param *param = malloc(sizeof(struct stim_param));
-  (*param).neur_from=0;
-  (*param).neur_to=1;
-  (*param).conid=0;
-  (*param).stim=10;
-  (*param).bp=&behaviors;
-  (*param).nobj=nobjs[0];  
-  (*param).cons=cons[0];
-  (*param).conids=conids[0];
-  (*param).weights=weights[0];
-  (*param).vars=nvar[0];
-  (*param).nobj_props=&(nobj_props[0]);
 
+  
 
-  init_workers(4);
+ 
+  int i =0; 
+  init_workers(num_of_objs);
+  for(i;i<num_of_objs;++i){
+  (*param[i]).neur_from=0;
+  (*param[i]).neur_to=1;
+  (*param[i]).conid=0;
+  (*param[i]).stim=100;
+  (*param[i]).bp=&behaviors;
+  (*param[i]).nobj=nobjs[i];  
+  (*param[i]).cons=cons[i];
+  (*param[i]).conids=conids[i];
+  (*param[i]).weights=weights[i];
+  (*param[i]).vars=nvar[i];
+  (*param[i]).nobj_props=&(nobj_props[i]);
+  manager(&param[i]);
+  }
+ 
   //stim(&param);
-  manager(&param);
+  
   wait_for_threads();
   exit(0);
 

@@ -45,6 +45,14 @@ struct stim_param {
   unsigned int**cons;
   unsigned int**conids;
   double**weights;
+  /* Vars index key
+    0 - stim
+    1 - thresh
+    2 - fire strength
+    3 - neur type
+    4 - input index (opt)
+    5 - output index (opt)
+  */
   double**vars;
   struct nobj_meta *nobj_props;
 };
