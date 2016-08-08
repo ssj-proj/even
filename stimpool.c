@@ -9,7 +9,7 @@ static pthread_t *workers;
 static struct contract *contracts;
 static int num_of_workers=4;
 static int max_queue=100;
-struct stim_param ****work_pool;
+struct stim_param **work_pool;
 
 void * worker_thread(void *contract_v){
 
@@ -28,23 +28,11 @@ void * worker_thread(void *contract_v){
         (*contract).current_job++;
       }
 
-
-
-      if((contract)==NULL) {
-        printf("null contract\n");
-        //exit(-1);
-      }
       printf("THREAD!!:%d\n",(*contract).current_job);
       //work
-    
-     if((*work_pool[(*contract).id][(*contract).current_job])==NULL) {
-      // if(1==0){
-        printf("  Bad job!!\n");//exit(-1);
-        continue;
-      }
-      stim((*work_pool[(*contract).id][(*contract).current_job]));
+
+      stim(&(work_pool[(*contract).id][(*contract).current_job]));
       //free queue spot
-      free(  *(work_pool[(*contract).id][(*contract).current_job])  );
  
     
     } else{}
@@ -58,8 +46,7 @@ void * worker_thread(void *contract_v){
 }
 
 
-void manager(struct stim_param **par) {
-  struct stim_param *p = (*par);
+void manager(struct stim_param *p) {
   int worker = (*(*p).nobj_props).nobj_id  % num_of_workers;
  // printf(" worker id: %u\n",worker);
  // printf(" pool: %d curjob: %d\n",contracts[worker].pool_size,contracts[worker].current_job);
@@ -70,7 +57,7 @@ void manager(struct stim_param **par) {
     } else {
       if(p != NULL) { 
         printf("    Setting work...\n");
-        work_pool[worker][contracts[worker].pool_size+1]=par;
+         copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size+1]);
         //usleep(50000);
         contracts[worker].pool_size++;
       } else {
@@ -84,7 +71,7 @@ void manager(struct stim_param **par) {
       usleep(1000000);
     } else {
       contracts[worker].pool_size=0;
-      work_pool[worker][contracts[worker].pool_size]=par;
+      copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size]);
     }
   }
   
@@ -98,7 +85,7 @@ void init_workers(int num) {
   num_of_workers=num; 
   workers=malloc(sizeof(workers[0])*num);
   contracts=malloc(sizeof(contracts[0])*num);
-  work_pool=malloc(sizeof(struct stim_param***)*num);//alloc pool for each all threads
+  work_pool=malloc(sizeof(struct stim_param*)*num);//alloc pool for each all threads
   for(i;i<num;++i) {
     j=0;
     contracts[i].id=i;
@@ -106,9 +93,9 @@ void init_workers(int num) {
     contracts[i].pool_size=-1;
     contracts[i].current_job=-1;
     contracts[i].time_to_sleep=50000;
-    work_pool[i]=malloc(sizeof(struct stim_param**)*max_queue);//alloc space for job
+    work_pool[i]=malloc(sizeof(struct stim_param)*max_queue);//alloc space for job
     for(j;j<max_queue;++j) {
-      work_pool[i][j]=malloc(sizeof(struct stim_param**));
+      //work_pool[i][j]=malloc(sizeof(struct stim_param**));
     }
     pthread_create(&workers[i],NULL,worker_thread,&contracts[i]);
   }

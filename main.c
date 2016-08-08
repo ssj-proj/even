@@ -138,7 +138,7 @@ void main() {
   (*param[i]).weights=weights[i];
   (*param[i]).vars=nvar[i];
   (*param[i]).nobj_props=&(nobj_props[i]);
-  manager(&param[i]);
+  manager(param[i]);
   }
  
   //stim(&param);

@@ -344,7 +344,20 @@ void display_vars_props(double**vars,struct nobj_meta np) {
     }
   }
 }
+void copy_stim_param(struct stim_param from, struct stim_param *to) {
+  (*to).neur_from=from.neur_from;
+  (*to).neur_to=from.neur_to;
+  (*to).conid=from.conid;
+  (*to).stim=from.stim;
+  (*to).bp=from.bp;
+  (*to).nobj=from.nobj;
+  (*to).cons=from.cons;
+  (*to).conids=from.conids;
+  (*to).weights=from.weights;
+  (*to).vars=from.vars;
+  (*to).nobj_props=from.nobj_props;
 
+}
 /* Stim func - the neur_to is the one this is executing this func */
 void stim(struct stim_param *sp) {
 //(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
@@ -371,16 +384,19 @@ void stim(struct stim_param *sp) {
 }
 void fire_downstream(struct stim_param *sp) {
   printf("FIRE!!!!!\n");
-  ((*sp).neur_from) = ((*sp).neur_to);//last stimmed neur is now firing to
+  struct stim_param send_param;
+  copy_stim_param(*sp,&send_param);
+
+  send_param.neur_from = send_param.neur_to;//last stimmed neur is now firing to
 
   int num_to_send;
   int i=1;
 
-  num_to_send=(*sp).cons[(*sp).neur_from][0];
+  num_to_send=send_param.cons[send_param.neur_from][0];
   
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
   for(i =1; i < num_to_send;++i) {
-     manager(&sp);//put work on top of work queue
+     manager(&send_param);//put work on top of work queue
   }
 }
 

@@ -28,8 +28,9 @@ struct contract {
   int current_job;//index of job being currently worked on
 
 };
+
 void wait_for_threads() ;
-void manager(struct stim_param **p);
+void manager(struct stim_param *p);
 void * worker_thread(void *contract_v);
 
 #endif
