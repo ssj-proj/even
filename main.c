@@ -34,7 +34,7 @@ void main() {
     conid is associated to sending neur
     conid is used by sending neur, sent to receiving neur along with sitm upon firing
     receiving neur using conid as an index to its weights array
-    these are 'dynimcally' generated at load time and not specified in confi files
+    these are 'dynimcally' generated at load time and not specified in config files
   */
   //[object id][neur id][to con conid]
   unsigned int ***conids;//will change during runtime
@@ -97,7 +97,7 @@ void main() {
       exit(-1);
     }
     init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights); 
-    //display_con_props(nobj_id,cons,conids,weights,nobj_props);
+    display_con_props(nobj_id,cons,conids,weights,nobj_props);
 
    file="./obj/obj_0.var";
     double **var_props = parse_vars_file(file,&nobj_props[nobj_id]);
@@ -127,10 +127,10 @@ void main() {
   int i =0; 
   init_workers(num_of_objs);
   for(i;i<num_of_objs;++i){
-  (*param[i]).neur_from=0;
-  (*param[i]).neur_to=1;
+  (*param[i]).neur_from=99;
+  (*param[i]).neur_to=0;
   (*param[i]).conid=0;
-  (*param[i]).stim=100;
+  (*param[i]).stim=131;
   (*param[i]).bp=&behaviors;
   (*param[i]).nobj=nobjs[i];  
   (*param[i]).cons=cons[i];

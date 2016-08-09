@@ -368,6 +368,7 @@ void stim(struct stim_param *sp) {
   (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][0]  ](sp);//PRE
 
  // pthread_mutex_lock( &((*(*locks).vars_lock)[neur_to]) );//lock the var array of neur_to neur
+  //printf("weight: %lf\n",(*sp).weights[(*sp).neur_to][(*sp).conid]);
   (*sp).vars[(*sp).neur_to][0]+= ((*sp).stim * (*sp).weights[(*sp).neur_to][(*sp).conid] );
   //pthread_mutex_unlock( &((*(*locks).vars_lock)[neur_to]) );//unlock the var array of neur_to neur
 
@@ -383,20 +384,20 @@ void stim(struct stim_param *sp) {
   }
 }
 void fire_downstream(struct stim_param *sp) {
-  printf("FIRE!!!!!\n");
-  struct stim_param send_param;
-  copy_stim_param(*sp,&send_param);
 
-  send_param.neur_from = send_param.neur_to;//last stimmed neur is now firing to
 
-  int num_to_send;
+  (*sp).neur_from = (*sp).neur_to;//last stimmed neur is now firing to
+  (*sp).stim= (*sp).vars[(*sp).neur_from][2];//set outgoing stim to neur strength
+
   int i=1;
-
-  num_to_send=send_param.cons[send_param.neur_from][0];
+  int num_to_send=(*sp).cons[(*sp).neur_from][0];
   
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
-  for(i =1; i < num_to_send;++i) {
-     manager(&send_param);//put work on top of work queue
+  for(i; i < num_to_send+1;++i) {
+     (*sp).conid=(*sp).conids[(*sp).neur_from][i];
+     (*sp).neur_to=(*sp).cons[(*sp).neur_from][i];
+     printf("fire to/from %u/%u s:%lf\n",(*sp).neur_from,(*sp).neur_to,(*sp).stim);
+     manager(sp);//put work on top of work queue
   }
 }
 
