@@ -3,6 +3,8 @@
 #include "nobj.h"
 #include "behaviors.h"
 #include "stimpool.h"
+#include "env_api.h"
+#include "env_01/random_env.h"
 #include <unistd.h>
 
 unsigned int** create_props(int neurs, int neur_props) {
@@ -20,6 +22,9 @@ unsigned int** create_props(int neurs, int neur_props) {
 }
 void main() {
   int num_of_objs=3;
+  //also dictates number of buffer arrays-be sure to pass this around where neccessary
+  //(ie: stim_pool and env):  
+  int num_of_threads=2;
   struct nobj_meta *nobj_props;  
   /*   
     NOBJ VARS
@@ -122,28 +127,47 @@ void main() {
   //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
 
   
+  init_workers(num_of_threads);//init thread pool
+ 
 
- 
+  /* 
+    Testing
+  */
   int i =0; 
-  init_workers(num_of_objs);
-  for(i;i<num_of_objs;++i){
-  (*param[i]).neur_from=99;
-  (*param[i]).neur_to=0;
-  (*param[i]).conid=0;
-  (*param[i]).stim=131;
-  (*param[i]).bp=&behaviors;
-  (*param[i]).nobj=nobjs[i];  
-  (*param[i]).cons=cons[i];
-  (*param[i]).conids=conids[i];
-  (*param[i]).weights=weights[i];
-  (*param[i]).vars=nvar[i];
-  (*param[i]).nobj_props=&(nobj_props[i]);
-  manager(param[i]);
-  }
+  struct env_control *env = init_envapi(num_of_threads,100);
  
-  //stim(&param);
-  
+  for(i;i<num_of_objs;++i){
+    (*param[i]).neur_from=99;
+    (*param[i]).neur_to=0;
+    (*param[i]).conid=0;
+    (*param[i]).stim=131;
+    (*param[i]).bp=&behaviors;
+    (*param[i]).nobj=nobjs[i];  
+    (*param[i]).cons=cons[i];
+    (*param[i]).conids=conids[i];
+    (*param[i]).weights=weights[i];
+    (*param[i]).vars=nvar[i];
+    (*param[i]).nobj_props=&(nobj_props[i]);
+ //   manager(param[i]);//drop work into thread pool
+  }
+   pthread_t env_t;
+   int *t = malloc(sizeof(int));
+   pthread_create(&env_t,NULL,main_loop,t);
+
+
+  printf("env: num_of_works: %d, queue_max: %d \n", env->num_of_clients,env->queue_max);
+  while(1) {
+	set_output(0,0,123);
+ 	get_next_output(0);
+        usleep(50000);
+  }
+
   wait_for_threads();
+ 
+  /*
+    End Testing
+  */
+
   exit(0);
 
 }

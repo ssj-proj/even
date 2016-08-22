@@ -77,6 +77,7 @@ void manager(struct stim_param *p) {
 void wait_for_threads() {
   pthread_join(workers[0],NULL);
 }
+// (num_of_threads to make)
 void init_workers(int num) {
   int i = 0;
   int j =0;
