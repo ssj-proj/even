@@ -47,9 +47,12 @@ struct job {
    client should keep pointer to this to set appropriate vars
 */
 struct env_control{
-  int num_of_clients;
-  int queue_max;
+  //number of input streams (from env to objs) - ostream # is arbritrary and handled by env
+  int num_of_istream;
 
+  //number of threads the obj work pool has. Each thread has its own work queue
+  int num_of_clients;
+  int queue_max;//max number of events in each work queue
   //must of seperate array for each submitting thread to avoid segfault
   struct job **work_queue;//[num_of_client_threads][queue];
   //array of int

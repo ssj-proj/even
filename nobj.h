@@ -88,6 +88,12 @@ void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****var
 void free_vars(int no, struct nobj_meta obj_prop, double ****nvar);
 void display_vars_props(double **vars,struct nobj_meta np);
 
+int parse_io_file(char * file, struct nobj_meta *nobj_props, int ***inputs, int ***outputs);
+void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);
+void free_io(int no, struct nobj_meta obj_prop, double ****nvar);
+void display_io_props(double **vars,struct nobj_meta np);
+
+
 //accepts address to a single obj , not the entire array
 void init_locks(struct nobj_meta obj_prop, pthread_t **);
 

@@ -1,10 +1,15 @@
+/*
+  int must be 32 bit
+  long must be 64 bit
+*/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nobj.h"
 #include "behaviors.h"
 #include "stimpool.h"
 #include "env_api.h"
-#include "env_01/random_env.h"
+#include "env_c_random/random_env.h"
 #include <unistd.h>
 
 unsigned int** create_props(int neurs, int neur_props) {
@@ -55,7 +60,19 @@ void main() {
   double ***nvar;//will change during runtime
   pthread_t **nvar_lock;
 
+  /*
+    [env_id][stream_id]=value of stream id X for env X
+  */
+  double **istream;
 
+  /*
+    [env_id][stream_id][index]=[long nobj_id|neur_id]:bit shifted values of the   
+      nobj_id and the neur id
+    ie: nobj_id = value>> 32
+      : neur_id = value&0Xffffffff (32 bit mask)
+     
+  */
+  long ***istream_clients;
   /*   
     END NOBJ VARS
   */
@@ -80,12 +97,28 @@ void main() {
 
 
 
-  char *file;
+  
   unsigned int **props;
   unsigned int nobj_id=0;
+  char *obj_file_base="./obj/obj_";
+  char *des_extension=".des";
+  char *con_extension=".con";
+  char *var_extension=".var";
 
+  char *objnum=malloc(4);
+  char *file_without_ext=malloc(255);
+  char *file=malloc(255);;
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
-    file="./obj/obj_0.des";
+    memset(file,0,sizeof(file));
+    memset(objnum,0,sizeof(file));
+    memset(file_without_ext,0,sizeof(file));
+
+    sprintf(objnum,"%d",nobj_id);
+    strcat(file_without_ext,obj_file_base);
+    strcat(file_without_ext,objnum);
+    
+    strcpy(file,file_without_ext);
+    strcat(file,des_extension);
     printf("   INIT OBJECT %u\n",nobj_id);
     param[nobj_id] = malloc(sizeof(struct stim_param));
 
@@ -94,7 +127,8 @@ void main() {
     //display_neur_props(nobj_id,nobjs,nobj_props);
     //free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
 
-    file="./obj/obj_0.con";
+    strcpy(file,file_without_ext);
+    strcat(file,con_extension);
     unsigned int **con_props = parse_con_file(file,&nobj_props[nobj_id]);
     nobj_props[nobj_id].nobj_id=nobj_id;
     if(con_props==NULL) {
@@ -104,7 +138,8 @@ void main() {
     init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights); 
     display_con_props(nobj_id,cons,conids,weights,nobj_props);
 
-   file="./obj/obj_0.var";
+    strcpy(file,file_without_ext);
+    strcat(file,var_extension);
     double **var_props = parse_vars_file(file,&nobj_props[nobj_id]);
     if(con_props==NULL) {
       printf("ERROR parsing var file.\n");
@@ -140,7 +175,7 @@ void main() {
     (*param[i]).neur_from=99;
     (*param[i]).neur_to=0;
     (*param[i]).conid=0;
-    (*param[i]).stim=131;
+    (*param[i]).stim=199;
     (*param[i]).bp=&behaviors;
     (*param[i]).nobj=nobjs[i];  
     (*param[i]).cons=cons[i];
@@ -148,25 +183,38 @@ void main() {
     (*param[i]).weights=weights[i];
     (*param[i]).vars=nvar[i];
     (*param[i]).nobj_props=&(nobj_props[i]);
- //   manager(param[i]);//drop work into thread pool
+    manager(param[i]);//drop work into thread pool
   }
    pthread_t env_t;
+   
+   init_env(num_of_objs,env);
    int *t = malloc(sizeof(int));
    pthread_create(&env_t,NULL,main_loop,t);
 
 
   printf("env: num_of_works: %d, queue_max: %d \n", env->num_of_clients,env->queue_max);
-  while(1) {
-	set_output(0,0,123);
- 	get_next_output(0);
-        usleep(50000);
+  int c;
+  for(c=0;c<100;c++) 
+  {
+    for(i=0;i<num_of_objs;++i) {
+	set_output(i,0,c/100.0+i);
+        usleep(1);
+    }
   }
-
+  printf("\nend\n");
   wait_for_threads();
  
   /*
     End Testing
   */
+  /* Env Psuedo */
+  //loop inf
+    //loop all envs [num_of_envs]
+      //loop at istreams double istreams [num_of_envs][istream]
+        //set d as value of istream
+        //loop all clients of istream int istream_clients[num_of_envs][istream][clients]
+          //set d as input to client
+  /* End Psuedo */
 
   exit(0);
 

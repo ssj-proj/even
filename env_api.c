@@ -28,9 +28,11 @@ struct job* get_next_output(int queue_id) {
   int cj = client_work.current_job[queue_id];
   int ql = client_work.queue_limit[queue_id];
   if(cj==ql) {//no work
+    printf("no work\n");
     return NULL;
-  } else if(cj<ql&&cj+1!=client_work.queue_max) { //next job
+  } else if(cj+1!=ql&&cj+1!=client_work.queue_max) { //next job
     cj++;
+    //printf("next job %d\n",cj);
   } else if(cj+1==client_work.queue_max) { //rotate
     cj=0;
   }
@@ -52,14 +54,15 @@ void set_output(int nobj_id,int stream_id,double data) {
     cj=0;
   } else if( (cj+1 == client_work.current_job[arr_id] ) || 
     ( cj+1 == client_work.queue_max && client_work.current_job[arr_id] == 0 ) ) {//queue backed up
-    printf("queue backed up, dropping request at job#:%d\n",cj+1);
+    printf("Env queue backed up, dropping request at job#:%d\n",cj+1);
     return;
   }
   //set work
-   printf("setting env work for arr_id: %d, at QLjob#: %d  CJjob:%d\n",nobj_id,cj,client_work.current_job[arr_id]);
+   
   client_work.work_queue[arr_id][cj].sid=stream_id;
   client_work.work_queue[arr_id][cj].dat=data;
-  client_work.queue_limit[arr_id]++;
+  client_work.queue_limit[arr_id]=cj;
+  // printf("setting env work for arr_id: %d, at QLjob#: %d  CJjob:%d\n",nobj_id,cj,client_work.current_job[arr_id]);
 }
 
 void free_envapi();//tbi

@@ -91,7 +91,7 @@ void init_workers(int num) {
     contracts[i].fired=0;
     contracts[i].pool_size=-1;
     contracts[i].current_job=-1;
-    contracts[i].time_to_sleep=50000;
+    contracts[i].time_to_sleep=1;
     work_pool[i]=malloc(sizeof(struct stim_param)*max_queue);//alloc space for job
     for(j;j<max_queue;++j) {
       //work_pool[i][j]=malloc(sizeof(struct stim_param**));

@@ -343,7 +343,33 @@ void display_vars_props(double**vars,struct nobj_meta np) {
       
     }
   }
+} 
+int parse_i_file(char * file, double **istreams, int ***istream_clients) {
+/*
+   LOH - parse i file that is tied to env and not obj
+
+*/
+
 }
+void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);
+void free_io(int no, struct nobj_meta obj_prop, double ****nvar);
+void display_io_props(double **vars,struct nobj_meta np);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void copy_stim_param(struct stim_param from, struct stim_param *to) {
   (*to).neur_from=from.neur_from;
   (*to).neur_to=from.neur_to;
@@ -358,6 +384,7 @@ void copy_stim_param(struct stim_param from, struct stim_param *to) {
   (*to).nobj_props=from.nobj_props;
 
 }
+
 /* Stim func - the neur_to is the one this is executing this func */
 void stim(struct stim_param *sp) {
 //(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
