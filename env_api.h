@@ -73,6 +73,37 @@ void set_output(int nobj_id,int stream_id, double dat);//adds to work queue - fr
 struct job* get_next_output(int queue_id);//gets next job in queue - from env side
 double get_input(int stream_id);//grabs from queue - from nobj_side
 
+/*
+   LOH 9-1-16 - implement below functions
+
+*/
+/* 
+  returns the value at the particular stream_id
+  to be sent down to an obj
+*/
+double get_istream(int env,int stream_id);
+/*
+  returns total number of envs
+  all env ids should be sequential 
+*/
+int get_max_envid();
+/*
+  returns number of ids.
+  Since all stream_ids should be sequential(no missing numbers)
+  return a number should imply all valid ids ( 0 - n)
+*/
+int get_max_istreamids(int env);
+
+/*
+returns int number of clients or <0 on failure
+ params(pointer array to be malloc inside this function);
+caller responsible for freeing
+*/
+int get_istream_clients(int env, int stream_id,int *clients);
+/*
+
+*/
+int create_env---//loh
 
 #endif
 
