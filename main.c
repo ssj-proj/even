@@ -208,12 +208,23 @@ void main() {
     End Testing
   */
   /* Env Psuedo */
+  /*
+    #only working on istreams currently
+      load settings from env to get total number of istream
+      load settings from env to get initial istream client max
+      each array has accompanying used max istream :/
+      create struct and management functions to manager input and output
+         from these streams.
+
+      load each obj in file, adjust istream array to make sure it fits. Grow istream array if needed :/
+  */
+   
   //loop inf
     //loop all envs [num_of_envs]
       //loop at istreams double istreams [num_of_envs][istream]
-        //set d as value of istream
-        //loop all clients of istream int istream_clients[num_of_envs][istream][clients]
-          //set d as input to client
+        //set var d = value of istream
+        //loop clients of istream istream_clients[num_of_envs][istream][clients] 
+          //set input to neur = d
   /* End Psuedo */
 
   exit(0);

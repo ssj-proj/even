@@ -1,3 +1,6 @@
+/*
+  tofix - nonexistant error checking for file formats
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "nobj.h"
@@ -344,12 +347,21 @@ void display_vars_props(double**vars,struct nobj_meta np) {
     }
   }
 } 
-int parse_i_file(char * file, double **istreams, int ***istream_clients) {
-/*
-   LOH - parse i file that is tied to env and not obj
+int parse_i_file(char * file, int ***istream_clients) {
+  FILE *fp;
+  fp=fopen(file,"rt");
+  char *buff=malloc(256);
 
-*/
+  int num_of_inputs=0;
+  int max_head=1,i=0;//only check for this num of header lines
+  char found=0;
+  while(i<max_head&&!found) {
+    if(getline(buff,256,fp)!=-1){
+      if(sscanf(buff,"num_of_inputs: %d"
 
+    }
+  }
+  
 }
 void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);
 void free_io(int no, struct nobj_meta obj_prop, double ****nvar);
