@@ -1,10 +1,13 @@
 /*
   tofix - nonexistant error checking for file formats
+  tofix - get rid of getline usage and replace with fgets
+
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include "nobj.h"
 #include <pthread.h>
+#include "env_api.h"
 
 typedef int bool;
 #define true 1
@@ -347,21 +350,49 @@ void display_vars_props(double**vars,struct nobj_meta np) {
     }
   }
 } 
-int parse_i_file(char * file, int ***istream_clients) {
+
+/*
+  must init istream_client array before running this
+  must know number of environments
+  must know number of streams in each environmnet
+  this can init clients portion of that array
+  
+
+*/
+int parse_i_file(char * file, struct istream_list *istreams) {
   FILE *fp;
   fp=fopen(file,"rt");
-  char *buff=malloc(256);
-
+  int buff_size=256;
+  char *buff=malloc(buff_size);
+  
   int num_of_inputs=0;
   int max_head=1,i=0;//only check for this num of header lines
   char found=0;
-  while(i<max_head&&!found) {
-    if(getline(buff,256,fp)!=-1){
-      if(sscanf(buff,"num_of_inputs: %d"
-
+  while(found<max_head&&i<100) {
+    if(fgets(buff,buff_size,fp)!= NULL){
+      if(sscanf(buff,"num_of_inputs: %d",num_of_inputs) > 0) {
+       found++;
+      } 
+      if(i==max_head) { //have max number of headers, exit loop
+        break;
+      }
+      i++;
     }
   }
+  printf("Number of inputs %d", num_of_inputs);//Complete this func
   
+  /*
+     parse body file, format of:
+       neur_id, env_id,stream_id
+  */
+  i=0;
+
+  for(i;i<num_of_inputs;++i) {
+    if(fgets(buff,buff_size,fp) != NULL) {
+
+    }
+
+  }
 }
 void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);
 void free_io(int no, struct nobj_meta obj_prop, double ****nvar);

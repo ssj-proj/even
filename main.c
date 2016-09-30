@@ -60,19 +60,7 @@ void main() {
   double ***nvar;//will change during runtime
   pthread_t **nvar_lock;
 
-  /*
-    [env_id][stream_id]=value of stream id X for env X
-  */
-  double **istream;
-
-  /*
-    [env_id][stream_id][index]=[long nobj_id|neur_id]:bit shifted values of the   
-      nobj_id and the neur id
-    ie: nobj_id = value>> 32
-      : neur_id = value&0Xffffffff (32 bit mask)
-     
-  */
-  long ***istream_clients;
+ 
   /*   
     END NOBJ VARS
   */
@@ -88,7 +76,9 @@ void main() {
   nvar        =malloc( num_of_objs * sizeof(double**));
   nvar_lock=malloc( num_of_objs * sizeof(pthread_t*));
   struct lock_group *locks = malloc(sizeof(struct lock_group));
-  struct stim_param **param = malloc(sizeof(*param)*num_of_objs);//used for thread distribution
+  
+  //used for neur thread distribution - stim parameters
+  struct stim_param **param = malloc(sizeof(*param)*num_of_objs);
    
   if(weights==NULL) {
     printf("Error: failed to malloc weights\n");
@@ -187,17 +177,22 @@ void main() {
   }
    pthread_t env_t;
    
-   init_env(num_of_objs,env);
-   int *t = malloc(sizeof(int));
-   pthread_create(&env_t,NULL,main_loop,t);
+   /*
+      to implement multiple envs, create array of void* function pointers
+      create array of ints to hold the states of each env
+      create a thread for each env
+   */
+   struct env_dat env_data;
+   init_env(num_of_objs,env,&env_data);//send control object to env
+   int *state = malloc(sizeof(int));
+   pthread_create(&env_t,NULL,main_loop,state);
 
 
   printf("env: num_of_works: %d, queue_max: %d \n", env->num_of_clients,env->queue_max);
   int c;
-  for(c=0;c<100;c++) 
-  {
+  for(c=0;c<100;c++) {
     for(i=0;i<num_of_objs;++i) {
-	set_output(i,0,c/100.0+i);
+	set_output(i,0,c/100.0+i,env);
         usleep(1);
     }
   }
@@ -211,9 +206,9 @@ void main() {
   /*
     #only working on istreams currently
       load settings from env to get total number of istream
-      load settings from env to get initial istream client max
-      each array has accompanying used max istream :/
-      create struct and management functions to manager input and output
+      load settings from env to get initial istream max
+      each array has accompanying array size of max istream :/
+      create struct and management functions to manage input and output
          from these streams.
 
       load each obj in file, adjust istream array to make sure it fits. Grow istream array if needed :/
