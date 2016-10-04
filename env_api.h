@@ -78,8 +78,8 @@ struct env_control{
   int *current_job;//[num_of_client_threads];//only env reads/writes this
 };
 
-//         (num of clients, queue_max )
-struct env_control * init_envapi(int noc, int qm);
+//         (num of clients, queue_max, structure to be initialized  )
+struct env_control * init_envapi(int noc, int qm,  struct env_control *client_work);
 
 //adds to work queue - called from a neur in nobj
 void set_output(int nobj_id,int stream_id, double dat, struct env_control *client_work);

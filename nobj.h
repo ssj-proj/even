@@ -10,30 +10,15 @@ struct nobj_meta{
   unsigned int num_of_var_properties;
   unsigned int time;//increments 1 per nobj input set - resets to 0 when limit is reached
   unsigned int nobj_id;//TODO - set this value
+  int num_of_istreams;
 };
-struct lock_group {
-   /*
-      Address to a 2 dimension array, not like the other 3 dimension arrays that hold multiple objs
-      address to { [nobj id][neur_d] }
-   */
-   pthread_mutex_t **weights_lock;
-   pthread_mutex_t **cons_lock;
-   pthread_mutex_t **conids_lock;
-   pthread_mutex_t **vars_lock;
+struct i_map {
+  int env_id;
+  int stream_id; 
+  unsigned int neur_to;
+  unsigned int conid;
 };
-struct obj_group {
-  //TBI
 
-   /*
-      Address to a 2 dimension array, not like the other 3 dimension arrays that hold multiple objs
-      address to { [neur_id][property] }
-   */
-  unsigned int  ***nobj;
-  unsigned int  ***cons;
-  unsigned int  ***conids;
-  double  ***weights;
-  double  ***vars;
-};
 //shorthand for all the stim parameters - tbi everywhere
 struct stim_param {
   unsigned int neur_from;
@@ -88,7 +73,7 @@ void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****var
 void free_vars(int no, struct nobj_meta obj_prop, double ****nvar);
 void display_vars_props(double **vars,struct nobj_meta np);
 
-int parse_io_file(char * file, struct nobj_meta *nobj_props, int ***inputs, int ***outputs);
+int parse_i_file(char * file, struct i_map **im,struct nobj_meta *nobj_props );
 void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);
 void free_io(int no, struct nobj_meta obj_prop, double ****nvar);
 void display_io_props(double **vars,struct nobj_meta np);
@@ -99,7 +84,14 @@ void init_locks(struct nobj_meta obj_prop, pthread_t **);
 
 //nobject id, from, to, conid (index in weights array of receiving neur), stim
 void stim(struct stim_param *sp);
+/*
+  - act as a wrapper fo stim when sending input from env to nobj
+*/
+void stim_from_env(struct stim_param *sp);//10-3-16 TBI 
 
+/*
+  Fires to all connected neurs
+*/
 void fire_downstream(struct stim_param *sp);
 
 

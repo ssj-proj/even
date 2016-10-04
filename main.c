@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "nobj.h"
 #include "behaviors.h"
 #include "stimpool.h"
@@ -59,27 +60,37 @@ void main() {
      By neur behavior. To Be planned and coded */
   double ***nvar;//will change during runtime
   pthread_t **nvar_lock;
+  
+  /*
+    1D array [obj_id] = struct map { stream_id, neur_id] };
+  */
+  struct i_map **i_maps;
+  int num_of_envs=1;
+  int *num_of_streams;//1d array of ints that list number of streams for each env
 
- 
+
   /*   
     END NOBJ VARS
   */
   //malloc nobj vars and their mutex's
   nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
   weights     =malloc( num_of_objs * sizeof(double**));
-  weights_lock=malloc( num_of_objs * sizeof(pthread_t*));
   nobjs       =malloc( num_of_objs * sizeof(unsigned int**));
   cons        =malloc( num_of_objs * sizeof(unsigned int**));
-  cons_lock   =malloc( num_of_objs * sizeof(pthread_t*));
   conids      =malloc( num_of_objs * sizeof(unsigned int**));
-  conids_lock =malloc( num_of_objs * sizeof(pthread_t*));
   nvar        =malloc( num_of_objs * sizeof(double**));
-  nvar_lock=malloc( num_of_objs * sizeof(pthread_t*));
-  struct lock_group *locks = malloc(sizeof(struct lock_group));
+  i_maps      =malloc( num_of_objs * sizeof(*i_maps));
+
+  num_of_streams = malloc(num_of_envs * sizeof(*num_of_streams));
   
-  //used for neur thread distribution - stim parameters
+  /*
+    used for neur thread distribution - stim parameters
+    an array of pointers to stim_param objs
+    one entry for each object
+  */
   struct stim_param **param = malloc(sizeof(*param)*num_of_objs);
    
+  //To do - more err checking
   if(weights==NULL) {
     printf("Error: failed to malloc weights\n");
     exit(-1);
@@ -97,8 +108,23 @@ void main() {
 
   char *objnum=malloc(4);
   char *file_without_ext=malloc(255);
-  char *file=malloc(255);;
-  for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
+  char *file=malloc(255);
+
+
+  /*
+    BEGIN INITILIZATION
+  */
+  /*
+    Define possible behaviors, a part of stim param
+  */
+  struct behav_pool behaviors; 
+  behaviors.behaviors = malloc(sizeof(behavior) * 1 );
+  behaviors.behaviors[0]=&b1;
+  behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
+  behaviors.threshholds[0]=&t1;
+
+  /* load settings for obj from their init files */
+  for(nobj_id;nobj_id<num_of_objs;++nobj_id) { 
     memset(file,0,sizeof(file));
     memset(objnum,0,sizeof(file));
     memset(file_without_ext,0,sizeof(file));
@@ -126,7 +152,7 @@ void main() {
       exit(-1);
     }
     init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights); 
-    display_con_props(nobj_id,cons,conids,weights,nobj_props);
+    //display_con_props(nobj_id,cons,conids,weights,nobj_props);
 
     strcpy(file,file_without_ext);
     strcat(file,var_extension);
@@ -137,67 +163,72 @@ void main() {
     }
     init_vars(nobj_id,var_props,nobj_props[nobj_id],&nvar);
     //display_vars_props(nvar[nobj_id],nobj_props[nobj_id]);
-    //malloc locks - on lock for each neur for each of its array properties
-    (*locks).vars_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
-    (*locks).cons_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
-    (*locks).conids_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
-    (*locks).weights_lock = malloc(sizeof(pthread_mutex_t) * nobj_props[nobj_id].num_of_neurs);
 
+    strcpy(file,file_without_ext);
+    strcat(file,".in");
+    
+    parse_i_file(file,&i_maps[nobj_id],&nobj_props[nobj_id]);
+
+
+
+    //TODO - read env init file to get total num of envs and num of streams per env
+    
+
+
+    /* base values for sim param fro nobj -- rethink this design TODO */
+    (*param[nobj_id]).bp=&behaviors;
+    (*param[nobj_id]).nobj=nobjs[nobj_id];  
+    (*param[nobj_id]).cons=cons[nobj_id];
+    (*param[nobj_id]).conids=conids[nobj_id];
+    (*param[nobj_id]).weights=weights[nobj_id];
+    (*param[nobj_id]).vars=nvar[nobj_id];
+    (*param[nobj_id]).nobj_props=&(nobj_props[nobj_id]);
+    (*param[nobj_id]).neur_from=UINT_MAX;//When stim from anything but another nuer, from is max usigned int
   }
-  struct behav_pool behaviors; 
-  behaviors.behaviors = malloc(sizeof(behavior) * 1 );
-  behaviors.behaviors[0]=&b1;
-  behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
-  behaviors.threshholds[0]=&t1;
+
+
   //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
 
+   //Manually setting vars
+    num_of_streams[0]=3;
   
-  init_workers(num_of_threads);//init thread pool
+  
  
 
   /* 
-    Testing
+    Testing Nobjs
   */
-  int i =0; 
-  struct env_control *env = init_envapi(num_of_threads,100);
- 
+  int i =0,j=0; 
+  init_workers(num_of_threads);//init thread pool
+
   for(i;i<num_of_objs;++i){
-    (*param[i]).neur_from=99;
-    (*param[i]).neur_to=0;
-    (*param[i]).conid=0;
-    (*param[i]).stim=199;
-    (*param[i]).bp=&behaviors;
-    (*param[i]).nobj=nobjs[i];  
-    (*param[i]).cons=cons[i];
-    (*param[i]).conids=conids[i];
-    (*param[i]).weights=weights[i];
-    (*param[i]).vars=nvar[i];
-    (*param[i]).nobj_props=&(nobj_props[i]);
-    manager(param[i]);//drop work into thread pool
+    for(j;j<nobj_prods[i].num_of_istreams;++j){
+      
+      (*param[i]).neur_to=i_maps[i][j].neur_to;
+       //find in mapping
+      (*param[i]).stim=199; //get from stream
+      manager(param[i]);//drop work into thread pool
+    }
   }
-   pthread_t env_t;
-   
+  
+  
+    
    /*
       to implement multiple envs, create array of void* function pointers
       create array of ints to hold the states of each env
       create a thread for each env
    */
+   pthread_t env_t;
+   struct env_control *env = malloc(sizeof(struct env_control));
+   init_envapi(num_of_threads,100, env);
    struct env_dat env_data;
-   init_env(num_of_objs,env,&env_data);//send control object to env
+
+   env_data.num_of_objs = num_of_objs;
+   init_env(env,&env_data);//send control object to env
    int *state = malloc(sizeof(int));
-   pthread_create(&env_t,NULL,main_loop,state);
-
-
-  printf("env: num_of_works: %d, queue_max: %d \n", env->num_of_clients,env->queue_max);
-  int c;
-  for(c=0;c<100;c++) {
-    for(i=0;i<num_of_objs;++i) {
-	set_output(i,0,c/100.0+i,env);
-        usleep(1);
-    }
-  }
-  printf("\nend\n");
-  wait_for_threads();
+   //pthread_create(&env_t,NULL,main_loop,state);//start env thread
+   //environment work queue tested - 10-3-16
+   wait_for_threads();
  
   /*
     End Testing

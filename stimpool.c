@@ -54,8 +54,8 @@ void manager(struct stim_param *p) {
       printf("  OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job );
     } else {
       if(p != NULL) { 
-         //printf("    Setting work...\n");
-         copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size+1]);
+        //printf("    Setting work...\n");
+        copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size+1]);
         //usleep(50000);
         contracts[worker].pool_size++;
       } else {

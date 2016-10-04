@@ -5,6 +5,8 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 #include "nobj.h"
 #include <pthread.h>
 #include "env_api.h"
@@ -359,9 +361,14 @@ void display_vars_props(double**vars,struct nobj_meta np) {
   
 
 */
-int parse_i_file(char * file, struct istream_list *istreams) {
+int parse_i_file(char * file, struct i_map **im, struct nobj_meta *nobj_props) {
+  printf("PARSE I FILE %s\n",file);
+
   FILE *fp;
   fp=fopen(file,"rt");
+  if(!fp) {
+    perror("Error opening file");
+  }
   int buff_size=256;
   char *buff=malloc(buff_size);
   
@@ -369,8 +376,11 @@ int parse_i_file(char * file, struct istream_list *istreams) {
   int max_head=1,i=0;//only check for this num of header lines
   char found=0;
   while(found<max_head&&i<100) {
+
+    printf("HERE\n");
     if(fgets(buff,buff_size,fp)!= NULL){
-      if(sscanf(buff,"num_of_inputs: %d",num_of_inputs) > 0) {
+      printf("HERE2\n");
+      if(sscanf(buff,"num_of_inputs: %d",&num_of_inputs) > 0) {
        found++;
       } 
       if(i==max_head) { //have max number of headers, exit loop
@@ -379,38 +389,38 @@ int parse_i_file(char * file, struct istream_list *istreams) {
       i++;
     }
   }
-  printf("Number of inputs %d", num_of_inputs);//Complete this func
-  
+  printf("Number of inputs %d\n", num_of_inputs);//Complete this func
+  (*im) =malloc( num_of_inputs * sizeof(**im));
   /*
      parse body file, format of:
        neur_id, env_id,stream_id
   */
   i=0;
-
+  char *delim=",";
+  char *val=NULL;// = malloc(256);
+  unsigned int neur_to;
+  int env_id, stream_id;
   for(i;i<num_of_inputs;++i) {
     if(fgets(buff,buff_size,fp) != NULL) {
+      val = strtok(buff,delim);
+      sscanf(val,"%u",&neur_to);
 
+      val = strtok(NULL,delim);
+      sscanf(val,"%u",&env_id);
+
+      val = strtok(NULL, delim);
+      sscanf(val,"%u",&stream_id);
+      (*im)->env_id=env_id;
+      (*im)->stream_id=stream_id;
+      (*im)->neur_to=neur_to;
+      printf("to neur %u, from env %d from stream %d\n", neur_to,env_id,stream_id);
     }
 
   }
 }
-void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);
-void free_io(int no, struct nobj_meta obj_prop, double ****nvar);
+void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);//tbi
+void free_io(int no, struct nobj_meta obj_prop, double ****nvar);//tbi
 void display_io_props(double **vars,struct nobj_meta np);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void copy_stim_param(struct stim_param from, struct stim_param *to) {
@@ -437,20 +447,22 @@ void stim(struct stim_param *sp) {
 
   (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][0]  ](sp);//PRE
 
- // pthread_mutex_lock( &((*(*locks).vars_lock)[neur_to]) );//lock the var array of neur_to neur
   //printf("weight: %lf\n",(*sp).weights[(*sp).neur_to][(*sp).conid]);
-  (*sp).vars[(*sp).neur_to][0]+= ((*sp).stim * (*sp).weights[(*sp).neur_to][(*sp).conid] );
-  //pthread_mutex_unlock( &((*(*locks).vars_lock)[neur_to]) );//unlock the var array of neur_to neur
+
+  /*
+    if conid is max unint - don't multiply by weight. Max unint is phantom input (input not from
+     another neur). Should be re-engineerd so all Input has registered weight
+  */
+  if(sp->conid != MAX_UINT) 
+    (*sp).vars[(*sp).neur_to][0]+= ((*sp).stim * (*sp).weights[(*sp).neur_to][(*sp).conid] );
+  else 
+    (*sp).vars[(*sp).neur_to][0]+= (*sp).stim;
 
   //Thresh
   if(  (*(*sp).bp).threshholds[ (*sp).nobj[(*sp).neur_to][1]  ](sp) == 0 ) {
-
     fire_downstream(sp);
-
   } else { //POST
-
     (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][3]  ](sp);
-
   }
 }
 void fire_downstream(struct stim_param *sp) {
@@ -470,4 +482,6 @@ void fire_downstream(struct stim_param *sp) {
      manager(sp);//put work on top of work queue
   }
 }
+//int check_nobj_props(struct nobj_meta props);
+//void stim_from_env(int obj_id, unsigned int neur_id, double dat);
 
