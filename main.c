@@ -228,20 +228,31 @@ void main() {
 
 
   int errs = 0;
-  for(i;i<num_of_objs;++i){//loop each object
+
+  while(1) {
+  for(i=0;i<num_of_objs;++i){//loop each object
     printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
-    for(j;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
-      errs = 1;
+    for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
       (*param[i]).neur_to=i_maps[i][j].neur_to;
       errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
       if(errs==0){
-        printf("  istream value: %lf\n",(*param[i]).stim);
+        printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
         manager(param[i]);//drop work into thread pool
       } else {
         fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
       }
-      usleep(100000);
+      
     }
+  }
+    printf("sleeping\n");
+    usleep(100000);
+    /*
+      LOH - 10-6-16
+      can now read in .in files and istreams are mapped to neurs
+      need to do the same for .out files
+      need to create cfg files for env settings and all other global settings
+
+    */
   }
   
   wait_for_threads();
