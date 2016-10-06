@@ -198,38 +198,72 @@ void main() {
   /* 
     Testing Nobjs
   */
-  int i =0,j=0; 
-  init_workers(num_of_threads);//init thread pool
-
-  for(i;i<num_of_objs;++i){
-    for(j;j<nobj_prods[i].num_of_istreams;++j){
-      
-      (*param[i]).neur_to=i_maps[i][j].neur_to;
-       //find in mapping
-      (*param[i]).stim=199; //get from stream
-      manager(param[i]);//drop work into thread pool
-    }
-  }
-  
-  
-    
+  int i =0,j=0; //temp loop/index vars
+  int *state = malloc(sizeof(int));//sent to env
+  int init_errors = 0;//if ! 0 at end of all inits, err occured
+  init_workers(num_of_threads);//init thread pool for nobjs
    /*
       to implement multiple envs, create array of void* function pointers
       create array of ints to hold the states of each env
       create a thread for each env
    */
    pthread_t env_t;
-   struct env_control *env = malloc(sizeof(struct env_control));
-   init_envapi(num_of_threads,100, env);
-   struct env_dat env_data;
+   init_errors+=init_api(1);//send number of total envs so it can allocate arrays
 
-   env_data.num_of_objs = num_of_objs;
-   init_env(env,&env_data);//send control object to env
-   int *state = malloc(sizeof(int));
-   //pthread_create(&env_t,NULL,main_loop,state);//start env thread
-   //environment work queue tested - 10-3-16
-   wait_for_threads();
- 
+   struct env_control *env = malloc(sizeof(struct env_control));
+   struct env_dat *env_data= malloc(sizeof(struct env_control));
+   init_errors+=init_env(num_of_threads,100, env, env_data);//call init env for each env(1)
+   env_data->num_of_objs = num_of_objs;
+
+  /*
+    init the env side, this should call hook_env
+    send the control structure, the data structure and the env_id
+  */
+   init_env0(env,env_data,0);
+   if(init_errors!=0){
+     fprintf(stderr,"main: error with initilization: %d",init_errors);
+   }
+   pthread_create(&env_t,NULL,main_loop,state);//start env thread
+
+
+
+  int errs = 0;
+  for(i;i<num_of_objs;++i){//loop each object
+    printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
+    for(j;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
+      errs = 1;
+      (*param[i]).neur_to=i_maps[i][j].neur_to;
+      errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
+      if(errs==0){
+        printf("  istream value: %lf\n",(*param[i]).stim);
+        manager(param[i]);//drop work into thread pool
+      } else {
+        fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
+      }
+      usleep(100000);
+    }
+  }
+  
+  wait_for_threads();
+  exit(0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /*
     End Testing
   */
@@ -252,9 +286,6 @@ void main() {
         //loop clients of istream istream_clients[num_of_envs][istream][clients] 
           //set input to neur = d
   /* End Psuedo */
-
-  exit(0);
-
 }
 
 

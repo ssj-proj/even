@@ -59,7 +59,7 @@ void manager(struct stim_param *p) {
         //usleep(50000);
         contracts[worker].pool_size++;
       } else {
-        printf("  Manager: null work\n");
+        printf("  manager: received null stim_param\n");
       }
     }
   }

@@ -390,6 +390,7 @@ int parse_i_file(char * file, struct i_map **im, struct nobj_meta *nobj_props) {
     }
   }
   printf("Number of inputs %d\n", num_of_inputs);//Complete this func
+  nobj_props->num_of_istreams = num_of_inputs;
   (*im) =malloc( num_of_inputs * sizeof(**im));
   /*
      parse body file, format of:
@@ -451,9 +452,10 @@ void stim(struct stim_param *sp) {
 
   /*
     if conid is max unint - don't multiply by weight. Max unint is phantom input (input not from
-     another neur). Should be re-engineerd so all Input has registered weight
+     another neur). Will be re-engineerd so all Input has registered weight, requires the growth
+    /shrinking of a couple arrays to add/remove cons
   */
-  if(sp->conid != MAX_UINT) 
+  if(sp->conid != UINT_MAX) 
     (*sp).vars[(*sp).neur_to][0]+= ((*sp).stim * (*sp).weights[(*sp).neur_to][(*sp).conid] );
   else 
     (*sp).vars[(*sp).neur_to][0]+= (*sp).stim;

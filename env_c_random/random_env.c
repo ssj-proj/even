@@ -8,23 +8,27 @@
 #include <stdio.h>
 
 
-static struct env_dat *env_api_dat;
-static struct env_control *env_api_control;
+static struct env_dat *env_api_dat;//all other vars
+static struct env_control *env_api_control;//for work queue manipulation
+static int env_id; 
+
 int num_of_queue;
 /*
    a test system - reward when objs output when input is close to 100-100
 */
 //data points for each obj [obj][data_point]
 static double **env_obj_track;
+static double *istream;
 int num_of_points=2;//width of 2nd dimension array
 int *sid_map;//stream id map : 1d arry value at [sid]=obj_id
 char init=0;
 
-void init_env(struct env_control *ec, struct env_dat *dat) {
+void init_env0(struct env_control *ec, struct env_dat *dat, int env) {
   env_api_dat=dat;
   env_api_control=ec;
+  env_id  = env;
   int i,j;
-
+  
   if(env_api_dat->num_of_objs<=0) {
     fprintf(stderr,"Can't init env with number of objects set to 0\n");
   } 
@@ -46,7 +50,11 @@ void init_env(struct env_control *ec, struct env_dat *dat) {
 
   }
  // ec->num_of_istream=num_of_points*;
-
+  istream = malloc(sizeof(double) * 3);
+  istream[0]=22;
+  istream[1]=33;
+  istream[2]=44;
+  hook_env(env_id,istream,3); 
   init=1;
 
 }
@@ -59,7 +67,7 @@ void *main_loop(void *state){
   while(1) {
 
     work=get_next_output(i,env_api_control);//get next work
-    if(!work) { printf(" null work\n");}
+
     //while there is work to be donec
     while(work) {//loop through work queue and update all objects 
       printf("stream/work: %d/%lf\n",(*work).sid,(*work).dat);
