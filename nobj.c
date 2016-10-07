@@ -455,14 +455,14 @@ void stim(struct stim_param *sp) {
   }
   else {
     sp->vars[sp->neur_to][0]+= sp->stim;
-    printf("  OBJ[%u] STIM:%lf!!!!!!!\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_to][0]);  
+   // printf("  OBJ[%u] STIM:%lf!!!!!!!\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_to][0]);  
    }
 
 
 
   //Thresh
   if(  (*sp->bp).threshholds[ sp->nobj[sp->neur_to][1]  ](sp) == 0 ) {
-    printf("  OBJ[%u] FIRE!!!!!!!!!!\n",sp->nobj_props->nobj_id);
+    //printf("  OBJ[%u] FIRE!!!!!!!!!!\n",sp->nobj_props->nobj_id);
     fire_downstream(sp);
   } else { //POST
     (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][3]  ](sp);
@@ -477,18 +477,48 @@ void fire_downstream(struct stim_param *sp) {
   sp->neur_from = sp->neur_to;//last stimmed neur is now firing to
   sp->stim= sp->vars[sp->neur_from][2];//set outgoing stim to neur strength
   int num_to_send=sp->cons[sp->neur_from][0];
-  printf("  OBJ[%u] setting output\n",sp->nobj_props->nobj_id);
+  //printf("  OBJ[%u] setting output\n",sp->nobj_props->nobj_id);
   if(set_output(sp->nobj_props->nobj_id,sp->vars[sp->neur_from][5],
     sp->stim,(int)(sp->vars[sp->neur_from][4])  ) != 0) {
      
-    fprintf(stderr,"nobj:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->vars[sp->neur_from][5],(sp->vars[sp->neur_from][4]));
+    fprintf(stderr,"nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][5],(sp->vars[sp->neur_from][4]));
   }
+/*
+
+
+
+
+
+   LOH 10-7−16
+      TODO:somehow env_id/o_streams_ids are messed up after a short while of running. 
+Env queue backed up, dropping request at job#:9
+nobj[2]:fire_downstream:Failure to set_out to env_id[1.000000] stream[0.000000]
+Env queue backed up, dropping request at job#:9
+nobj[2]:fire_downstream:Failure to set_out to env_id[0.000000] stream[0.000000]
+Env queue backed up, dropping request at job#:9
+nobj[0]:fire_downstream:Failure to set_out to env_id[1.000000] stream[0.000000]
+Env queue backed up, dropping request at job#:9
+nobj[2]:fire_downstream:Failure to set_out to env_id[1.000000] stream[0.000000]
+next job 10
+Env queue backed up, dropping request at job#:10
+nobj[2]:fire_downstream:Failure to set_out to env_id[1.000000] stream[0.000000]
+Env queue backed up, dropping request at job#:10
+nobj[0]:fire_downstream:Failure to set_out to env_id[1.000000] stream[0.000000]
+Env queue backed up, dropping request at job#:10
+nobj[2]:fire_downstream:Failure to set_out to env_id[1.000000] stream[0.000000]
+Env queue backed up, dropping request at job#:10
+nobj[2]:fire_downstream:Failure to set_out to env_id[0.000000] stream[0.000000]
+Env queue backed up, dropping request at job#:10
+nobj[0]:fire_downstream:Failure to set_out to env_id[1.000000] stream[0.000000]
+
+
+*/
  
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
   for(i=1; i < num_to_send+1;++i) {
      (*sp).conid=(*sp).conids[(*sp).neur_from][i];
      (*sp).neur_to=(*sp).cons[(*sp).neur_from][i];
-     printf("fire to/from %u/%u s:%lf\n",(*sp).neur_from,(*sp).neur_to,(*sp).stim);
+     //printf("fire to/from %u/%u s:%lf\n",(*sp).neur_from,(*sp).neur_to,(*sp).stim);
      manager(sp);//put work on top of work queue
   }
 }

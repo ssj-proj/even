@@ -64,7 +64,7 @@ struct env_control * get_env_control(int env_id) {
   if(env_id<num_of_envs&&env_id>=0)
     return &env_control_array[env_id];
   else
-    fprintf(stderr,"!!!env_api:get_env_control:Invalid Env_id\n");
+    fprintf(stderr,"!!!env_api:get_env_control:Invalid Env_id[%d]. Max num of envs[%d]\n",env_id,num_of_envs);
     return NULL;
 }
 
