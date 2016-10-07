@@ -441,24 +441,22 @@ void copy_stim_param(struct stim_param from, struct stim_param *to) {
 
 /* Stim func - the neur_to is the one this is executing this func */
 void stim(struct stim_param *sp) {
-//(int no,unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim,   unsigned int***nobj,unsigned int***cons,unsigned int***conids,double***weights,double***vars) 
-  //PRE
 
   //printf("behviors index: %u\n",(*sp).nobj[(*sp).neur_to][0]);
-
   (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][0]  ](sp);//PRE
-
   //printf("weight: %lf\n",(*sp).weights[(*sp).neur_to][(*sp).conid]);
 
   /*
-    if conid is max unint - don't multiply by weight. Max unint is phantom input (input not from
-     another neur). Will be re-engineerd so all Input has registered weight, requires the growth
-    /shrinking of a couple arrays to add/remove cons
+    if conid is max unint - don't multiply by weight. Max unint is phantom input (input not from another neur). Will be re-engineerd so all Input has registered weight, requires the growth/shrinking of a couple arrays to add/remove cons
   */
-  if(sp->conid != UINT_MAX) 
+  if(sp->conid != UINT_MAX) {
     (*sp).vars[(*sp).neur_to][0]+= ((*sp).stim * (*sp).weights[(*sp).neur_to][(*sp).conid] );
+   
+  }
   else 
     (*sp).vars[(*sp).neur_to][0]+= (*sp).stim;
+
+
 
   //Thresh
   if(  (*(*sp).bp).threshholds[ (*sp).nobj[(*sp).neur_to][1]  ](sp) == 0 ) {
@@ -469,15 +467,22 @@ void stim(struct stim_param *sp) {
 }
 void fire_downstream(struct stim_param *sp) {
 
+//set_output(int nobj_id,int stream_id,double data, struct env_control *client_work)
+//need env_id, stream_id, nobj-id, pointer to work struct
 
-  (*sp).neur_from = (*sp).neur_to;//last stimmed neur is now firing to
-  (*sp).stim= (*sp).vars[(*sp).neur_from][2];//set outgoing stim to neur strength
-
-  int i=1;
-  int num_to_send=(*sp).cons[(*sp).neur_from][0];
-  
+  int i;
+  sp->neur_from = sp->neur_to;//last stimmed neur is now firing to
+  sp->stim= sp->vars[sp->neur_from][2];//set outgoing stim to neur strength
+  int num_to_send=sp->cons[sp->neur_from][0];
+  printf("  OBJ[%u] setting output\n",sp->nobj_props->nobj_id);
+  if(set_output(sp->nobj_props->nobj_id,sp->vars[sp->neur_from][5],
+    sp->stim,(int)(sp->vars[sp->neur_from][4])  ) != 0) {
+     
+    fprintf(stderr,"nobj:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->vars[sp->neur_from][5],(sp->vars[sp->neur_from][4]));
+  }
+ 
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
-  for(i; i < num_to_send+1;++i) {
+  for(i=1; i < num_to_send+1;++i) {
      (*sp).conid=(*sp).conids[(*sp).neur_from][i];
      (*sp).neur_to=(*sp).cons[(*sp).neur_from][i];
      printf("fire to/from %u/%u s:%lf\n",(*sp).neur_from,(*sp).neur_to,(*sp).stim);

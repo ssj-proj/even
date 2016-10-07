@@ -31,13 +31,15 @@ void main() {
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
   //(ie: stim_pool and env):  
   int num_of_threads=2;
-  struct nobj_meta *nobj_props;  
+  
   /*   
     NOBJ VARS
   */
   //[object id][neur id][neur propert id]
   unsigned int ***nobjs;//should not change during obj runtime
 
+  struct nobj_meta *nobj_props; 
+ 
   //[object id][neur id][to con neur id]
   unsigned int ***cons;//will change during runtime
   pthread_t **cons_lock;//lock per neur
@@ -61,6 +63,19 @@ void main() {
   double ***nvar;//will change during runtime
   pthread_t **nvar_lock;
   
+
+
+
+  /*   
+    END NOBJ VARS
+  */
+
+  /* ENV VARS */
+  int num_of_environments=1;
+  //array of struct, element per env
+  struct env_control *envs;// = malloc(sizeof(struct env_control));
+  //aray of struct, element per env
+  struct env_dat *env_data;//= malloc(sizeof(struct env_control));
   /*
     1D array [obj_id] = struct map { stream_id, neur_id] };
   */
@@ -69,9 +84,7 @@ void main() {
   int *num_of_streams;//1d array of ints that list number of streams for each env
 
 
-  /*   
-    END NOBJ VARS
-  */
+  /* END ENV VARS */
   //malloc nobj vars and their mutex's
   nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
   weights     =malloc( num_of_objs * sizeof(double**));
@@ -80,7 +93,8 @@ void main() {
   conids      =malloc( num_of_objs * sizeof(unsigned int**));
   nvar        =malloc( num_of_objs * sizeof(double**));
   i_maps      =malloc( num_of_objs * sizeof(*i_maps));
-
+  envs = malloc(sizeof(struct env_control)*num_of_environments);
+  env_data = malloc(sizeof(struct env_control)*num_of_environments);
   num_of_streams = malloc(num_of_envs * sizeof(*num_of_streams));
   
   /*
@@ -137,8 +151,9 @@ void main() {
     strcat(file,des_extension);
     printf("   INIT OBJECT %u\n",nobj_id);
     param[nobj_id] = malloc(sizeof(struct stim_param));
-
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
+    nobj_props[nobj_id].nobj_id=nobj_id;//probably should be moved into parse_nobj_file()
+
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
     //display_neur_props(nobj_id,nobjs,nobj_props);
     //free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
@@ -169,13 +184,7 @@ void main() {
     
     parse_i_file(file,&i_maps[nobj_id],&nobj_props[nobj_id]);
 
-
-
-    //TODO - read env init file to get total num of envs and num of streams per env
-    
-
-
-    /* base values for sim param fro nobj -- rethink this design TODO */
+     /* base values for sim param fro nobj -- rethink this design TODO */
     (*param[nobj_id]).bp=&behaviors;
     (*param[nobj_id]).nobj=nobjs[nobj_id];  
     (*param[nobj_id]).cons=cons[nobj_id];
@@ -208,18 +217,16 @@ void main() {
       create a thread for each env
    */
    pthread_t env_t;
-   init_errors+=init_api(1);//send number of total envs so it can allocate arrays
+   init_errors+=init_api(1,envs,env_data);//send number of total envs so it can allocate arrays
 
-   struct env_control *env = malloc(sizeof(struct env_control));
-   struct env_dat *env_data= malloc(sizeof(struct env_control));
-   init_errors+=init_env(num_of_threads,100, env, env_data);//call init env for each env(1)
+   init_errors+=init_env(num_of_threads,100, &envs[0], &env_data[0]);//call init env for each env(1)
    env_data->num_of_objs = num_of_objs;
 
   /*
     init the env side, this should call hook_env
     send the control structure, the data structure and the env_id
   */
-   init_env0(env,env_data,0);
+   init_env0(&envs[0],&env_data[0],0);
    if(init_errors!=0){
      fprintf(stderr,"main: error with initilization: %d",init_errors);
    }
@@ -231,12 +238,12 @@ void main() {
 
   while(1) {
   for(i=0;i<num_of_objs;++i){//loop each object
-    printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
+    //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
     for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
       (*param[i]).neur_to=i_maps[i][j].neur_to;
       errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
       if(errs==0){
-        printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
+        //printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
         manager(param[i]);//drop work into thread pool
       } else {
         fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
@@ -244,15 +251,9 @@ void main() {
       
     }
   }
-    printf("sleeping\n");
+    //printf("sleeping\n");
     usleep(100000);
-    /*
-      LOH - 10-6-16
-      can now read in .in files and istreams are mapped to neurs
-      need to do the same for .out files
-      need to create cfg files for env settings and all other global settings
 
-    */
   }
   
   wait_for_threads();

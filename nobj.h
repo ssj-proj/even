@@ -18,7 +18,12 @@ struct i_map {
   unsigned int neur_to;
   unsigned int conid;
 };
-
+struct o_map {
+  unsigned int nobj_from;
+  unsigned int neur_from;
+  int env_id;
+  int stream_id;
+};
 //shorthand for all the stim parameters - tbi everywhere
 struct stim_param {
   unsigned int neur_from;
@@ -26,6 +31,7 @@ struct stim_param {
   unsigned int conid;
   double stim;
   struct behav_pool *bp;
+  //[neur_id][property index]
   unsigned int**nobj;
   unsigned int**cons;
   unsigned int**conids;
@@ -35,8 +41,8 @@ struct stim_param {
     1 - thresh
     2 - fire strength
     3 - neur type
-    4 - input index (opt)
-    5 - output index (opt)
+    4 - env_id (opt)
+    5 - stream_id (opt)
   */
   double**vars;
   struct nobj_meta *nobj_props;

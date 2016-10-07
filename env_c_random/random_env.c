@@ -40,7 +40,7 @@ void init_env0(struct env_control *ec, struct env_dat *dat, int env) {
   for(i=0;i<env_api_dat->num_of_objs;++i){
 
     env_obj_track[i]=malloc(sizeof( *(env_obj_track[0]) ) * num_of_points);
-    printf(":::::::::Size of env %d: %u\n",i,sizeof(env_obj_track[i]));
+    //printf(":::::::::Size of env %d: %u\n",i,sizeof(env_obj_track[i]));
     sid_map[i]=i;
 
     for(j=0;j<num_of_points;++j) {
@@ -65,17 +65,17 @@ void *main_loop(void *state){
   srand(time(NULL));
  
   while(1) {
-
-    work=get_next_output(i,env_api_control);//get next work
-
+    
+    work=get_next_output(0,env_api_control);//get next work
+    if(!work) { printf("NULL WORK\n");}
     //while there is work to be donec
     while(work) {//loop through work queue and update all objects 
-      printf("stream/work: %d/%lf\n",(*work).sid,(*work).dat);
-      env_obj_track[j][i]+=2;
+      //printf("stream/work: %d/%lf\n",(*work).sid,(*work).dat);
+      istream[work->sid]+=work->dat;
       work=get_next_output(i,env_api_control);
     } 
 
-   
+    //printf("random_env:end/no work\n");
     /* 
 	Finished work queue
 	update each object for natural time passing 
@@ -88,7 +88,7 @@ void *main_loop(void *state){
 
     }
     num_loop++;
-    usleep(3); 
+    usleep(1000000); 
   }
 }
     /* cut stuff---*/

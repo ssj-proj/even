@@ -74,13 +74,14 @@ struct env_control{
 };
 
 /* FUNCTIONS */
-
+//returns env_control from the array stored in env_api
+struct env_control * get_env_control(int env_id);
 /*
   called by main, used mainly to set array sizes. Called once.
   (number of total envs)
   returns 0 on success.
 */
-int init_api(int num_of_envs);
+int init_api(int num_of_envs, struct env_control *client_work_array, struct env_dat *env_data_array);
 /*
    called by main to init the api for a specific env instance. Should be called once per env.
    (num of clients, queue_max, control structure to be initialized, data structure to be init  )
@@ -102,7 +103,7 @@ int hook_env(int env_id, double *streams, int num);
 
 
 //adds to work queue - called from a neur in nobj
-void set_output(int nobj_id,int stream_id, double dat, struct env_control *client_work);
+int set_output(int nobj_id,int stream_id, double dat, int env_id);
 
 /*
     Grabs next job from env work queue
