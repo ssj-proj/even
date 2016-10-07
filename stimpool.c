@@ -45,18 +45,14 @@ void * worker_thread(void *contract_v){
 
 
 void manager(struct stim_param *p) {
-  int worker = (*(*p).nobj_props).nobj_id  % num_of_workers;
- // printf(" worker id: %u\n",worker);
- // printf(" pool: %d curjob: %d\n",contracts[worker].pool_size,contracts[worker].current_job);
-  //printf(" POOL SIZE!!%u\n",contracts[worker].pool_size);
+  int worker = (*p->nobj_props).nobj_id  % num_of_workers;
+
   if(contracts[worker].pool_size<max_queue) {
     if(contracts[worker].pool_size+1==contracts[worker].current_job) {
-      printf("  OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job );
+      printf("  OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",(*p->nobj_props).nobj_id,contracts[worker].current_job );
     } else {
-      if(p != NULL) { 
-        //printf("    Setting work...\n");
-        copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size+1]);
-        //usleep(50000);
+      if(p != NULL) {  
+        copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size+1]); 
         contracts[worker].pool_size++;
       } else {
         printf("  manager: received null stim_param\n");
@@ -79,6 +75,7 @@ void wait_for_threads() {
 }
 // (num_of_threads to make)
 void init_workers(int num) {
+  printf("Creating %d threads\n", num);
   int i = 0;
   int j =0;
   num_of_workers=num; 
@@ -86,6 +83,7 @@ void init_workers(int num) {
   contracts=malloc(sizeof(contracts[0])*num);
   work_pool=malloc(sizeof(struct stim_param*)*num);//alloc pool for each all threads
   for(i;i<num;++i) {
+    
     j=0;
     contracts[i].id=i;
     contracts[i].fired=0;
@@ -93,9 +91,6 @@ void init_workers(int num) {
     contracts[i].current_job=-1;
     contracts[i].time_to_sleep=1;
     work_pool[i]=malloc(sizeof(struct stim_param)*max_queue);//alloc space for job
-    for(j;j<max_queue;++j) {
-      //work_pool[i][j]=malloc(sizeof(struct stim_param**));
-    }
     pthread_create(&workers[i],NULL,worker_thread,&contracts[i]);
   }
 

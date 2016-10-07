@@ -443,7 +443,7 @@ void copy_stim_param(struct stim_param from, struct stim_param *to) {
 void stim(struct stim_param *sp) {
 
   //printf("behviors index: %u\n",(*sp).nobj[(*sp).neur_to][0]);
-  (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][0]  ](sp);//PRE
+  (*sp->bp).behaviors[ sp->nobj[sp->neur_to][0]  ](sp);//PRE
   //printf("weight: %lf\n",(*sp).weights[(*sp).neur_to][(*sp).conid]);
 
   /*
@@ -453,13 +453,16 @@ void stim(struct stim_param *sp) {
     (*sp).vars[(*sp).neur_to][0]+= ((*sp).stim * (*sp).weights[(*sp).neur_to][(*sp).conid] );
    
   }
-  else 
-    (*sp).vars[(*sp).neur_to][0]+= (*sp).stim;
+  else {
+    sp->vars[sp->neur_to][0]+= sp->stim;
+    printf("  OBJ[%u] STIM:%lf!!!!!!!\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_to][0]);  
+   }
 
 
 
   //Thresh
-  if(  (*(*sp).bp).threshholds[ (*sp).nobj[(*sp).neur_to][1]  ](sp) == 0 ) {
+  if(  (*sp->bp).threshholds[ sp->nobj[sp->neur_to][1]  ](sp) == 0 ) {
+    printf("  OBJ[%u] FIRE!!!!!!!!!!\n",sp->nobj_props->nobj_id);
     fire_downstream(sp);
   } else { //POST
     (*(*sp).bp).behaviors[ (*sp).nobj[(*sp).neur_to][3]  ](sp);

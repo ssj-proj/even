@@ -193,6 +193,7 @@ void main() {
     (*param[nobj_id]).vars=nvar[nobj_id];
     (*param[nobj_id]).nobj_props=&(nobj_props[nobj_id]);
     (*param[nobj_id]).neur_from=UINT_MAX;//When stim from anything but another nuer, from is max usigned int
+    (*param[nobj_id]).conid=UINT_MAX;
   }
 
 
@@ -240,7 +241,7 @@ void main() {
   for(i=0;i<num_of_objs;++i){//loop each object
     //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
     for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
-      (*param[i]).neur_to=i_maps[i][j].neur_to;
+      param[i]->neur_to=i_maps[i][j].neur_to;
       errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
       if(errs==0){
         //printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
