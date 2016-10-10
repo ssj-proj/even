@@ -200,17 +200,21 @@ void main() {
   //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
 
    //Manually setting vars
-    num_of_streams[0]=3;
+  num_of_streams[0]=3;
+  int i =0,j=0; //temp loop/index vars
   
-  
- 
 
   /* 
     Testing Nobjs
   */
-  int i =0,j=0; //temp loop/index vars
+  i=0;
+  j=0;
   int *state = malloc(sizeof(int));//sent to env
   int init_errors = 0;//if ! 0 at end of all inits, err occured
+    if( nvar[1][0][2] == 0) {
+      fprintf(stderr,"main:fire_strength = 0\n");
+      exit(0);
+    }
   init_workers(num_of_threads);//init thread pool for nobjs
    /*
       to implement multiple envs, create array of void* function pointers
@@ -232,13 +236,21 @@ void main() {
      fprintf(stderr,"main: error with initilization: %d",init_errors);
    }
    pthread_create(&env_t,NULL,main_loop,state);//start env thread
+/*
 
+  LOH 10-10-16
+  vars[2] - fire_strength changes during exec. Set to 0. 
+  int verify_obj_vars(double **vars,struct nobj_meta np);
+
+
+*/
 
 
   int errs = 0;
 
   while(1) {
   for(i=0;i<num_of_objs;++i){//loop each object
+
     //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
     for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
       param[i]->neur_to=i_maps[i][j].neur_to;
@@ -253,7 +265,7 @@ void main() {
     }
   }
     //printf("sleeping\n");
-    usleep(100000);
+    usleep(1000100);
 
   }
   

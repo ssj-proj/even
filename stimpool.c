@@ -45,6 +45,14 @@ void * worker_thread(void *contract_v){
 
 
 void manager(struct stim_param *p) {
+  static int num_of_call=0;
+  num_of_call++;
+  if( p->vars[p->neur_to][2] == 0) {
+    fprintf(stderr,"    stimpool:obj%u:manager:neur%u:fire_strength = 0\n",p->nobj_props->nobj_id,p->neur_to);
+    fprintf(stderr,"    stimpool:manager: neur from %u, conid: %u\n",p->neur_from,p->conid);
+    fprintf(stderr,"    stimpool:manager: num_of_call:%d",num_of_call);
+   exit(0);
+  }
   int worker = (*p->nobj_props).nobj_id  % num_of_workers;
 
   if(contracts[worker].pool_size<max_queue) {

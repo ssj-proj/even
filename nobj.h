@@ -78,6 +78,8 @@ double ** parse_vars_file(char * file, struct nobj_meta *nobj_props);
 void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****vars);
 void free_vars(int no, struct nobj_meta obj_prop, double ****nvar);
 void display_vars_props(double **vars,struct nobj_meta np);
+int verify_obj_vars(double **vars,struct nobj_meta np);
+
 
 int parse_i_file(char * file, struct i_map **im,struct nobj_meta *nobj_props );
 void init_io(int no, double** props, struct nobj_meta obj_prop, double ****vars);
@@ -99,6 +101,7 @@ void stim_from_env(struct stim_param *sp);//10-3-16 TBI
   Fires to all connected neurs
 */
 void fire_downstream(struct stim_param *sp);
+
 
 
 #endif

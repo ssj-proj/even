@@ -19,6 +19,8 @@ int num_of_queue;
 //data points for each obj [obj][data_point]
 static double **env_obj_track;
 static double *istream;
+static int num_of_istream=3;
+static double *ostream;
 int num_of_points=2;//width of 2nd dimension array
 int *sid_map;//stream id map : 1d arry value at [sid]=obj_id
 char init=0;
@@ -70,7 +72,7 @@ void *main_loop(void *state){
     if(!work) { printf("NULL WORK\n");}
     //while there is work to be donec
     while(work) {//loop through work queue and update all objects 
-      //printf("stream/work: %d/%lf\n",(*work).sid,(*work).dat);
+      printf("stream/work: %d/%lf\n",(*work).sid,(*work).dat);
       istream[work->sid]+=work->dat;
       work=get_next_output(i,env_api_control);
     } 
@@ -88,6 +90,12 @@ void *main_loop(void *state){
 
     }
     num_loop++;
+    i=0;
+    printf("iStreams:");
+    for(i=0;i<num_of_istream;++i) {
+      printf("[%lf]",istream[i]);
+    }
+     printf("\n\n");
     usleep(1000000); 
   }
 }

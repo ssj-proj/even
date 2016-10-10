@@ -94,7 +94,7 @@ int hook_env(int env_id, double *stream, int num_stream){
     return 0;
   }
   else {
-    fprintf(stderr,"hook_env: can't hook env until init_api has been called\n");
+    fprintf(stderr,"env_api:hook_env: can't hook env until init_api has been called\n");
     return 2;
   }
   
@@ -104,25 +104,25 @@ struct job* get_next_output(int queue_id, struct env_control *client_work) {
   int cj = client_work->current_job[queue_id];
   int ql = client_work->queue_limit[queue_id];
   if(cj==ql) {//no work
-    vp(stdout,"no work\n");
+    vp(stdout,"env_api:no work\n");
     return NULL;
   } else if(cj+1!=ql&&cj+1!=client_work->queue_max) { //next job
     cj++;
-    printf("next job %d\n",cj);
+    printf("env_api:next job %d\n",cj);
   } else if(cj+1==client_work->queue_max) { //rotate
     cj=0;
   }
   client_work->current_job[queue_id]=cj;
-  vp(stdout,"RETURNING WORK::::::::::::::::::::::;\n");
+  vp(stdout,"env_api:RETURNING WORK\n");
   return &(client_work->work_queue[queue_id][cj]);
 }
 
 
 int set_output(int nobj_id,int stream_id,double data, int env_id) {
-  vp(stdout,"Setting output!!!!!!!!!!!!!!!!!!\n");
+  vp(stdout,"env_api:Setting output!!!!!!!!!!!!!!!!!!\n");
   struct env_control *client_work=get_env_control(env_id);
   if(!client_work){
-    fprintf(stderr,"Unable to get env_control for env_id:%d\n",env_id);
+    fprintf(stderr,"env_api:Unable to get env_control for env_id:%d\n",env_id);
     return 1;
   }
   //printf("SET OUT!!!!!!!!!!!!!!!!!!!!\n");
@@ -148,7 +148,7 @@ int set_output(int nobj_id,int stream_id,double data, int env_id) {
     cj=0;
   } else if( (cj+1 == (client_work->current_job)[arr_id] ) || 
     ( cj+1 == client_work->queue_max && (client_work->current_job)[arr_id] == 0 ) ) {//queue backed up
-    fprintf(stderr,"Env queue backed up, dropping request at job#:%d\n",cj+1);
+    fprintf(stderr,"Env queue backed up, dropping request at job#:%d -- envID:%d\n",cj+1, env_id);
     return 4;
   }
   //set work
@@ -157,6 +157,7 @@ int set_output(int nobj_id,int stream_id,double data, int env_id) {
   ((client_work->work_queue)[arr_id][cj]).sid=stream_id;
   (client_work->queue_limit)[arr_id]=cj;
   ((client_work->work_queue)[arr_id][cj]).dat=data;
+  return 0;
 }
 int get_istream(int env,int stream_id, double *value) {
   if(!has_init || env<0 || stream_id<0 || env >=  num_of_envs 
