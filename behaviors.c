@@ -19,5 +19,5 @@ int t1(struct stim_param *sp) {
   //printf("Threshold1(stim/thresh/v2)[%u] - (%lf,%lf,%lf)\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_to][0],
   //sp->vars[sp->neur_to][1],sp->vars[sp->neur_to][2]);
   //printf("behav:fire depreciation:%lf\n",sp->vars[sp->neur_to][6]);
-  return 1;
+  return 2;
 }
