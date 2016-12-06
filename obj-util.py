@@ -1,20 +1,56 @@
-import csv
+import csv,sys,getopt
 
-file_i=open('./obj/obj_0.var','rb')
-file_o=open('./obj/obj_0.var','wb')
-reader=csv.reader(file_i)
-writer=csv.writer(file_o)
+def getVarFromFile(filename):
+    import imp
+    f = open(filename)
+    global data
+    data = imp.load_source('data', '', f)
+    f.close()
 
-replace_with="asdfasdfasdf"
-col=1
+def main(argv):
+	inputfile = ''
+	replace_with=""
+	col=1
+	row_interest=-1
+	rowi=0
 
-for row in reader:
-	print row
-	if len(row) != 1:
-		row[col]=replace_with
-		print row
-		writer.writerow(row)
-	else:
-		print row
-		writer.writerow(row)
+	try:
+		opts, args = getopt.getopt(argv,"f:r:c:aw:",[])
+	except getopt.GetoptError:
+		print 'test.py -i <inputfile> -o <outputfile>'
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'test.py -i <inputfile> -o <outputfile>'
+			sys.exit()
+		elif opt == "-f":
+			inputfile = arg
+		elif opt == "-r":
+			row_interest = int(arg)
+		elif opt == "-c":
+			col = int(arg)
+		elif opt == "-a":
+			row_interest=-1
+		elif opt == "-w":
+			replace_with=arg
 
+	#print inputfile+" "+replace_with+" "+row_interest
+	reader = csv.reader(open(inputfile )) # Here your csv file
+	lines = [l for l in reader]
+
+	for row in lines:
+		if ":" in row[0]:
+			continue
+		if row_interest == -1 or rowi==row_interest:
+			row[col]=replace_with
+			print row
+		else:
+			print row
+		rowi+=1
+		print str(rowi)+" "+str(row_interest)
+
+	writer = csv.writer(open(inputfile, 'w'))
+	writer.writerows(lines)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
