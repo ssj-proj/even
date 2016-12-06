@@ -27,7 +27,7 @@ unsigned int** create_props(int neurs, int neur_props) {
   return props;
 }
 void main() {
-  int num_of_objs=3;
+  int num_of_objs=1;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
   //(ie: stim_pool and env):  
   int num_of_threads=2;
@@ -211,10 +211,7 @@ void main() {
   j=0;
   int *state = malloc(sizeof(int));//sent to env
   int init_errors = 0;//if ! 0 at end of all inits, err occured
-    if( nvar[1][0][2] == 0) {
-      fprintf(stderr,"main:fire_strength = 0\n");
-      exit(0);
-    }
+
   init_workers(num_of_threads);//init thread pool for nobjs
    /*
       to implement multiple envs, create array of void* function pointers
@@ -228,7 +225,7 @@ void main() {
    env_data->num_of_objs = num_of_objs;
 
   /*
-    init the env side, this should call hook_env
+    init the env side, thism should call hook_env
     send the control structure, the data structure and the env_id
   */
    init_env0(&envs[0],&env_data[0],0);
@@ -236,14 +233,6 @@ void main() {
      fprintf(stderr,"main: error with initilization: %d",init_errors);
    }
    pthread_create(&env_t,NULL,main_loop,state);//start env thread
-/*
-
-  LOH 10-10-16
-  vars[2] - fire_strength changes during exec. Set to 0. 
-  int verify_obj_vars(double **vars,struct nobj_meta np);
-
-
-*/
 
 
   int errs = 0;
@@ -264,7 +253,7 @@ void main() {
       
     }
   }
-    //printf("sleeping\n");
+    printf("sleeping\n");
     usleep(1000100);
 
   }

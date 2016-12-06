@@ -299,7 +299,7 @@ double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
     int p = 0;
     props[n]=malloc(sizeof(*props) * (*nobj_props).num_of_var_properties);
     for(p;p<(*nobj_props).num_of_var_properties;++p) {
-      if(fscanf(fp,"%lf%*[, \t\n]",&props[n][p])<1) {
+      if(fscanf(fp,"%lf%*[, \t\n]",&props[n][p])<1) {//convert string to double
         printf("ERROR READING %s : MISSING AT LEAST 1 NEUR PROPERTY\n",file);
         fclose(fp);
         return NULL;
@@ -310,6 +310,7 @@ double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
   fclose(fp);
   return props;
 }
+
 void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****vars) {
   (*vars)[no]=malloc(sizeof(double**)*obj_prop.num_of_neurs); //initilize obj's array of neurs
 
@@ -332,7 +333,7 @@ void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****var
       fprintf(stderr,"nobj:init_vars:fire_strength = 0\n");
       exit(0);
     }
-    printf("nobj:init_vars:obj %d , neur %u , firestrength %lf\n",no,i,(*vars)[no][i][2]);
+    printf("nobj:init_vars:obj %d , neur %u , firestrength %lf, depreciation %lf\n",no,i,(*vars)[no][i][2],(*vars)[no][i][6]);
   }
 
 

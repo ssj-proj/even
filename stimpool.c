@@ -51,7 +51,8 @@ void manager(struct stim_param *p) {
     fprintf(stderr,"    stimpool:obj%u:manager:neur%u:fire_strength = 0\n",p->nobj_props->nobj_id,p->neur_to);
     fprintf(stderr,"    stimpool:manager: neur from %u, conid: %u\n",p->neur_from,p->conid);
     fprintf(stderr,"    stimpool:manager: num_of_call:%d",num_of_call);
-   exit(0);
+    //fprintf(stderr,"    exiting:%d",num_of_call);
+    //exit(0);
   }
   int worker = (*p->nobj_props).nobj_id  % num_of_workers;
 
