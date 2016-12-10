@@ -108,7 +108,7 @@ struct job* get_next_output(int queue_id, struct env_control *client_work) {
     return NULL;
   } else if(cj+1!=ql&&cj+1!=client_work->queue_max) { //next job
     cj++;
-    printf("env_api:next job %d\n",cj);
+    //printf("env_api:next job %d\n",cj);
   } else if(cj+1==client_work->queue_max) { //rotate
     cj=0;
   }

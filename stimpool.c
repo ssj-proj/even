@@ -11,6 +11,10 @@ static int num_of_workers=4;
 static int max_queue=100;
 struct stim_param **work_pool;
 
+double progress=0;
+double progress_step=.000001;
+
+
 void * worker_thread(void *contract_v){
 
   
@@ -29,7 +33,15 @@ void * worker_thread(void *contract_v){
       //work
       stim(&(work_pool[(*contract).id][(*contract).current_job]));
       //free queue spot
- 
+      /*
+       possible race condition - won't keep perfect time 
+       since >1 thread modifying progress
+       shouldn't cause any faults, only added to and read. 
+       --Should also create condition to reset back to 0 or double min
+       --the slightly inaccurate time should not modify results in a 
+         significant way
+      */
+      progress+=progress_step;
     
     } else{}
 

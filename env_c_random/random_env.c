@@ -69,10 +69,12 @@ void *main_loop(void *state){
   while(1) {
     
     work=get_next_output(0,env_api_control);//get next work
-    if(!work) { printf("NULL WORK\n");}
+    if(!work) { 
+      //printf("NULL WORK\n");
+    }
     //while there is work to be donec
     while(work) {//loop through work queue and update all objects 
-      printf("stream/work: %d/%lf\n",(*work).sid,(*work).dat);
+      //printf("stream/work: %d/%lf\n",(*work).sid,(*work).dat);
       istream[work->sid]+=work->dat;
       work=get_next_output(i,env_api_control);
     } 
@@ -91,13 +93,14 @@ void *main_loop(void *state){
     }
     num_loop++;
     i=0;
-    printf("iStreams:");
+
+   /* printf("iStreams:");
     for(i=0;i<num_of_istream;++i) {
       printf("[%lf]",istream[i]);
     }
-     printf("\n\n");
-    usleep(1000000); 
+     printf("\n\n");*/
+    usleep(1);//--should be same as stimpool sleep time 
   }
 }
-    /* cut stuff---*/
+
 

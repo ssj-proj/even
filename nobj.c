@@ -1,7 +1,5 @@
 /*
-  tofix - nonexistant error checking for file formats
-  tofix - get rid of getline usage and replace with fgets
-
+  Contains functions related to workings of individual neurs
 */
 #include <stdio.h>
 #include <stdlib.h>

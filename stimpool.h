@@ -4,6 +4,12 @@
 #include <pthread.h>
 #include "nobj.h"
 
+/*
+  Used as as clock
+*/
+extern double progress;
+extern double progress_step;
+
 //hols data to be passed to workers
 struct contract {
   int id;

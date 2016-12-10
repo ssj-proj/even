@@ -130,12 +130,15 @@ void main() {
   */
   /*
     Define possible behaviors, a part of stim param
+    TODO - function to dynamically load this
   */
   struct behav_pool behaviors; 
   behaviors.behaviors = malloc(sizeof(behavior) * 1 );
-  behaviors.behaviors[0]=&b1;
-  behaviors.threshholds = malloc(sizeof(threshhold) * 1 );
-  behaviors.threshholds[0]=&t1;
+  behaviors.behaviors[0]=&empty_behavior;
+  behaviors.threshholds = malloc(sizeof(threshhold) * 2 );
+  behaviors.threshholds[0]=&thresh_hold;
+  behaviors.threshholds[1]=&regulated_thresh;
+
 
   /* load settings for obj from their init files */
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) { 
@@ -238,25 +241,26 @@ void main() {
   int errs = 0;
 
   while(1) {
-  for(i=0;i<num_of_objs;++i){//loop each object
+    for(i=0;i<num_of_objs;++i){//loop each object
 
     //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
-    for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
-      param[i]->neur_to=i_maps[i][j].neur_to;
-      errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
-      if(errs==0){
-        //printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
-        manager(param[i]);//drop work into thread pool
-      } else {
-        fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
-      }
-      
-    }
-  }
+      for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
+        param[i]->neur_to=i_maps[i][j].neur_to;
+        errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
+        if(errs==0){
+          printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
+          (*param[i]).stim=101;
+          manager(param[i]);//drop work into thread pool
+        } else {
+          fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
+        }
+      }//end stream loop
+    }//end obj loop
+   
     printf("sleeping\n");
-    usleep(1000100);
-
-  }
+    usleep(1000000);
+    break;
+  }//main loop
   
   wait_for_threads();
   exit(0);
