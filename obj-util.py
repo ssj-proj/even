@@ -1,5 +1,5 @@
 import csv,sys,getopt
-
+#TODO - update file headers
 
 def change_all_rows(inputfile, replace_with,col,row_interest):
 	rowi=0
@@ -76,8 +76,8 @@ def main(argv):
 		print "-c column of interest"
 		print "-a affect all rows"
 		print "-w replace with"
-		print "-R Replace column(s)"
-		print "-A append a column(S)"
+		print "-R Replace column(s) - modified with either -r or -a"
+		print "-A append an column(S) to end of all rows"
 		print "-h print help"
 		
 

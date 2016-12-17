@@ -99,7 +99,7 @@ void *main_loop(void *state){
       printf("[%lf]",istream[i]);
     }
      printf("\n\n");*/
-    usleep(1);//--should be same as stimpool sleep time 
+    usleep(100);//--should be same as stimpool sleep time 
   }
 }
 

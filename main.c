@@ -136,8 +136,8 @@ void main() {
   behaviors.behaviors = malloc(sizeof(behavior) * 1 );
   behaviors.behaviors[0]=&empty_behavior;
   behaviors.threshholds = malloc(sizeof(threshhold) * 2 );
-  behaviors.threshholds[0]=&thresh_hold;
-  behaviors.threshholds[1]=&regulated_thresh;
+  behaviors.threshholds[1]=&thresh_hold;
+  behaviors.threshholds[0]=&regulated_thresh;
 
 
   /* load settings for obj from their init files */
@@ -239,7 +239,7 @@ void main() {
 
 
   int errs = 0;
-
+  
   while(1) {
     for(i=0;i<num_of_objs;++i){//loop each object
 

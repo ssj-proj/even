@@ -80,8 +80,8 @@ void manager(struct stim_param *p) {
       }
     }
   }
-  else {
-    if(contracts[worker].current_job==0) {
+  else {//at max queue number
+    if(contracts[worker].current_job==0) {//next available job isn't done
       printf("  OBJ ID: %u has a backed up work queue, dropping job!!!Current Job #[%d]\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job );
      
     } else {
@@ -110,7 +110,7 @@ void init_workers(int num) {
     contracts[i].fired=0;
     contracts[i].pool_size=-1;
     contracts[i].current_job=-1;
-    contracts[i].time_to_sleep=1;
+    contracts[i].time_to_sleep=1000;//has limited effect, workers only sleep when there are no jobs left in queue
     work_pool[i]=malloc(sizeof(struct stim_param)*max_queue);//alloc space for job
     pthread_create(&workers[i],NULL,worker_thread,&contracts[i]);
   }

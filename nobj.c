@@ -328,7 +328,8 @@ void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****var
       //printf(" varp:%lf\n",((*vars)[no][i][j]));
     }
     if( (*vars)[no][i][2] == 0) {
-      fprintf(stderr,"nobj:init_vars:fire_strength = 0\n");
+      fprintf(stderr,"nobj:init_vars:fire_strength = 0; exiting...\n");
+      fprintf(stderr,"    nobj:init_vars: obj id[%u] neur[%u]",no,i);
       exit(0);
     }
     printf("nobj:init_vars:obj %d , neur %u , firestrength %lf, depreciation %lf\n",no,i,(*vars)[no][i][2],(*vars)[no][i][6]);
@@ -474,7 +475,7 @@ void copy_stim_param(struct stim_param from, struct stim_param *to) {
 void stim(struct stim_param *sp) {
       if( sp->vars[sp->neur_to][2] == 0) {
       fprintf(stderr,"nobj%u:stim:neur%u:fire_strength = 0\n",sp->nobj_props->nobj_id,sp->neur_to);
-      //exit(0);
+     
     }
   
 
