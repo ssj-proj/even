@@ -34,12 +34,7 @@ void * worker_thread(void *contract_v){
       stim(&(work_pool[(*contract).id][(*contract).current_job]));
       //free queue spot
       /*
-       possible race condition - won't keep perfect time 
-       since >1 thread modifying progress
-       shouldn't cause any faults, only added to and read. 
-       --Should also create condition to reset back to 0 or double min
-       --the slightly inaccurate time should not modify results in a 
-         significant way
+       TODO - make progress var per thread
       */
       progress+=progress_step;
     
@@ -82,7 +77,7 @@ void manager(struct stim_param *p) {
   }
   else {//at max queue number
     if(contracts[worker].current_job==0) {//next available job isn't done
-      printf("  OBJ ID: %u has a backed up work queue, dropping job!!!Current Job #[%d]\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job );
+      printf("  OBJ ID: %u has a backed up work queue, dropping job!!!Current Job #[%d], max queue: %d\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job,max_queue );
      
     } else {
       contracts[worker].pool_size=0;
