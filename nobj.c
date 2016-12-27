@@ -534,9 +534,9 @@ void fire_downstream(struct stim_param *sp) {
  
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
   for(i=1; i < num_to_send+1;++i) {
-     (*sp).conid=(*sp).conids[(*sp).neur_from][i];
-     (*sp).neur_to=(*sp).cons[(*sp).neur_from][i];
-     printf("nobj.c:fire to/from %u/%u data:%lf\n",sp->neur_from,sp->neur_to,sp->stim);
+     sp->conid=sp->conids[sp->neur_from][i];
+     sp->neur_to=sp->cons[sp->neur_from][i];
+     printf("nobj.c:fire from/to %u/%u data:%lf\n",sp->neur_from,sp->neur_to,sp->stim);
      manager(sp);//put work on top of work queue
   }
 }

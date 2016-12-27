@@ -30,13 +30,15 @@ int thresh_hold(struct stim_param *sp) { //0
 int regulated_thresh(struct stim_param *sp) { //1
   //printf(" Thresh 1!\n");
  //printf("[Threshold1(stim/thresh/v2)(%lf,%lf,%lf)\n",(*sp).vars[(*sp).neur_to][0], (*sp).vars[(*sp).neur_to][1],(*sp).vars[(*sp).neur_to][2]);
+  double progress = get_progress(sp);
+  double progress_step = get_progress_step(sp);
   double dtl = (  (progress  - sp->vars[sp->neur_to][8])/progress_step);
   double min_tl=3.00000;
-     printf("time %lf  last fire %lf    --- diff  %lf\n",progress,sp->vars[sp->neur_to][8],dtl);
+     printf("time %lf  last fire %lf    --- diff  %lf:from:%u to:%u\n",sp->neur_from,sp->neur_to,progress,sp->vars[sp->neur_to][8],dtl);
 
   if(  dtl < min_tl - (.25) ){//attempt at measuring discrete time
     //within colldown - stim minimized or ignored
-    printf("   regulated_thresh:rejected:%u\n",sp->neur_to);
+    printf("   regulated_thresh:rejected:from:%u to:%u\n",sp->neur_from,sp->neur_to);
     printf("   !!!time %lf  last fire %lf    --- diff  %lf\n",progress,sp->vars[sp->neur_to][8],dtl);
     exit(-2);
     return 1;

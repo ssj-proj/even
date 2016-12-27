@@ -11,8 +11,7 @@ static int num_of_workers=4;
 static int max_queue=100;
 struct stim_param **work_pool;
 
-double progress=0;
-double progress_step=.000001;
+
 
 
 void * worker_thread(void *contract_v){
@@ -20,29 +19,31 @@ void * worker_thread(void *contract_v){
   
   struct contract *contract = (struct contract*)(contract_v); 
   
-  while((*contract).fired==0) {//dont exit thread
+  while(contract->fired==0) {//dont exit thread
     
-    if((*contract).pool_size!=(*contract).current_job) {
+    if(contract->pool_size!=contract->current_job) {
 
-      if((*contract).current_job+1==max_queue) {
-        (*contract).current_job=0;
+      if(contract->current_job+1==max_queue) {
+        contract->current_job=0;
       } else {
-        (*contract).current_job++;
+        contract->current_job++;
       }
 
       //work
-      stim(&(work_pool[(*contract).id][(*contract).current_job]));
+      stim(&(work_pool[contract->id][contract->current_job]));
       //free queue spot
       /*
        TODO - make progress var per thread
       */
-      progress+=progress_step;
+      
+      contract->progress+=contract->progress_step;
+      
     
     } else{}
 
-    if((*contract).pool_size==(*contract).current_job) {//last job in queue
+    if(contract->pool_size==contract->current_job) {//last job in queue
       //printf("[sleeping]");
-      usleep((*contract).time_to_sleep);
+      usleep(contract->time_to_sleep);
     } else {
       //printf("[overtime(cj/pool)(%d / %d)]", (*contract).current_job ,
       //(*contract).pool_size);
@@ -50,7 +51,18 @@ void * worker_thread(void *contract_v){
   }
 }
 
-
+/*
+  can be called from neur stim, uses sim_param to determine which worker stim belongs
+  to and then returns the progress(time) of that worker.
+*/
+double get_progress(struct stim_param *p) {
+  int worker = (*p->nobj_props).nobj_id  % num_of_workers;
+  return contracts[worker].progress;
+}
+double get_progress_step(struct stim_param *p) {
+  int worker = (*p->nobj_props).nobj_id  % num_of_workers;
+  return contracts[worker].progress_step;
+}
 void manager(struct stim_param *p) {
   static int num_of_call=0;
   num_of_call++;
@@ -63,7 +75,7 @@ void manager(struct stim_param *p) {
   }
   int worker = (*p->nobj_props).nobj_id  % num_of_workers;
 
-  if(contracts[worker].pool_size<max_queue) {
+  if(contracts[worker].pool_size<max_queue-1) {
     if(contracts[worker].pool_size+1==contracts[worker].current_job) {
       printf("  OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",(*p->nobj_props).nobj_id,contracts[worker].current_job );
     } else {
@@ -106,6 +118,8 @@ void init_workers(int num) {
     contracts[i].pool_size=-1;
     contracts[i].current_job=-1;
     contracts[i].time_to_sleep=1000;//has limited effect, workers only sleep when there are no jobs left in queue
+    contracts[i].progress=0;
+    contracts[i].progress_step=.0001;
     work_pool[i]=malloc(sizeof(struct stim_param)*max_queue);//alloc space for job
     pthread_create(&workers[i],NULL,worker_thread,&contracts[i]);
   }
