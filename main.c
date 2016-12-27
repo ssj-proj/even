@@ -239,7 +239,8 @@ void main() {
 
 
   int errs = 0;
-  
+  printf("about to start input:");
+  system("read");
   while(1) {
     for(i=0;i<num_of_objs;++i){//loop each object
 
@@ -250,15 +251,15 @@ void main() {
         if(errs==0){
           printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
           (*param[i]).stim=101;
+	  printf("about to start input:");
+	  system("read");
           manager(param[i]);//drop work into thread pool
         } else {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
         }
       }//end stream loop
     }//end obj loop
-   
-    printf("sleeping\n");
-    usleep(1000000);
+    
     break;
   }//main loop
   
