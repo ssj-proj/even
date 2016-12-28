@@ -8,7 +8,7 @@
 static pthread_t *workers;
 static struct contract *contracts;
 static int num_of_workers=4;
-static int max_queue=100;
+static int max_queue=2;
 struct stim_param **work_pool;
 
 
