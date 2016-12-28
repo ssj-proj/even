@@ -24,9 +24,6 @@ int thresh_hold(struct stim_param *sp) { //0
   return 1;
 }
 //these neurs require var7-8 - should have a cooldown after fire to limit fire frequency - TBI
-/*
-	LOH 12-10-16
-*/
 int regulated_thresh(struct stim_param *sp) { //1
   //printf(" Thresh 1!\n");
  //printf("[Threshold1(stim/thresh/v2)(%lf,%lf,%lf)\n",(*sp).vars[(*sp).neur_to][0], (*sp).vars[(*sp).neur_to][1],(*sp).vars[(*sp).neur_to][2]);
@@ -40,7 +37,7 @@ int regulated_thresh(struct stim_param *sp) { //1
     //within colldown - stim minimized or ignored
     printf("   regulated_thresh:rejected:from:%u to:%u\n",sp->neur_from,sp->neur_to);
     printf("   !!!time %lf  last fire %lf    --- diff  %lf\n",progress,sp->vars[sp->neur_to][8],dtl);
-    exit(-2);
+   // exit(-2);
     return 1;
   }
 

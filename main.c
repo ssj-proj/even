@@ -6,12 +6,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <signal.h>
 #include "nobj.h"
 #include "behaviors.h"
 #include "stimpool.h"
 #include "env_api.h"
 #include "env_c_random/random_env.h"
 #include <unistd.h>
+
+struct sigaction old_action;
 
 unsigned int** create_props(int neurs, int neur_props) {
  
@@ -26,7 +29,19 @@ unsigned int** create_props(int neurs, int neur_props) {
   }
   return props;
 }
+void end_program(int sig_no){
+    printf("CTRL-C pressed\n");
+    sigaction(SIGINT, &old_action, NULL);
+    kill(0, SIGINT);
+
+}
 void main() {
+    struct sigaction action;
+    memset(&action, 0, sizeof(action));
+    action.sa_handler = &end_program;
+    sigaction(SIGINT, &action, &old_action);
+
+
   int num_of_objs=1;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
   //(ie: stim_pool and env):  

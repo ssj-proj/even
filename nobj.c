@@ -523,7 +523,7 @@ void fire_downstream(struct stim_param *sp) {
   if(set_output(sp->nobj_props->nobj_id,sp->vars[sp->neur_from][5],
     sp->stim,(int)(sp->vars[sp->neur_from][4])  ) != 0) {
      
-    fprintf(stderr,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
+    //fprintf(stderr,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
     if(t!=(int)(sp->vars[sp->neur_from][4])){
       fprintf(stderr,"ENV got corrupt!\n\n");
     }

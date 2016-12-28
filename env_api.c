@@ -148,7 +148,7 @@ int set_output(int nobj_id,int stream_id,double data, int env_id) {
     cj=0;
   } else if( (cj+1 == (client_work->current_job)[arr_id] ) || 
     ( cj+1 == client_work->queue_max && (client_work->current_job)[arr_id] == 0 ) ) {//queue backed up
-    fprintf(stderr,"Env queue backed up, dropping request at job#:%d -- envID:%d\n",cj+1, env_id);
+   // fprintf(stderr,"Env queue backed up, dropping request at job#:%d -- envID:%d\n",cj+1, env_id);
     return 4;
   }
   //set work
