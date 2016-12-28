@@ -31,16 +31,19 @@ unsigned int** create_props(int neurs, int neur_props) {
 }
 void end_program(int sig_no){
     printf("CTRL-C pressed\n");
+    proc_err("====Exiting program====\n",0);
+    FILE *f = fopen("eve.log","r");
     sigaction(SIGINT, &old_action, NULL);
     kill(0, SIGINT);
 
 }
 void main() {
-    struct sigaction action;
-    memset(&action, 0, sizeof(action));
-    action.sa_handler = &end_program;
-    sigaction(SIGINT, &action, &old_action);
+  struct sigaction action;
+  memset(&action, 0, sizeof(action));
+  action.sa_handler = &end_program;
+  sigaction(SIGINT, &action, &old_action);
 
+  init_err("./eve.log",5,2);
 
   int num_of_objs=1;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary

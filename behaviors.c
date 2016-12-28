@@ -31,13 +31,14 @@ int regulated_thresh(struct stim_param *sp) { //1
   double progress_step = get_progress_step(sp);
   double dtl = (  (progress  - sp->vars[sp->neur_to][8])/progress_step);
   double min_tl=3.00000;//minimum time last - 
-     printf("time %lf  last fire %lf    --- diff  %lf:from:%u to:%u\n",sp->neur_from,sp->neur_to,progress,sp->vars[sp->neur_to][8],dtl);
-
+  char ebuff[100];
+  sprintf(ebuff,"DEBUG:behaviors.c:time %lf  last fire %lf    --- diff  %lf:from:%u to:%u\n",sp->neur_from,sp->neur_to,progress,sp->vars[sp->neur_to][8],dtl);
+  proc_err(ebuff,5);
   if(  dtl < min_tl - (.25) ){//attempt at measuring discrete time
     //within colldown - stim minimized or ignored
-    printf("   regulated_thresh:rejected:from:%u to:%u\n",sp->neur_from,sp->neur_to);
-    printf("   !!!time %lf  last fire %lf    --- diff  %lf\n",progress,sp->vars[sp->neur_to][8],dtl);
-   // exit(-2);
+    char ebuff[100];
+    sprintf(ebuff,"DEBUG:behaviors.c:regulated_thresh:rejected:from:%u to:%u | time %lf-last fire %lf diff %lf\n",sp->neur_from,sp->neur_to,progress,sp->vars[sp->neur_to][8],dtl);
+    proc_err(ebuff,5);
     return 1;
   }
 

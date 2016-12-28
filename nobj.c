@@ -523,9 +523,11 @@ void fire_downstream(struct stim_param *sp) {
   if(set_output(sp->nobj_props->nobj_id,sp->vars[sp->neur_from][5],
     sp->stim,(int)(sp->vars[sp->neur_from][4])  ) != 0) {
      
-    //fprintf(stderr,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
+    char err_buff[100];
+    sprintf(err_buff,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
+    proc_err(err_buff,2);
     if(t!=(int)(sp->vars[sp->neur_from][4])){
-      fprintf(stderr,"ENV got corrupt!\n\n");
+      proc_err("ERROR:nobj.c:ENV got corrupt!",1);
     }
   }
 /*
@@ -536,8 +538,10 @@ void fire_downstream(struct stim_param *sp) {
   for(i=1; i < num_to_send+1;++i) {
      sp->conid=sp->conids[sp->neur_from][i];
      sp->neur_to=sp->cons[sp->neur_from][i];
-     printf("nobj.c:fire from/to %u/%u data:%lf\n",sp->neur_from,sp->neur_to,sp->stim);
-     manager(sp);//put work on top of work queue
+     char err_buff[100];
+    sprintf(err_buff,"DEBUG:nobj.c:fire from/to %u/%u data:%lf\n",sp->neur_from,sp->neur_to,sp->stim);
+    proc_err(err_buff,5);
+    manager(sp);//put work on top of work queue
   }
 }
 //int check_nobj_props(struct nobj_meta props);

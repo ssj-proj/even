@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include "nobj.h"
 #include "stimpool.h"
+#include "err.h"
 #include <unistd.h>
 
 static pthread_t *workers;
@@ -43,10 +44,12 @@ void * worker_thread(void *contract_v){
 
     if(contract->pool_size==contract->current_job) {//last job in queue
       //printf("[sleeping]");
+      //proc_err("INFO:stimpool.c:worker finished all jobs\n",5);
       usleep(contract->time_to_sleep);
     } else {
       //printf("[overtime(cj/pool)(%d / %d)]", (*contract).current_job ,
       //(*contract).pool_size);
+  
     }
   }
 }
@@ -67,17 +70,19 @@ void manager(struct stim_param *p) {
   static int num_of_call=0;
   num_of_call++;
   if( p->vars[p->neur_to][2] == 0) {
-    fprintf(stderr,"    stimpool:obj%u:manager:neur%u:fire_strength = 0\n",p->nobj_props->nobj_id,p->neur_to);
-    fprintf(stderr,"    stimpool:manager: neur from %u, conid: %u\n",p->neur_from,p->conid);
-    fprintf(stderr,"    stimpool:manager: num_of_call:%d",num_of_call);
+    char err_buff[100];
+    sprintf(err_buff,"WARNING:stimpool.c: neur with bad fire strength: obj%u:neur%u:fire_strength = 0\n",p->nobj_props->nobj_id,p->neur_to);
+    proc_err(err_buff,4);
     //fprintf(stderr,"    exiting:%d",num_of_call);
     //exit(0);
   }
   int worker = (*p->nobj_props).nobj_id  % num_of_workers;
 
   if(contracts[worker].pool_size<max_queue-1) {
+     char err_buff[100];
     if(contracts[worker].pool_size+1==contracts[worker].current_job) {
-      printf("  OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",(*p->nobj_props).nobj_id,contracts[worker].current_job );
+      sprintf(err_buff,"ERROR:stimpool.c: OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",(*p->nobj_props).nobj_id,contracts[worker].current_job );
+      proc_err(err_buff,2);
     } else {
       if(p != NULL) {  
         copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size+1]); 
@@ -89,7 +94,9 @@ void manager(struct stim_param *p) {
   }
   else {//at max queue number
     if(contracts[worker].current_job==0) {//next available job isn't done
-      printf("  OBJ ID: %u has a backed up work queue, dropping job!!!Current Job #[%d], max queue: %d\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job,max_queue );
+      char err_buff[100];
+      sprintf(err_buff,"ERROR:stimpool.c: OBJ ID: %u has a backed up work queue, dropping job!!!Current Job #[%d], max queue: %d\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job,max_queue );
+      proc_err(err_buff,2);
      
     } else {
       contracts[worker].pool_size=0;
@@ -103,6 +110,7 @@ void wait_for_threads() {
 }
 // (num_of_threads to make)
 void init_workers(int num) {
+  proc_err("\n=====Init Workers====\n",0);
   printf("Creating %d threads\n", num);
   int i = 0;
   int j =0;
@@ -121,6 +129,7 @@ void init_workers(int num) {
     contracts[i].progress=0;
     contracts[i].progress_step=.0001;
     work_pool[i]=malloc(sizeof(struct stim_param)*max_queue);//alloc space for job
+    proc_err("Debug:Creating stimpool worker thread\n",5);
     pthread_create(&workers[i],NULL,worker_thread,&contracts[i]);
   }
 
