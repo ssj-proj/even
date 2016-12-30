@@ -43,7 +43,7 @@ void main() {
   action.sa_handler = &end_program;
   sigaction(SIGINT, &action, &old_action);
 
-  init_err("./eve.log",5,2);
+  init_err("./eve.log",3,2);
 
   int num_of_objs=1;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
