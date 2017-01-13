@@ -30,17 +30,11 @@ unsigned int** create_props(int neurs, int neur_props) {
   return props;
 }
 void end_program(int sig_no){
-<<<<<<< HEAD
-    printf("CTRL-C pressed\n");
-    proc_err("====Exiting program====\n",0);
-    sigaction(SIGINT, &old_action, NULL);
-    kill(0, SIGINT);
-=======
+
   printf("CTRL-C pressed\n");
   //TODO - save obj states
   sigaction(SIGINT, &old_action, NULL);
   kill(0, SIGINT);
->>>>>>> stabalized_loop
 
 } 
 void start_program(int argv, char *args) {
@@ -116,12 +110,8 @@ void start_program(int argv, char *args) {
     1D array [obj_id] = struct map { stream_id, neur_id] };
   */
   struct i_map **i_maps;
-<<<<<<< HEAD
-  int *num_of_streams;//1d array of ints that list number of streams for each env
-=======
   int num_of_envs=1;
   int *num_of_streams;//1d array of ints that list number of streams for each environment
->>>>>>> stabalized_loop
 
 
   /* END ENV VARS */
@@ -281,8 +271,6 @@ void start_program(int argv, char *args) {
         errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
         if(errs==0){
           printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
-	  printf("about to start input:");
-	  system("read");
           manager(param[i]);//drop work into thread pool
         } else {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
@@ -290,12 +278,10 @@ void start_program(int argv, char *args) {
       }//end stream loop
     }//end obj loop
     
-    break;
   }//main loop
   
   wait_for_threads();
   exit(0);
-<<<<<<< HEAD
 
 }
 void main(int argv, char *args) {
@@ -304,8 +290,6 @@ void main(int argv, char *args) {
   */
 
   start_program(argv,args);
-=======
->>>>>>> stabalized_loop
 }
 
 
