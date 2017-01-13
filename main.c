@@ -36,14 +36,26 @@ void end_program(int sig_no){
     kill(0, SIGINT);
 
 } 
-void main() {
+void start_program(int argv, char *args) {
+  //set up exit action
   struct sigaction action;
   memset(&action, 0, sizeof(action));
   action.sa_handler = &end_program;
   sigaction(SIGINT, &action, &old_action);
+  //sets error log location and verbosity level
+  init_err("./eve.log",3,2);
 
-  init_err("./eve.log",3,2);//sets error log location and verbosity level
+  /*
+    TODO - should parse config file for below vars:
+      num_of_objs
+      num_of_threads
+      num_of_environments
+  char *obj_file_base="./obj/obj_";
+  char *des_extension=".des";
+  char *con_extension=".con";
+  char *var_extension=".var";
 
+  */
   int num_of_objs=1;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
   //(ie: stim_pool and env):  
@@ -97,7 +109,6 @@ void main() {
     1D array [obj_id] = struct map { stream_id, neur_id] };
   */
   struct i_map **i_maps;
-  int num_of_envs=1;
   int *num_of_streams;//1d array of ints that list number of streams for each env
 
 
@@ -112,7 +123,7 @@ void main() {
   i_maps      =malloc( num_of_objs * sizeof(*i_maps));
   envs = malloc(sizeof(struct env_control)*num_of_environments);
   env_data = malloc(sizeof(struct env_control)*num_of_environments);
-  num_of_streams = malloc(num_of_envs * sizeof(*num_of_streams));
+  num_of_streams = malloc(num_of_environments * sizeof(*num_of_streams));
   
   /*
     used for neur thread distribution - stim parameters
@@ -283,45 +294,13 @@ void main() {
   wait_for_threads();
   exit(0);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
+void main(int argv, char *args) {
   /*
-    End Testing
+    Perform initial preproccessing
   */
-  /* Env Psuedo */
-  /*
-    #only working on istreams currently
-      load settings from env to get total number of istream
-      load settings from env to get initial istream max
-      each array has accompanying array size of max istream :/
-      create struct and management functions to manage input and output
-         from these streams.
 
-      load each obj in file, adjust istream array to make sure it fits. Grow istream array if needed :/
-  */
-   
-  //loop inf
-    //loop all envs [num_of_envs]
-      //loop at istreams double istreams [num_of_envs][istream]
-        //set var d = value of istream
-        //loop clients of istream istream_clients[num_of_envs][istream][clients] 
-          //set input to neur = d
-  /* End Psuedo */
+  start_program(argv,args);
 }
 
 
