@@ -30,9 +30,10 @@ unsigned int** create_props(int neurs, int neur_props) {
   return props;
 }
 void end_program(int sig_no){
-    printf("CTRL-C pressed\n");
-    sigaction(SIGINT, &old_action, NULL);
-    kill(0, SIGINT);
+  printf("CTRL-C pressed\n");
+  //TODO - save obj states
+  sigaction(SIGINT, &old_action, NULL);
+  kill(0, SIGINT);
 
 }
 void main() {
@@ -96,11 +97,11 @@ void main() {
   */
   struct i_map **i_maps;
   int num_of_envs=1;
-  int *num_of_streams;//1d array of ints that list number of streams for each env
+  int *num_of_streams;//1d array of ints that list number of streams for each environment
 
 
   /* END ENV VARS */
-  //malloc nobj vars and their mutex's
+  //malloc nobj vars
   nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
   weights     =malloc( num_of_objs * sizeof(double**));
   nobjs       =malloc( num_of_objs * sizeof(unsigned int**));
@@ -210,24 +211,11 @@ void main() {
     (*param[nobj_id]).weights=weights[nobj_id];
     (*param[nobj_id]).vars=nvar[nobj_id];
     (*param[nobj_id]).nobj_props=&(nobj_props[nobj_id]);
-    (*param[nobj_id]).neur_from=UINT_MAX;//When stim from anything but another nuer, from is max usigned int
+    (*param[nobj_id]).neur_from=UINT_MAX;//When stim from anything but another nuer, from neur_id = max usigned int
     (*param[nobj_id]).conid=UINT_MAX;
   }
 
-
-  //(unsigned int neur_from, unsigned int neur_to, unsigned int conid, double stim, struct behav_pool bp,unsigned int***nobj,unsigned int***cons,unsigned int***conids, double***weights, double***vars)
-
-   //Manually setting vars
-  num_of_streams[0]=3;
   int i =0,j=0; //temp loop/index vars
-  
-
-  /* 
-    Testing Nobjs
-  */
-  i=0;
-  j=0;
-  int *state = malloc(sizeof(int));//sent to env
   int init_errors = 0;//if ! 0 at end of all inits, err occured
 
   init_workers(num_of_threads);//init thread pool for nobjs
@@ -246,13 +234,17 @@ void main() {
     init the env side, thism should call hook_env
     send the control structure, the data structure and the env_id
   */
-   init_env0(&envs[0],&env_data[0],0);
-   if(init_errors!=0){
-     fprintf(stderr,"main: error with initilization: %d",init_errors);
-   }
-   pthread_create(&env_t,NULL,main_loop,state);//start env thread
+  num_of_streams[0]=3;//number of input streams for environment 0 - TODO dynamically load this
+  int *state = malloc(sizeof(int));//sent to env
+  init_env0(&envs[0],&env_data[0],0);//TODO - dynamic way to load multiple environments
+  if(init_errors!=0){
+    fprintf(stderr,"main: error with initilization: %d",init_errors);
+    exit(-1);
+  }
+  pthread_create(&env_t,NULL,main_loop,state);//start env thread
 
-
+  i=0;
+  j=0;
   int errs = 0;
   printf("about to start input:");
   system("read");
@@ -265,7 +257,6 @@ void main() {
         errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
         if(errs==0){
           printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
-          (*param[i]).stim=101;
 	  printf("about to start input:");
 	  system("read");
           manager(param[i]);//drop work into thread pool
@@ -280,46 +271,6 @@ void main() {
   
   wait_for_threads();
   exit(0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  /*
-    End Testing
-  */
-  /* Env Psuedo */
-  /*
-    #only working on istreams currently
-      load settings from env to get total number of istream
-      load settings from env to get initial istream max
-      each array has accompanying array size of max istream :/
-      create struct and management functions to manage input and output
-         from these streams.
-
-      load each obj in file, adjust istream array to make sure it fits. Grow istream array if needed :/
-  */
-   
-  //loop inf
-    //loop all envs [num_of_envs]
-      //loop at istreams double istreams [num_of_envs][istream]
-        //set var d = value of istream
-        //loop clients of istream istream_clients[num_of_envs][istream][clients] 
-          //set input to neur = d
-  /* End Psuedo */
 }
 
 
