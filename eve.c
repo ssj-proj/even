@@ -3,6 +3,7 @@
 #include "stimpool.h"
 #include "env_api.h"
 #include "env_c_random/random_env.h"
+#include "eve.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +35,10 @@ void end_program(int sig_no){
   kill(0, SIGINT);
 
 } 
-
-void start_program(int argv, char *args) {
+struct main_control * create_control() {
+  return (struct main_control *)malloc(sizeof(struct main_control));
+}
+void start_program(int argv, char *args, struct main_control *control) {
   //set up exit action
   struct sigaction action;
   memset(&action, 0, sizeof(action));
