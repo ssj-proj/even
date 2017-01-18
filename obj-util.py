@@ -2,6 +2,7 @@
 
 from string import printable
 from curses import erasechar, wrapper, KEY_BACKSPACE
+from evepy import even
 import csv,sys,getopt
 
 PRINTABLE = map(ord, printable)

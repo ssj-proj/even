@@ -761,6 +761,7 @@ static const char __pyx_k_test[] = "__test__";
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_test;
 static int __pyx_pf_5evepy_4even___cinit__(struct __pyx_obj_5evepy_even *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5evepy_4even_2start(struct __pyx_obj_5evepy_even *__pyx_v_self); /* proto */
 static PyObject *__pyx_tp_new_5evepy_even(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 
 /* "evepy.pyx":5
@@ -768,7 +769,7 @@ static PyObject *__pyx_tp_new_5evepy_even(PyTypeObject *t, PyObject *a, PyObject
  * 	cdef evepy.main_control *control
  * 	def __cinit__(self):             # <<<<<<<<<<<<<<
  * 		self.control = evepy.create_control()
- * 		evepy.start_program(0, NULL,self.control)
+ * 		self.control.halt=1
  */
 
 /* Python wrapper */
@@ -796,27 +797,76 @@ static int __pyx_pf_5evepy_4even___cinit__(struct __pyx_obj_5evepy_even *__pyx_v
  * 	cdef evepy.main_control *control
  * 	def __cinit__(self):
  * 		self.control = evepy.create_control()             # <<<<<<<<<<<<<<
- * 		evepy.start_program(0, NULL,self.control)
+ * 		self.control.halt=1
+ * 	def start(self):
  */
   __pyx_v_self->control = create_control();
 
   /* "evepy.pyx":7
  * 	def __cinit__(self):
  * 		self.control = evepy.create_control()
- * 		evepy.start_program(0, NULL,self.control)             # <<<<<<<<<<<<<<
+ * 		self.control.halt=1             # <<<<<<<<<<<<<<
+ * 	def start(self):
+ * 		evepy.start_program(0, NULL,self.control)
  */
-  start_program(0, NULL, __pyx_v_self->control);
+  __pyx_v_self->control->halt = 1;
 
   /* "evepy.pyx":5
  * cdef class even:
  * 	cdef evepy.main_control *control
  * 	def __cinit__(self):             # <<<<<<<<<<<<<<
  * 		self.control = evepy.create_control()
- * 		evepy.start_program(0, NULL,self.control)
+ * 		self.control.halt=1
  */
 
   /* function exit code */
   __pyx_r = 0;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "evepy.pyx":8
+ * 		self.control = evepy.create_control()
+ * 		self.control.halt=1
+ * 	def start(self):             # <<<<<<<<<<<<<<
+ * 		evepy.start_program(0, NULL,self.control)
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5evepy_4even_3start(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5evepy_4even_3start(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("start (wrapper)", 0);
+  __pyx_r = __pyx_pf_5evepy_4even_2start(((struct __pyx_obj_5evepy_even *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5evepy_4even_2start(struct __pyx_obj_5evepy_even *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("start", 0);
+
+  /* "evepy.pyx":9
+ * 		self.control.halt=1
+ * 	def start(self):
+ * 		evepy.start_program(0, NULL,self.control)             # <<<<<<<<<<<<<<
+ */
+  start_program(0, NULL, __pyx_v_self->control);
+
+  /* "evepy.pyx":8
+ * 		self.control = evepy.create_control()
+ * 		self.control.halt=1
+ * 	def start(self):             # <<<<<<<<<<<<<<
+ * 		evepy.start_program(0, NULL,self.control)
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -846,6 +896,7 @@ static void __pyx_tp_dealloc_5evepy_even(PyObject *o) {
 }
 
 static PyMethodDef __pyx_methods_5evepy_even[] = {
+  {"start", (PyCFunction)__pyx_pw_5evepy_4even_3start, METH_NOARGS, 0},
   {0, 0, 0, 0}
 };
 

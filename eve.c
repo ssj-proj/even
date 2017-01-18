@@ -44,24 +44,24 @@ void start_program(int argv, char *args, struct main_control *control) {
   memset(&action, 0, sizeof(action));
   action.sa_handler = &end_program;
   sigaction(SIGINT, &action, &old_action);
+
+
   //sets error log location and verbosity level
-  init_err("./eve.log",3,2);
+  //TODO - check this have been set, if not use default values
+  init_err(control->log_file,control->log_verbosity,control->screen_verbosity);//file,file verbosity, screen verbosity 
 
   /*
-    TODO - should parse config file for below vars:
-      num_of_objs
-      num_of_threads
+    TODO - dynamic vars:
       num_of_environments
-  char *obj_file_base="./obj/obj_";
-  char *des_extension=".des";
-  char *con_extension=".con";
-  char *var_extension=".var";
-
   */
-  int num_of_objs=1;
+  char *obj_file_base=control->obj_file_base;
+  char *des_extension=control->des_extension;
+  char *con_extension=control->con_extension;
+  char *var_extension=control->var_extension;
+  int num_of_objs=control->num_of_objs;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
   //(ie: stim_pool and env):  
-  int num_of_threads=2;
+  int num_of_threads=control->num_of_threads;//number of nobj worker threads
   
   /*   
     NOBJ VARS
@@ -146,15 +146,9 @@ void start_program(int argv, char *args, struct main_control *control) {
   
   unsigned int **props;
   unsigned int nobj_id=0;
-  char *obj_file_base="./obj/obj_";
-  char *des_extension=".des";
-  char *con_extension=".con";
-  char *var_extension=".var";
-
   char *objnum=malloc(4);
   char *file_without_ext=malloc(255);
   char *file=malloc(255);
-
 
   /*
     BEGIN INITILIZATION
@@ -265,7 +259,10 @@ void start_program(int argv, char *args, struct main_control *control) {
   system("read");
   while(1) {
     for(i=0;i<num_of_objs;++i){//loop each object
-
+      if(control->halt){
+        printf("\nHalting via control\n");
+        return;
+      }
     //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
       for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
         param[i]->neur_to=i_maps[i][j].neur_to;
@@ -282,6 +279,6 @@ void start_program(int argv, char *args, struct main_control *control) {
   }//main loop
   
   wait_for_threads();
-  exit(0);
+  return;
 
 }
