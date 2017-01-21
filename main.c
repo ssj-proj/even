@@ -8,8 +8,8 @@ void main(int argv, char *args) {
   /*
     Perform initial preproccessing
   */
-
-  start_program(argv,args);
+  
+  start_program(argv,args,create_control());
 }
 
 

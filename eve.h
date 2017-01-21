@@ -3,7 +3,7 @@
 struct main_control {
   int num_of_objs;//req
   int loop_iteration;
-  int num_of_threads;//req
+  int num_of_threads;//req must at least be one
   int halt;//req to be set to 0 at first
   char log_file[255];//opt
   int log_verbosity;//opt

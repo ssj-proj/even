@@ -10,7 +10,7 @@
 #include <string.h>
 #include <limits.h>
 #include <signal.h>
-
+#include <errno.h>
 
 struct sigaction old_action;
 
@@ -36,7 +36,52 @@ void end_program(int sig_no){
 
 } 
 struct main_control * create_control() {
-  return (struct main_control *)malloc(sizeof(struct main_control));
+  struct main_control *control = malloc(sizeof(struct main_control));
+  strcpy(control->obj_file_base,"./obj/obj_");
+  strcpy(control->des_extension,".des");
+  strcpy(control->con_extension,".con");
+  strcpy(control->var_extension,".var");
+  strcpy(control->log_file,"./eve.log");
+  control->log_verbosity=5;
+  control->screen_verbosity=3;
+  control->num_of_objs=1;
+  control->num_of_threads=1;
+  return control;
+}
+
+//verifies integrity of control struct
+int check_control(struct main_control *control){
+  if(!control->obj_file_base){
+    return -1;
+  }
+  if(!control->des_extension){
+    return -2;
+  }
+  if(!control->con_extension){
+    return -3;
+  }
+  if(!control->var_extension){
+    return -4;
+  }
+  if(!control->log_file){
+    return -5;
+  }
+  if(control->screen_verbosity<=0){
+    return -6;
+  }
+  if(control->log_verbosity<=0){
+    return -7;
+  }
+  if(control->num_of_objs<=0) {
+    return -8;
+  }
+  if(control->num_of_threads<=0) {
+    return -9;
+  }
+  
+
+
+
 }
 void start_program(int argv, char *args, struct main_control *control) {
   //set up exit action
@@ -44,7 +89,10 @@ void start_program(int argv, char *args, struct main_control *control) {
   memset(&action, 0, sizeof(action));
   action.sa_handler = &end_program;
   sigaction(SIGINT, &action, &old_action);
-
+  if(check_control(control) <0) {
+    printf("Obj_file_base: %s | control err: %d\n",control->obj_file_base,check_control(control));
+    return;
+  }
 
   //sets error log location and verbosity level
   //TODO - check this have been set, if not use default values
@@ -58,6 +106,8 @@ void start_program(int argv, char *args, struct main_control *control) {
   char *des_extension=control->des_extension;
   char *con_extension=control->con_extension;
   char *var_extension=control->var_extension;
+  printf("Obj_file_base: %s\n",obj_file_base);
+  printf("Obj_file_base: %s\n",control->log_file);
   int num_of_objs=control->num_of_objs;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
   //(ie: stim_pool and env):  
@@ -126,8 +176,7 @@ void start_program(int argv, char *args, struct main_control *control) {
   i_maps      =malloc( num_of_objs * sizeof(*i_maps));
   envs = malloc(sizeof(struct env_control)*num_of_environments);
   env_data = malloc(sizeof(struct env_control)*num_of_environments);
-  num_of_streams = malloc(num_of_environments * sizeof(*num_of_streams));
-  
+  num_of_streams = malloc(num_of_environments * sizeof(*num_of_streams)); 
   /*
     used for neur thread distribution - stim parameters
     an array of pointers to stim_param objs
@@ -137,7 +186,7 @@ void start_program(int argv, char *args, struct main_control *control) {
    
   //To do - more err checking
   if(weights==NULL) {
-    printf("Error: failed to malloc weights\n");
+    printf("Error: failed to malloc weights. objs %d\n",num_of_objs);
     exit(-1);
   }
 
@@ -167,6 +216,10 @@ void start_program(int argv, char *args, struct main_control *control) {
 
   /* load settings for obj from their init files */
   for(nobj_id;nobj_id<num_of_objs;++nobj_id) { 
+    /*
+       each obj file path:
+	obj_file_base + objnum + (type extension)
+    */
     memset(file,0,sizeof(file));
     memset(objnum,0,sizeof(file));
     memset(file_without_ext,0,sizeof(file));
@@ -180,6 +233,10 @@ void start_program(int argv, char *args, struct main_control *control) {
     printf("   INIT OBJECT %u\n",nobj_id);
     param[nobj_id] = malloc(sizeof(struct stim_param));
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
+    if(!props) {
+      printf("ERROR parsing des file: ",strerror(errno));
+      continue;//error init this obj, skip to next object
+    }
     nobj_props[nobj_id].nobj_id=nobj_id;//probably should be moved into parse_nobj_file()
 
     init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
@@ -255,8 +312,7 @@ void start_program(int argv, char *args, struct main_control *control) {
   i=0;
   j=0;
   int errs = 0;
-  printf("about to start input:");
-  system("read");
+
   while(1) {
     for(i=0;i<num_of_objs;++i){//loop each object
       if(control->halt){
@@ -277,7 +333,6 @@ void start_program(int argv, char *args, struct main_control *control) {
     }//end obj loop
     
   }//main loop
-  
   wait_for_threads();
   return;
 

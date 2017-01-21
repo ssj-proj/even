@@ -3,7 +3,7 @@
 from string import printable
 from curses import erasechar, wrapper, KEY_BACKSPACE
 from evepy import even
-import csv,sys,getopt
+import csv,sys,getopt,threading
 
 PRINTABLE = map(ord, printable)
 
@@ -21,6 +21,14 @@ console_mode = 0
 lines = []
 console_screen=0
 max_lines = 0
+eve = even()
+
+def start_eve():
+	steve_thread = threading.Thread(target=eve.start())
+	
+def stop_eve():
+	eve.halt()
+
 
 def change_all_rows(inputfile, replace_with,col,row_interest):
 	rowi=0
@@ -148,6 +156,9 @@ def process_input(line):
 		elif cmd[1] == "type":
 			vars.cfg_type = cmd[2]
 			return "config type "+vars.cfg_type
+	if cmd[0] == "steve":
+		start_eve()
+		return "config type "+vars.cfg_type
 	return "Invalid command"
 def printc(display):
 	if console_mode==1:
