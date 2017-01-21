@@ -8,13 +8,22 @@
 #include "nobj.h"
 #include <pthread.h>
 #include "env_api.h"
+#include <errno.h>
 
 typedef int bool;
 #define true 1
 #define false 0
 
 unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
+
+  printf("INFO: trying to open %s : %s", file, strerror(errno));
   FILE *fp = fopen(file,"r");
+  if(!fp) {
+  printf("ERROR: unable to open %s : %s", file, strerror(errno));
+  exit(-1);
+  return NULL;
+
+  }
   char buff[255];
   int t;
   bool has_neur_settings=false;
@@ -24,8 +33,8 @@ unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
   /* Loops until all meta data is read setting:\s val */
   while(!(has_neur_settings&&has_neur_count)) {
     i++;
-    //printf("bools %d   and   %d",has_neur_settings,has_neur_count);
-    fscanf(fp,"%[^:]:%u ",buff,&t);
+    printf("bools %d   and   %d",has_neur_settings,has_neur_count);
+    fscanf(fp,"%[^:]:%u ",buff,&t);//reads string:value into buff:t
     printf(" READ (%s) %s %d\n",file,buff,t);
     if(strcmp(buff,"non")==0) {
       (*nobj_props).num_of_neurs=t;
@@ -106,6 +115,11 @@ void free_nobj_con(int no, struct nobj_meta obj_prop, unsigned int ****cons, uns
 
 unsigned int ** parse_con_file(char * file,struct nobj_meta *nobj_props) {
   FILE *fp = fopen(file,"r");
+  if(!fp) {
+    printf("ERROR: unable to open %s : %s", file, strerror(errno));
+
+  }
+
   char buff[255];
   unsigned int t;//temp var for reading header settings
  
@@ -263,6 +277,10 @@ void display_neur_props(unsigned int**nobjs,struct nobj_meta np) {
 
 double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
   FILE *fp = fopen(file,"r");
+  if(!fp) {
+    printf("ERROR: unable to open %s : %s", file, strerror(errno));
+
+  }
   char buff[255];
   int t;
   bool has_var_settings=false;
