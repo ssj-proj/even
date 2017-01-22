@@ -1,3 +1,7 @@
+language: "c"
+group: "stable"
+dist: "precise"
+os: "linux"
 sudo: required
 env:
   matrix:
@@ -6,11 +10,6 @@ env:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y cython 
-{
-  "language": "c",
-  "group": "stable",
-  "dist": "precise",
-  "os": "linux"
-}
+
 
 
