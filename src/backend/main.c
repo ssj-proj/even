@@ -1,15 +1,13 @@
-/*
-  int must be 32 bit
-  long must be 64 bit
-*/
-
+#include "eve.h"
 
 void main(int argv, char *args) {
   /*
     Perform initial preproccessing
   */
-  
-  start_program(argv,args,create_control());
+  struct main_control *control = create_control();
+  control->halt=0;
+  control->test=1;
+  start_program(argv,args,control);
 }
 
 

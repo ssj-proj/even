@@ -46,6 +46,7 @@ struct main_control * create_control() {
   control->screen_verbosity=3;
   control->num_of_objs=1;
   control->num_of_threads=1;
+  control->test=0;
   return control;
 }
 
@@ -311,14 +312,16 @@ void start_program(int argv, char *args, struct main_control *control) {
 
   i=0;
   j=0;
+  int loop_count=0;
   int errs = 0;
-
+  
   while(1) {
     for(i=0;i<num_of_objs;++i){//loop each object
       if(control->halt){
         printf("\nHalting via control\n");
         return;
       }
+    loop_count++;
     //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
       for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
         param[i]->neur_to=i_maps[i][j].neur_to;
@@ -331,7 +334,9 @@ void start_program(int argv, char *args, struct main_control *control) {
         }
       }//end stream loop
     }//end obj loop
-    
+    if(control->test && loop_count>=1000) {
+      exit(0);//todo peform actual testing
+    }
   }//main loop
   wait_for_threads();
   return;

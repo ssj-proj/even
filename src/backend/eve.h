@@ -1,6 +1,7 @@
 #ifndef EVE_H
 #define EVE_H
-struct main_control {
+struct main_control { 
+  int test;//opt
   int num_of_objs;//req
   int loop_iteration;
   int num_of_threads;//req must at least be one
@@ -8,6 +9,7 @@ struct main_control {
   char log_file[255];//opt
   int log_verbosity;//opt
   int screen_verbosity;//opt
+
   char obj_file_base[255];//req
   char des_extension[5];//req
   char con_extension[5];//req

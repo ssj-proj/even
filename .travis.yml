@@ -3,10 +3,6 @@ group: "stable"
 dist: "precise"
 os: "linux"
 sudo: required
-env:
-  matrix:
-  - OS_TYPE=centos OS_VERSION=6
-  - OS_TYPE=centos OS_VERSION=7
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y cython 

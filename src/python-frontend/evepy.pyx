@@ -9,3 +9,5 @@ cdef class even:
 		evepy.start_program(0, NULL,self.control)
 	def halt(self):
 		self.control.halt=1
+	def test(self):
+		self.control.test=1

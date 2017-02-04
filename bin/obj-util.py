@@ -29,7 +29,10 @@ def start_eve():
 def stop_eve():
 	eve.halt()
 
-
+def test_steve():
+	eve.test()
+	start_eve()
+	
 def change_all_rows(inputfile, replace_with,col,row_interest):
 	rowi=0
 	reader = csv.reader(open(inputfile ))
@@ -214,8 +217,10 @@ def main(argv):
 	append_col=0
 	help=0
 	no_args=1
+	test=0
+
 	try:
-		opts, args = getopt.getopt(argv,"f:r:c:aw:RAV",[])
+		opts, args = getopt.getopt(argv,"f:r:c:atw:RAV",[])
 	except getopt.GetoptError:
 		printc('test.py -i <inputfile> -o <outputfile>')
 		sys.exit(2)
@@ -237,6 +242,8 @@ def main(argv):
 			append_col=1
 		elif opt == "-h":
 			help=1
+		elif opt == "-t":
+			test=1
 		elif opt == "-V":
 			validate=1
 	#printc(inputfile+" "+replace_with+" "+row_interest
@@ -246,6 +253,7 @@ def main(argv):
 		printc("-c column of interest")
 		printc("-a affect all rows")
 		printc("-w replace with")
+		printc("-t run basic tests")
 		printc("-R Replace column(s) - modified with either -r or -a")
 		printc("-A append an column(S) to end of all rows")
 		printc("-V validate header of file")
@@ -260,6 +268,8 @@ def main(argv):
 		append_column(inputfile, 1,row_interest)
 	if(validate==1):
 		fix_file_headers(inputfile)
+	if(test==1):
+		test_steve()
 	
 if __name__ == "__main__":
    main(sys.argv[1:])
