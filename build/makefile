@@ -27,3 +27,5 @@ install:
 	cd ${root} && python ${fronted_src}setup.py install
 	cp libeve.so /usr/lib/
 	cp libeve.so /usr/lib64/
+test: 
+	${root}/bin/even

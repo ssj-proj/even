@@ -335,6 +335,7 @@ void start_program(int argv, char *args, struct main_control *control) {
       }//end stream loop
     }//end obj loop
     if(control->test && loop_count>=1000) {
+      printf("End test loop. Exiting....\n");
       exit(0);//todo peform actual testing
     }
   }//main loop
