@@ -14,6 +14,8 @@ all:
 	#stand alone cmd executable
 	gcc -o ../bin/even -pthread  ${backend_files} ${environment_files}
 	#library for front end
+	pwd 
+	ls
 	gcc -shared -o libeve.so ${backend_files} ${environment_files}
 	#build python front end
 	cd ${root} && touch ${fronted_src}evepy.pxd && python ${fronted_src}setup.py build_ext -i  
