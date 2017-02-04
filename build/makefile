@@ -8,34 +8,24 @@ backend_src = ${backend_dir}behaviors.c ${backend_dir}eve.c ${backend_dir}stimpo
 environment_files = random_env.o
 
 all:
-	pwd
 	gcc -c -fpic -ggdb -pthread ${backend_src}
 	gcc -c -fpic -ggdb -pthread ${env_src}*.c
 	#stand alone cmd executable
 	gcc -o ../bin/even -pthread  ${backend_files} ${environment_files}
 	#library for front end
-	pwd 
-	ls
 	gcc -shared -o libeve.so ${backend_files} ${environment_files}
-	pwd 
-	ls
 	#build python front end
 	cd ${root} && touch ${fronted_src}evepy.pxd && python ${fronted_src}setup.py build_ext -i  
-	pwd 
-	ls
 	mv ${root}*.so ./
 backend:
-	pwd
 	gcc -c -fpic -ggdb -pthread ${backend_src}
 	gcc -c -fpic -ggdb -pthread ${env_src}*.c
 	#stand alone cmd executable
 	gcc -o ../bin/even -pthread  ${backend_files} ${environment_files}
 
 install:
-	pwd
 	cd ${root} && python ${fronted_src}setup.py install
 	cp libeve.so /usr/lib/
 	cp libeve.so /usr/lib64/
 test: 
-	pwd
 	${root}bin/even

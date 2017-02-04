@@ -16,10 +16,10 @@ typedef int bool;
 
 unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
 
-  printf("INFO: trying to open %s : %s", file, strerror(errno));
+  printf("INFO: trying to open %s\n", file);
   FILE *fp = fopen(file,"r");
   if(!fp) {
-  printf("ERROR: unable to open %s : %s", file, strerror(errno));
+  printf("ERROR: unable to open %s : %s\n", file, strerror(errno));
   exit(-1);
   return NULL;
 
