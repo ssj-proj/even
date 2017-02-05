@@ -310,28 +310,37 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   }
   pthread_create(&env_t,NULL,main_loop,state);//start env thread
 
-  i=0;
+  int cur_obj_id=0;
   j=0;
   int loop_count=0;
   int errs = 0;
   
   while(1) {
-    for(i=0;i<num_of_objs;++i){//loop each object
+    for(cur_obj_id=0;cur_obj_id<num_of_objs;++cur_obj_id){//obj loop
       if(control->halt){
         printf("\nHalting via control\n");
         return;
       }
-    loop_count++;
-    //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[i].num_of_istreams);
-      for(j=0;j<nobj_props[i].num_of_istreams;++j){//loop each stream foreach object
-        param[i]->neur_to=i_maps[i][j].neur_to;
-        errs = get_istream(i_maps[i][j].env_id, i_maps[i][j].stream_id,&(*param[i]).stim);
+      loop_count++;
+      //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[cur_obj_id].num_of_istreams);
+      for(j=0;j<nobj_props[cur_obj_id].num_of_istreams;++j){//loop each stream foreach object
+        param[cur_obj_id]->neur_to=i_maps[cur_obj_id][j].neur_to;
+
+
+        //get input to objects and process them
+        errs = get_istream(i_maps[cur_obj_id][j].env_id, i_maps[cur_obj_id][j].stream_id,&(*param[cur_obj_id]).stim);
         if(errs==0){
-          printf("  istream value: %lf for stream_id: %d\n",(*param[i]).stim,i_maps[i][j].stream_id);
-          manager(param[i]);//drop work into thread pool
+          printf("  istream value: %lf for stream_id: %d\n",(*param[cur_obj_id]).stim,i_maps[cur_obj_id][j].stream_id);
+          manager(param[cur_obj_id]);//drop work into thread pool
         } else {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
         }
+        //grab util from environments
+        //loop through each evn
+        //tally util for each obj
+        //send to mutation engine
+
+
       }//end stream loop
     }//end obj loop
     if(control->test && loop_count>=1000) {

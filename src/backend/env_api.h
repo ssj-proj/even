@@ -36,7 +36,8 @@ struct stream {
 };
 struct job {
   int sid;//stream id
-  double dat;
+  int nobj_id;//id of object who sent it
+  double dat;//data in stream
 };
 
 struct env_dat {
@@ -58,7 +59,8 @@ struct env_control{
   int num_of_istream;
   //number of threads the obj work pool has. Each thread has its own work queue
   int num_of_clients;
-  int queue_max;//max number of events in each work queue
+  //max number of events in each work queue
+  int queue_max;
   //must of seperate array for each submitting thread to avoid segfault
   struct job **work_queue;//[num_of_client_threads][queue];
   //array of int

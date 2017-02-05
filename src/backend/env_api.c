@@ -155,6 +155,7 @@ int set_output(int nobj_id,int stream_id,double data, int env_id) {
    
 
   ((client_work->work_queue)[arr_id][cj]).sid=stream_id;
+  ((client_work->work_queue)[arr_id][cj]).nobj_id=nobj_id;
   (client_work->queue_limit)[arr_id]=cj;
   ((client_work->work_queue)[arr_id][cj]).dat=data;
   return 0;
