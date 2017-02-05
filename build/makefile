@@ -28,4 +28,4 @@ install:
 	cp libeve.so /usr/lib/
 	cp libeve.so /usr/lib64/
 test: 
-	${root}bin/even
+	${root}bin/even -O ../obj/ -t

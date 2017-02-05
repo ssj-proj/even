@@ -84,7 +84,7 @@ int check_control(struct main_control *control){
 
 
 }
-void start_program(int argv, char *args, struct main_control *control) {
+void start_program(int argc, char *const *argv, struct main_control *control) {
   //set up exit action
   struct sigaction action;
   memset(&action, 0, sizeof(action));

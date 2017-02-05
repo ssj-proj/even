@@ -16,6 +16,6 @@ print(os.getcwd())
 setup(
 	cmdclass = {'build_ext': build_ext},
 	ext_modules = [
-		Extension("evepy", ["src/python-frontend/evepy.pyx"],libraries=["build/eve"],working="build")
+		Extension("evepy", ["src/python-frontend/evepy.pyx"],libraries=["build/eve"])
 	]
 )

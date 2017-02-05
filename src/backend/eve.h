@@ -15,7 +15,7 @@ struct main_control {
   char con_extension[5];//req
   char var_extension[5];//req
 };
-void start_program(int argv, char *args, struct main_control *control);
+void start_program(int argv,char *const *args, struct main_control *control);
 struct main_control *create_control();
 
 
