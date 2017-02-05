@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+#===TODO===
+#Process happenings in steve
+#manipulate obj files based on evaluations
+#generate new obj files and load into current environemnt
+#===TODO===
+
+
+
 from string import printable
 from curses import erasechar, wrapper, KEY_BACKSPACE
 from evepy import even
