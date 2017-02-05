@@ -133,6 +133,11 @@ def prompt(stdscr, y, x, prompt=">>> "):
     stdscr.clrtoeol()
     stdscr.addstr(y, x, prompt)
     return input(stdscr)
+def print_help():
+	printc("steve : start execution")
+	printc("use obj <int>: set object number")
+	printc("use dir <string>: sets base object directory")
+	printc("use type <string>: sets config type to target for manipulation")
 def process_input(line):
 	line = line.lower()
 	cmd = line.split()
@@ -162,6 +167,13 @@ def process_input(line):
 	if cmd[0] == "steve":
 		start_eve()
 		return "config type "+vars.cfg_type
+	if cmd[0] == "help":
+		print_help()
+		return "-------"
+	if cmd[0] == "quit" or cmd[0] == "exit" or cmd[0] == "q":
+		printc("Exiting....")
+		quit(0)
+		
 	return "Invalid command"
 def printc(display):
 	if console_mode==1:

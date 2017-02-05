@@ -9,11 +9,11 @@ environment_files = random_env.o
 
 all:
 	gcc -c -fpic -ggdb -pthread ${backend_src}
-	gcc -c -fpic -ggdb -pthread ${env_src}*.c
+	gcc -c -fpic -ggdb -fstack-protector -pthread ${env_src}*.c
 	#stand alone cmd executable
-	gcc -o ../bin/even -pthread  ${backend_files} ${environment_files}
+	gcc -o ../bin/even -fstack-protector -pthread  ${backend_files} ${environment_files}
 	#library for front end
-	gcc -shared -o libeve.so ${backend_files} ${environment_files}
+	gcc -shared -fstack-protector -o libeve.so ${backend_files} ${environment_files}
 	#build python front end
 	cd ${root} && touch ${fronted_src}evepy.pxd && python ${fronted_src}setup.py build_ext -i  
 	mv ${root}*.so ./
