@@ -3,7 +3,7 @@
 from string import printable
 from curses import erasechar, wrapper, KEY_BACKSPACE
 from evepy import even
-import csv,sys,getopt,threading
+import csv,sys,getopt,threading,os
 
 PRINTABLE = map(ord, printable)
 
@@ -200,9 +200,12 @@ def console(stdscr):
     global console_screen
     console_screen=stdscr
     global max_lines
-
+    cfg_file = 'util.cfg'
     stdscr.clear()
-    with open('util.cfg') as my_file:
+    if(os.path.exists(cfg_file)==False):
+        printc("error opening config file "+cfg_file+" In directory: "+os.getcwd())
+	
+    with open(cfg_file) as my_file:
         for line in my_file:
             process_input(line)
 
@@ -210,9 +213,6 @@ def console(stdscr):
 	Y, X = stdscr.getmaxyx()
     	max_lines= (Y - 3)
         input = prompt(stdscr, (Y - 1), 0)  # noqa
-        if input == ":q":
-            break
-
 	display=process_input(input)
 
 	printc(display)
