@@ -32,11 +32,13 @@ struct contract {
   //todo - 100 probably needs to change
   int pool_size;//index of last pool work s(total size of work)
   int current_job;//index of job being currently worked on
-  double progress;
-  double progress_step;
+  double progress;//time
+  double progress_step;//each step is unit of time - progress_step of .001 means every .001 = 1 unit of time
 };
 double get_progress(struct stim_param *p);
 double get_progress_step(struct stim_param *p);
+double get_nobj_progress(int);
+double get_nobj_progress_step(int);
 void wait_for_threads() ;
 void manager(struct stim_param *p);
 void * worker_thread(void *contract_v);

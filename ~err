@@ -1,0 +1,4 @@
+make -C build all
+make[1]: Entering directory `/even/even/build'
+gcc -c -fpic -ggdb -pthread ../src/backend/behaviors.c ../src/backend/eve.c ../src/backend/stimpool.c ../src/backend/nobj.c ../src/backend/env_api.c ../src/backend/main.c  ../src/backend/err.c
+make[1]: Leaving directory `/even/even/build'

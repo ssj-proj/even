@@ -3,6 +3,7 @@
 #include "stimpool.h"
 #include "env_api.h"
 #include "../environments/env_c_random/random_env.h"
+#include "../environments/env_lr/lr_env.h"
 #include "eve.h"
 #include <unistd.h>
 #include <stdio.h>
@@ -163,7 +164,6 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   */
   struct i_map **i_maps;
   int num_of_envs=1;
-  int *num_of_streams;//1d array of ints that list number of streams for each environment
 
 
   /* END ENV VARS */
@@ -177,7 +177,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   i_maps      =malloc( num_of_objs * sizeof(*i_maps));
   envs = malloc(sizeof(struct env_control)*num_of_environments);
   env_data = malloc(sizeof(struct env_control)*num_of_environments);
-  num_of_streams = malloc(num_of_environments * sizeof(*num_of_streams)); 
+
   /*
     used for neur thread distribution - stim parameters
     an array of pointers to stim_param objs
@@ -298,17 +298,21 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
    env_data->num_of_objs = num_of_objs;
 
   /*
-    init the env side, thism should call hook_env
+    init the env side, this should call hook_env
     send the control structure, the data structure and the env_id
   */
-  num_of_streams[0]=3;//number of input streams for environment 0 - TODO dynamically load this
+  envs[0].num_of_istream=3;
   int *state = malloc(sizeof(int));//sent to env
-  init_env0(&envs[0],&env_data[0],0);//TODO - dynamic way to load multiple environments
+  
+  if (init_env_lr(&envs[0],&env_data[0],0) != 0) {
+    fprintf(stderr,"main: error with initilization of environments.");
+    exit(-2);
+  }
   if(init_errors!=0){
     fprintf(stderr,"main: error with initilization: %d",init_errors);
     exit(-1);
   }
-  pthread_create(&env_t,NULL,main_loop,state);//start env thread
+  pthread_create(&env_t,NULL,main_loop_lr,state);//start env thread
 
   int cur_obj_id=0;
   j=0;

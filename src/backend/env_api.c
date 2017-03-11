@@ -5,13 +5,13 @@
 #include <sys/syscall.h>
 
 //1d array of stream struct. [env_id]
-static struct stream *in;
+static struct stream *in=NULL;
 static int num_of_envs;
 
   //array of struct, element per env
-static struct env_control *env_control_array;// = malloc(sizeof(struct env_control));
+static struct env_control *env_control_array=NULL;// = malloc(sizeof(struct env_control));
   //aray of struct, element per env
-static struct env_dat *env_data_array;//= malloc(sizeof(struct env_control));
+static struct env_dat *env_data_array=NULL;//= malloc(sizeof(struct env_control));
 
 static char verbose = 0;//1 = print verbose
 

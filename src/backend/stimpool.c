@@ -32,11 +32,7 @@ void * worker_thread(void *contract_v){
 
       //work
       stim(&(work_pool[contract->id][contract->current_job]));
-      //free queue spot
-      /*
-       TODO - make progress var per thread
-      */
-      
+
       contract->progress+=contract->progress_step;
       
     
@@ -64,6 +60,14 @@ double get_progress(struct stim_param *p) {
 }
 double get_progress_step(struct stim_param *p) {
   int worker = (*p->nobj_props).nobj_id  % num_of_workers;
+  return contracts[worker].progress_step;
+}
+double get_nobj_progress(int nobj_id) {
+  int worker = nobj_id  % num_of_workers;
+  return contracts[worker].progress;
+}
+double get_nobj_progress_step(int nobj_id) {
+  int worker = nobj_id  % num_of_workers;
   return contracts[worker].progress_step;
 }
 void manager(struct stim_param *p) {
