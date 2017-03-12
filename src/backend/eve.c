@@ -316,6 +316,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
 
   int cur_obj_id=0;
   j=0;
+  i =0;
   int loop_count=0;
   int errs = 0;
   
@@ -339,14 +340,17 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
         } else {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
         }
-        //grab util from environments
-        //loop through each evn
-        //tally util for each obj
-        //send to mutation engine
 
+       
 
       }//end stream loop
     }//end obj loop
+    for(j=0;j<num_of_environments;++j){//loop each environment
+      for(i=0;i<env_data[j].num_of_objs;++i){ //loop through each object registered in that environment
+        printf("UTIL: | %lf |",env_data[j].util[i]);
+      }
+    }
+    printf("\n");
     if(control->test && loop_count>=1000) {
       printf("End test loop. Exiting....\n");
       exit(0);//todo peform actual testing

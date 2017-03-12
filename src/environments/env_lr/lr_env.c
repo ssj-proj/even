@@ -126,7 +126,7 @@ void *main_loop_lr(void *state){
     }
 
     for(i=0; i < env_api_dat->num_of_objs; ++i) {
-      printf("| %lf |",util[i]);
+      //printf("| %lf |",util[i]);
       util[i]--;
     }
     printf("\n");
