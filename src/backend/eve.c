@@ -334,7 +334,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
         //get input to objects and process them
         errs = get_istream(i_maps[cur_obj_id][j].env_id, i_maps[cur_obj_id][j].stream_id,&(*param[cur_obj_id]).stim);
         if(errs==0){
-          printf("  istream value: %lf for stream_id: %d\n",(*param[cur_obj_id]).stim,i_maps[cur_obj_id][j].stream_id);
+          //printf("  istream value: %lf for stream_id: %d\n",(*param[cur_obj_id]).stim,i_maps[cur_obj_id][j].stream_id);
           manager(param[cur_obj_id]);//drop work into thread pool
         } else {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);

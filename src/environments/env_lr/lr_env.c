@@ -54,7 +54,7 @@ int init_env_lr(struct env_control *ec, struct env_dat *dat, int env) {
  //?? sid_map = malloc(sizeof(*sid_map)*ec->num_of_istream);
 
   for(i=0; i < env_api_dat->num_of_objs; ++i) {
-    env_api_dat->util=0;//set util to 0 for all objects
+    //env_api_dat->util=0;//set util to 0 for all objects
     util[i]=0;
   }
 
@@ -90,32 +90,46 @@ void *main_loop_lr(void *state){
   int i = 0;
   while((*main_state)==0) {
     work=get_next_output(env_id,env_api_control);//get next work
+    if(work) {
+      //printf("no work.\n");
+
     //Perform internal actions
     //determine objs util
-    int sid_activated = work->sid;
-    double util_granted=0;
-    if(work->sid==cur_dir) { util_granted = 100; }
-    else if(work->sid==dir_1) { util_granted = 50; }
-    else if(work->sid==dir_2) { util_granted = 25; }  
-    else if(work->sid==dir_3) { util_granted = 10; }
-    else { util_granted = -10; }
-    //set util
-    util[work->nobj_id]+=util_granted;
-    
-    //set next input at time step
-    if( ((  get_nobj_progress(work->nobj_id)-progress )/get_nobj_progress_step(work->nobj_id)) > 10 ) {
+      int sid_activated = work->sid;
+      double util_granted=0;
+      if(work->sid==cur_dir) { util_granted = 100; }
+      else if(work->sid==dir_1) { util_granted = 50; }
+      else if(work->sid==dir_2) { util_granted = 25; }  
+      else if(work->sid==dir_3) { util_granted = 10; }
+      else { util_granted = -10; }
+      //set util
+      util[work->nobj_id]+=util_granted;
+
+
+
+      //set next input at time step
+      if( ((  get_nobj_progress(work->nobj_id)-progress )/get_nobj_progress_step(work->nobj_id)) > 10 ) {
      
-      progress=get_nobj_progress(work->nobj_id);
-      dir_3=dir_2;
-      dir_2=dir_1;
-      dir_1=cur_dir;
-      cur_dir=rand()%9;//todo change 9 to equal number of ostream
-      for(i = 0; i < 9; ++i){
-        istream[i]=0;
+        progress=get_nobj_progress(work->nobj_id);
+        dir_3=dir_2;
+        dir_2=dir_1;
+        dir_1=cur_dir;
+        cur_dir=rand()%9;//todo change 9 to equal number of ostream
+        for(i = 0; i < 9; ++i){
+          printf("[ %lf ]",istream[i]);
+          istream[i]=0;
+        }
+        printf("\n");
+        istream[cur_dir]=100;
+        //sleep
       }
-      istream[cur_dir]=100;
-      //sleep
     }
+
+    for(i=0; i < env_api_dat->num_of_objs; ++i) {
+      printf("| %lf |",util[i]);
+      util[i]--;
+    }
+    printf("\n");
     usleep(100);//--should be same as stimpool sleep time 
   }
 }
