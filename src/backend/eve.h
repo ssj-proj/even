@@ -15,6 +15,12 @@ struct main_control {
   char con_extension[5];//req
   char var_extension[5];//req
 };
+//used to send info/back/forth to front end
+struct nobj_summary {
+  double util;//sum of util from all envs
+  //if set 1 -> being actively used if set to 0 -> skipped. Index in array could be re-used for future objects
+  int active;
+};
 void start_program(int argv,char *const *args, struct main_control *control);
 struct main_control *create_control();
 

@@ -122,7 +122,8 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   unsigned int ***nobjs;//should not change during obj runtime
 
   struct nobj_meta *nobj_props; 
- 
+  struct nobj_summary *nobj_sums;
+
   //[object id][neur id][to con neur id]
   unsigned int ***cons;//will change during runtime
   pthread_t **cons_lock;//lock per neur
@@ -169,6 +170,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   /* END ENV VARS */
   //malloc nobj vars
   nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
+  nobj_sums   =malloc( num_of_objs * sizeof(struct nobj_summary));
   weights     =malloc( num_of_objs * sizeof(double**));
   nobjs       =malloc( num_of_objs * sizeof(unsigned int**));
   cons        =malloc( num_of_objs * sizeof(unsigned int**));
@@ -224,6 +226,9 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     memset(file,0,sizeof(file));
     memset(objnum,0,sizeof(file));
     memset(file_without_ext,0,sizeof(file));
+
+    nobj_sums[nobj_id].util=0;
+    nobj_sums[nobj_id].active=1;
 
     sprintf(objnum,"%d",nobj_id);
     strcat(file_without_ext,obj_file_base);
@@ -345,12 +350,22 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
 
       }//end stream loop
     }//end obj loop
+
+    /*
+      future point of contentsion with nobj_ids not matching with env_obj_ids
+    */
+    double *sum=malloc(num_of_objs * sizeof(double));
     for(j=0;j<num_of_environments;++j){//loop each environment
+      sum[i]=0;
       for(i=0;i<env_data[j].num_of_objs;++i){ //loop through each object registered in that environment
+        sum[i]+=env_data[j].util[i];
         printf("UTIL: | %lf |",env_data[j].util[i]);
       }
     }
     printf("\n");
+    for(i=0;i<num_of_objs;++i) {
+      nobj_sums[i].util=sum[i];
+    }
     if(control->test && loop_count>=1000) {
       printf("End test loop. Exiting....\n");
       exit(0);//todo peform actual testing
