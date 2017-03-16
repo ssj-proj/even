@@ -74,19 +74,13 @@ void manager(struct stim_param *p) {
   static int num_of_call=0;
   num_of_call++;
   if( p->vars[p->neur_to][2] == 0) {
-    char err_buff[100];
-    sprintf(err_buff,"WARNING:stimpool.c: neur with bad fire strength: obj%u:neur%u:fire_strength = 0\n",p->nobj_props->nobj_id,p->neur_to);
-    proc_err(err_buff,4);
-    //fprintf(stderr,"    exiting:%d",num_of_call);
-    //exit(0);
+    proc_err("WARNING:stimpool.c: neur with bad fire strength: obj%u:neur%u:fire_strength = 0\n",4,p->nobj_props->nobj_id,p->neur_to);
   }
   int worker = (*p->nobj_props).nobj_id  % num_of_workers;
 
   if(contracts[worker].pool_size<max_queue-1) {
-     char err_buff[100];
     if(contracts[worker].pool_size+1==contracts[worker].current_job) {
-      sprintf(err_buff,"ERROR:stimpool.c: OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",(*p->nobj_props).nobj_id,contracts[worker].current_job );
-      proc_err(err_buff,2);
+      proc_err("ERROR:stimpool.c: OBJ ID: %u has a backed up work queue(!0), dropping job!!!\nCurrent Job #[%d]\n",2,(*p->nobj_props).nobj_id,contracts[worker].current_job );
     } else {
       if(p != NULL) {  
         copy_stim_param(*p,&work_pool[worker][contracts[worker].pool_size+1]); 
@@ -98,9 +92,7 @@ void manager(struct stim_param *p) {
   }
   else {//at max queue number
     if(contracts[worker].current_job==0) {//next available job isn't done
-      char err_buff[100];
-      sprintf(err_buff,"ERROR:stimpool.c: OBJ ID: %u has a backed up work queue, dropping job!!!Current Job #[%d], max queue: %d\n",(*(*p).nobj_props).nobj_id,contracts[worker].current_job,max_queue );
-      proc_err(err_buff,2);
+      proc_err("ERROR:stimpool.c: OBJ ID: %u has a backed up work queue, dropping job!!!Current Job #[%d], max queue: %d\n",2,(*(*p).nobj_props).nobj_id,contracts[worker].current_job,max_queue );
      
     } else {
       contracts[worker].pool_size=0;
@@ -115,7 +107,7 @@ void wait_for_threads() {
 // (num_of_threads to make)
 void init_workers(int num) {
   proc_err("\n=====Init Workers====\n",0);
-  printf("Creating %d threads\n", num);
+  proc_err("Creating %d threads\n",0, num);
   int i = 0;
   int j =0;
   num_of_workers=num; 

@@ -9,6 +9,7 @@ struct main_control {
   char log_file[255];//opt
   int log_verbosity;//opt
   int screen_verbosity;//opt
+  int console_mode;
 
   char obj_file_base[255];//req
   char des_extension[5];//req
@@ -23,6 +24,6 @@ struct nobj_summary {
 };
 void start_program(int argv,char *const *args, struct main_control *control);
 struct main_control *create_control();
-
+double get_obj_util(int obj_id);//called by front end to get util of an obj
 
 #endif

@@ -12,6 +12,7 @@ int main(int argc, char *const *argv) {
   int c;
   struct main_control *control = create_control();
   control->test=0;
+  control->console_mode=1;
   int opterr = 0;
   char optopt;
 

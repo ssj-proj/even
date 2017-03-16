@@ -5,6 +5,7 @@
 #include "../environments/env_c_random/random_env.h"
 #include "../environments/env_lr/lr_env.h"
 #include "eve.h"
+#include "err.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,7 @@
 #include <errno.h>
 
 struct sigaction old_action;
+struct nobj_summary *nobj_sums;//made global so it could be easily shared with external api
 
 unsigned int** create_props(int neurs, int neur_props, struct main_control *control) {
  
@@ -48,6 +50,7 @@ struct main_control * create_control() {
   control->num_of_objs=1;
   control->num_of_threads=1;
   control->test=0;
+  control->console_mode=0;
   return control;
 }
 
@@ -85,6 +88,10 @@ int check_control(struct main_control *control){
 
 
 }
+double get_obj_util(int obj_id) {
+  return nobj_sums[obj_id].util;
+
+}
 void start_program(int argc, char *const *argv, struct main_control *control) {
   //set up exit action
   struct sigaction action;
@@ -98,7 +105,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
 
   //sets error log location and verbosity level
   //TODO - check this have been set, if not use default values
-  init_err(control->log_file,control->log_verbosity,control->screen_verbosity);//file,file verbosity, screen verbosity 
+  init_err(control->log_file,control->log_verbosity,control->screen_verbosity, control->console_mode);//file,file verbosity, screen verbosity 
 
   /*
     TODO - dynamic vars:
@@ -122,7 +129,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   unsigned int ***nobjs;//should not change during obj runtime
 
   struct nobj_meta *nobj_props; 
-  struct nobj_summary *nobj_sums;
+ 
 
   //[object id][neur id][to con neur id]
   unsigned int ***cons;//will change during runtime
@@ -189,7 +196,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
    
   //To do - more err checking
   if(weights==NULL) {
-    printf("Error: failed to malloc weights. objs %d\n",num_of_objs);
+    proc_err("Error: failed to malloc weights. objs %d\n",num_of_objs);
     exit(-1);
   }
 
@@ -236,11 +243,11 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     
     strcpy(file,file_without_ext);
     strcat(file,des_extension);
-    printf("   INIT OBJECT %u\n",nobj_id);
+    proc_err("   INIT OBJECT %u\n",4,nobj_id);
     param[nobj_id] = malloc(sizeof(struct stim_param));
     props = parse_nobj_file(file,&nobj_props[nobj_id]);
     if(!props) {
-      printf("ERROR parsing des file: ",strerror(errno));
+      proc_err("ERROR parsing des file: ",1,strerror(errno));
       continue;//error init this obj, skip to next object
     }
     nobj_props[nobj_id].nobj_id=nobj_id;//probably should be moved into parse_nobj_file()
@@ -254,7 +261,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     unsigned int **con_props = parse_con_file(file,&nobj_props[nobj_id]);
     nobj_props[nobj_id].nobj_id=nobj_id;
     if(con_props==NULL) {
-      printf("ERROR parsing con file.\n");
+      proc_err("ERROR parsing con file.\n",1);
       exit(-1);
     }
     init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights); 
@@ -264,7 +271,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     strcat(file,var_extension);
     double **var_props = parse_vars_file(file,&nobj_props[nobj_id]);
     if(con_props==NULL) {
-      printf("ERROR parsing var file.\n");
+       proc_err("ERROR parsing var file.\n",1);
       exit(-1);
     }
     init_vars(nobj_id,var_props,nobj_props[nobj_id],&nvar);
@@ -310,11 +317,11 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   int *state = malloc(sizeof(int));//sent to env
   
   if (init_env_lr(&envs[0],&env_data[0],0) != 0) {
-    fprintf(stderr,"main: error with initilization of environments.");
+     proc_err("main: error with initilization of environments.",1);
     exit(-2);
   }
   if(init_errors!=0){
-    fprintf(stderr,"main: error with initilization: %d",init_errors);
+     proc_err("main: error with initilization: %d",1,init_errors);
     exit(-1);
   }
   pthread_create(&env_t,NULL,main_loop_lr,state);//start env thread
@@ -328,7 +335,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   while(1) {
     for(cur_obj_id=0;cur_obj_id<num_of_objs;++cur_obj_id){//obj loop
       if(control->halt){
-        printf("\nHalting via control\n");
+         proc_err("\nHalting via control\n",0);
         return;
       }
       loop_count++;
@@ -359,15 +366,15 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
       sum[i]=0;
       for(i=0;i<env_data[j].num_of_objs;++i){ //loop through each object registered in that environment
         sum[i]+=env_data[j].util[i];
-        printf("UTIL: | %lf |",env_data[j].util[i]);
+        proc_err("UTIL: | %lf |",env_data[j].util[i],4);
       }
     }
-    printf("\n");
+     proc_err("\n",4);
     for(i=0;i<num_of_objs;++i) {
       nobj_sums[i].util=sum[i];
     }
     if(control->test && loop_count>=1000) {
-      printf("End test loop. Exiting....\n");
+      proc_err("End test loop. Exiting....\n",4);
       exit(0);//todo peform actual testing
     }
   }//main loop

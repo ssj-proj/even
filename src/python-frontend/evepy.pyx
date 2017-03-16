@@ -11,3 +11,5 @@ cdef class even:
 		self.control.halt=1
 	def test(self):
 		self.control.test=1
+	def get_util(self, int obj):
+		return evepy.get_obj_util(obj)

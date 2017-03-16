@@ -146,6 +146,10 @@ def print_help():
 	printc("use obj <int>: set object number")
 	printc("use dir <string>: sets base object directory")
 	printc("use type <string>: sets config type to target for manipulation")
+
+def print_util(obj):
+	printc(get_obj_util(obj)+" utility")
+
 def process_input(line):
 	line = line.lower()
 	cmd = line.split()
@@ -181,8 +185,15 @@ def process_input(line):
 	if cmd[0] == "quit" or cmd[0] == "exit" or cmd[0] == "q":
 		printc("Exiting....")
 		quit(0)
-		
+	if cmd[0] == "show":
+		if cmd[1] == "util":
+			print_util(cmd[2])
+			return "adsdf"	
 	return "Invalid command"
+
+
+
+
 def printc(display):
 	if console_mode==1:
 		global lines

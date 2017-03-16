@@ -5,7 +5,7 @@ backend_dir = ${root}src/backend/
 fronted_src =src/python-frontend/
 backend_files = behaviors.o stimpool.o nobj.o env_api.o main.o eve.o err.o
 backend_src = ${backend_dir}behaviors.c ${backend_dir}eve.c ${backend_dir}stimpool.c ${backend_dir}nobj.c ${backend_dir}env_api.c ${backend_dir}main.c  ${backend_dir}err.c
-environment_files = random_env.o lr_env.o
+environment_files = lr_env.o
 
 all:
 	gcc -c -fpic -ggdb -pthread ${backend_src}
