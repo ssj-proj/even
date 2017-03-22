@@ -24,7 +24,7 @@ struct o_map {
   int env_id;
   int stream_id;
 };
-//shorthand for all the stim parameters - tbi everywhere
+//shorthand for all the stim parameters
 struct stim_param {
   unsigned int neur_from;
   unsigned int neur_to;
@@ -87,8 +87,8 @@ void free_io(int no, struct nobj_meta obj_prop, double ****nvar);
 void display_io_props(double **vars,struct nobj_meta np);
 
 
-//accepts address to a single obj , not the entire array
-void init_locks(struct nobj_meta obj_prop, pthread_t **);
+//Adds an outbound connection to the 'to' neur 
+void add_ocon(struct stim_param *sp, int num_of);
 
 //nobject id, from, to, conid (index in weights array of receiving neur), stim
 void stim(struct stim_param *sp);

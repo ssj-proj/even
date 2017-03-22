@@ -246,6 +246,30 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
   }
 
 }
+void add_ocon(struct stim_param *sp, int num_of) {
+	//to neur
+	//find targets
+		//get total number of connections
+		//randomly chose neur weight for closeness with neurs represented in cube
+
+
+	//malloc new cons array for SOURCE of new size
+	//copy array
+	//add new value
+	//change first value to reflect size of array
+
+	//malloc new conids array for TARGET of new size
+	//copy array
+	//add new value
+	//change first value to reflect size of array
+
+	//malloc new weights array for TARGET of new size
+	//copy array
+	//add new value
+	//change first value to reflect size of array
+ 
+
+}
 void display_con_props(int obj,unsigned int***cons,unsigned int***conids,double***weights,struct nobj_meta *np) {
   unsigned int i =0,j=1;
   printf("OBJ[%d]\n",obj);
