@@ -260,6 +260,9 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
 
 //uses the 'To con' in the stim_param as the source
 void add_ocon(struct stim_param *sp, int num_of) {
+  double initial_weight=1;//TODO -> dynamically set this somehow
+
+
   num_of = 1;
   unsigned int i =0;
 	//to neur
@@ -272,9 +275,13 @@ void add_ocon(struct stim_param *sp, int num_of) {
   }
   unsigned int new_size = sp->cons[sp->neur_to][0]+num_of;
   //allocate array for single neur with size = to the number of current size + additional
-  unsigned int * new_con_array = malloc(sizeof(unsigned int)* (current_size+num_of))
+  unsigned int *new_con_array = malloc(sizeof(unsigned int)* (current_size+num_of));
+  unsigned int *new_conid_array = malloc(sizeof(unsigned int)* (current_size+num_of));
+  double *new_weight_array;//malloced later
+
   //copy old array to nuew array
   memcpy(new_con_array,sp->cons[sp->neur_to],sizeof(unsigned int)*current_size );
+  memcpy(new_conid_array,sp->conids[sp->neur_to],sizeof(unsigned int)*current_size );
   //change first value to reflect size of array
   new_con_array[0]=new_size;
 
@@ -283,19 +290,34 @@ void add_ocon(struct stim_param *sp, int num_of) {
     new_con_array[i]=connect_to[i-current_size];
   }
 
-	//malloc new conids array for TARGET of new size
-	//copy array
-	//add new value
-	//change first value to reflect size of array
+  double * tempw;
+  unsigned int to_weights_size;
+  //TODO[10] -> recognized innefficieny when creating multiple connection to same target
+  //increase target weight array and update conid array of source
+  for(i=0;i<num_of;++i) {
 
-	//malloc new weights array for TARGET of new size
-	//copy array
-	//add new value
-	//change first value to reflect size of array
+  to_weights_size = sp->weights[connect_to[i]][0]+1;
+  new_conid_array[i+current_size]=to_weights_size;//add last element index of weight array to conid array
+  new_weight_array = malloc(sizeof(double)*to_weights_size);
+  memcpy(new_weight_array,sp->weights[connect_to[i]],sizeof(double)*(to_weights_size-1));//copy old weight array
+  new_weight_array[to_weights_size-1]=initial_weight;//set last element in weight array to initial weight
 
-  //assign conids array to target new array
-  //assign weights array to target new array
-  //assign cons array to source new array
+  //set new array and free old array
+  tempw = sp->weights[connect_to[i]];
+  sp->weights[connect_to[i]]=new_weight_array;
+  free(tempw);
+
+  }
+
+  unsigned int* temp = sp->conids[sp->neur_to];
+  sp->conids[sp->neur_to]=new_conid_array;
+  free(temp);
+
+  temp = sp->cons[sp->neur_to];
+  sp->cons[sp->neur_to]=new_con_array;
+  free(temp);
+
+  //integ check
 
 }
 void display_con_props(int obj,unsigned int***cons,unsigned int***conids,double***weights,struct nobj_meta *np) {
