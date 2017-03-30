@@ -46,12 +46,12 @@ unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
       printf("Unkown setting %s in %s\n",buff,file);
     }
 
-    if(i>=max) { 
+    if(i>=max) {
        printf("ERROR READING %s\n",file);
        fclose(fp);
        return NULL;
     }
-  }  
+  }
   /* Read all neurs  */
   unsigned int**props=malloc(sizeof(unsigned int*) * (*nobj_props).num_of_neurs);
   int n =0;
@@ -82,17 +82,17 @@ void init_nobj(int no, unsigned int** props, struct nobj_meta obj_prop, unsigned
   int i = 0;
   for(i;i<obj_prop.num_of_neurs;++i) {
     (*nobj)[no][i]=malloc(sizeof(unsigned int)*obj_prop.num_of_neur_properties);
-    
+
     int j = 0;
     for(j;j<obj_prop.num_of_neur_properties;++j) {
-      
+
       ((*nobj)[no][i][j])=props[i][j];
-     
+
     }
   }
 }
 void free_nobj(int no, struct nobj_meta obj_prop, unsigned int ****nobj){
- 
+
   int i = 0;
   for(i;i<obj_prop.num_of_neurs;++i) {
     free((*nobj)[no][i]);
@@ -100,7 +100,7 @@ void free_nobj(int no, struct nobj_meta obj_prop, unsigned int ****nobj){
   free((*nobj)[no]);
 }
 void free_nobj_con(int no, struct nobj_meta obj_prop, unsigned int ****cons, unsigned int ****conids,double ****weights){
- 
+
   int i = 0;
   for(i;i<obj_prop.num_of_neurs;++i) {
     free((*cons)[no][i]);
@@ -122,7 +122,7 @@ unsigned int ** parse_con_file(char * file,struct nobj_meta *nobj_props) {
 
   char buff[255];
   unsigned int t;//temp var for reading header settings
- 
+
   bool has_con_count=false;
   bool has_con_properties=false;
   int max_header_lines=10;
@@ -146,45 +146,52 @@ unsigned int ** parse_con_file(char * file,struct nobj_meta *nobj_props) {
       printf("Unkown setting %s in %s\n",buff,file);
     }
 
-    if(i==max_header_lines) { 
+    if(i==max_header_lines) {
        printf("ERROR READING %s\n",file);
        fclose(fp);
        return NULL;
     }
   }
-  
+
   /* Read all neurs  */
   unsigned int**cons=malloc(sizeof(unsigned int*) * (*nobj_props).num_of_cons);
   unsigned int n =0;
-  for(n;n<(*nobj_props).num_of_cons;++n) {
+  for(n;n<(*nobj_props).num_of_cons;++n) {//loop every con (line) for object
     int p = 0;
     cons[n]=malloc(sizeof(unsigned int) * (*nobj_props).num_of_con_properties);
-    for(p;p<(*nobj_props).num_of_con_properties;++p) {
+    for(p;p<(*nobj_props).num_of_con_properties;++p) {//loop every property (column) for each con
+      //put an unsigned int into the corresping index
+      //should be from,to,weight
       if(fscanf(fp,"%u%*[, \t\n]",&cons[n][p])<1) {
         printf("ERROR READING %s : MISSING AT LEAST 1 con\n",file);
         fclose(fp);
         return NULL;
-      }else{}   
+      }else{}
       //printf("  cons[%u] prop val:%u\n",n,cons[n][p]);
     }
      if(cons[n][0]>(*nobj_props).num_of_neurs-1 || cons[n][1]>(*nobj_props).num_of_neurs-1 ) {
         printf("ERROR Reading con file, reference to invalid neur: from[%u] or to[%u]\n",cons[n][0],cons[n][1]);
         return NULL;
       }
-      
+
   }
   fclose(fp);
+
+
+  //returns array representing parse file
+  //should be cons[neur_id][property]
+  //with property 0,1,2 equaling from,to,weight respectively
   return cons;
 }
 int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsigned int ****cons, unsigned int ****conids,double ****weights) {
-   
+
   if(weights[no]==NULL) {
     printf("Error: WEIGHTS ARRAY IS NULL\n");
     exit(-1);
   }
   (*cons)[no]   =malloc(sizeof(  unsigned int*)*obj_prop.num_of_cons); //initilize obj's array of neurs
-  (*conids)[no] =malloc(sizeof(  unsigned int*)*obj_prop.num_of_cons); 
-  (*weights)[no]=malloc(sizeof(        double*)*obj_prop.num_of_cons); 
+  (*conids)[no] =malloc(sizeof(  unsigned int*)*obj_prop.num_of_cons);
+  (*weights)[no]=malloc(sizeof(        double*)*obj_prop.num_of_cons);
 
   if( !((*cons)[no]||(*conids)[no]||(*weights)[no]) ) {
     printf("ERROR - failed to malloc at least 1 of 3 con arrays\n");
@@ -205,7 +212,7 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
     num_of_cons_rec[i]=0;
     nocw[i]=1;
   }
-  
+
 
   i = 0;
   //tally array members
@@ -213,7 +220,7 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
     if(con_props[i][0]<obj_prop.num_of_neurs) {//make sure its not an invalid indexx
       num_of_cons[con_props[i][0]]++;
       num_of_cons_rec[con_props[i][1]]++;
-    } else { 
+    } else {
       printf("ERROR LOADING CON FILE, REFERENCE TO NONEXISTENT NEUR\n");
       return -1;
     }
@@ -225,16 +232,20 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
     (*cons)[no][i][0]=num_of_cons[i];//first element in array specifies number of cons
     (*conids)[no][i]=malloc(sizeof(unsigned int)* (num_of_cons[i]+1));
     (*conids)[no][i][0]=num_of_cons[i];//first element in array specifies number of cons
-    (*weights)[no][i]=malloc(sizeof(double)* (num_of_cons_rec[i]+1));   
+    (*weights)[no][i]=malloc(sizeof(double)* (num_of_cons_rec[i]+1));
     (*weights)[no][i][0]=num_of_cons_rec[i];//first element in array specifies number of weights
     //printf("malloc for nobj %u for receiving nuer %u , rec count %u\n",no,i,num_of_cons_rec[i]);
   }
 
-  
-  i=0; 
+
+  i=0;
   for(i;i<obj_prop.num_of_cons;++i) {
+    //source neur holds con array and conid array
+    //con array holds neur_id of targets
+    //conids holds the index of the targets weight array that corresponds to this connection
     ((*cons   )[no][con_props[i][0]][ num_of_cons_ass[con_props[i][0]] ]) = con_props[i][1];
     ((*conids )[no][con_props[i][0]][ num_of_cons_ass[con_props[i][0]] ]) = nocw[con_props[i][1]];
+
     ((*weights)[no][con_props[i][1]][ nocw           [con_props[i][1]] ]) = (double)(con_props[i][2]/100.0);
 
 
@@ -242,21 +253,35 @@ int init_cons(int no, unsigned int** con_props, struct nobj_meta obj_prop, unsig
     //printf("-----CONID: %u\n",nocw[con_props[i][1]] );
     //printf(" ----WEIGHT: %lf\n",((*weights)[no][con_props[i][1]][ nocw[con_props[i][1]] ]));
     num_of_cons_ass[con_props[i][0]]++;//incrementr num of cons sender has in con array
-    nocw[con_props[i][1]]++;
+    nocw[con_props[i][1]]++;//increment index for target neur weight array
   }
 
 }
+
+//uses the 'To con' in the stim_param as the source
 void add_ocon(struct stim_param *sp, int num_of) {
+  num_of = 1;
+  unsigned int i =0;
 	//to neur
 	//find targets
-		//get total number of connections
-		//randomly chose neur weight for closeness with neurs represented in cube
+  unsigned int connect_to[num_of];//neur id of new targets
+	unsigned int current_size = sp->cons[sp->neur_to][0];//get total number of connections
 
+  for(i;i<num_of;++i) {
+    connect_to[i]=2;//TODO some algo to randomly chose neur weight for closeness with neurs represented in cube
+  }
+  unsigned int new_size = sp->cons[sp->neur_to][0]+num_of;
+  //allocate array for single neur with size = to the number of current size + additional
+  unsigned int * new_con_array = malloc(sizeof(unsigned int)* (current_size+num_of))
+  //copy old array to nuew array
+  memcpy(new_con_array,sp->cons[sp->neur_to],sizeof(unsigned int)*current_size );
+  //change first value to reflect size of array
+  new_con_array[0]=new_size;
 
-	//malloc new cons array for SOURCE of new size
-	//copy array
-	//add new value
-	//change first value to reflect size of array
+  //assign new values to new source con array
+  for(i=0;i<new_size;++i) {
+    new_con_array[i]=connect_to[i-current_size];
+  }
 
 	//malloc new conids array for TARGET of new size
 	//copy array
@@ -267,7 +292,10 @@ void add_ocon(struct stim_param *sp, int num_of) {
 	//copy array
 	//add new value
 	//change first value to reflect size of array
- 
+
+  //assign conids array to target new array
+  //assign weights array to target new array
+  //assign cons array to source new array
 
 }
 void display_con_props(int obj,unsigned int***cons,unsigned int***conids,double***weights,struct nobj_meta *np) {
@@ -294,7 +322,7 @@ void display_neur_props(unsigned int**nobjs,struct nobj_meta np) {
     j=0;
     for(j;j<np.num_of_neur_properties;++j){
       printf("  Neur[%u] prop[%u] val:%u\n",i,j,nobjs[i][j]);
-      
+
     }
   }
 }
@@ -326,12 +354,12 @@ double ** parse_vars_file(char * file, struct nobj_meta *nobj_props) {
       printf("Unkown setting %s in %s\n",buff,file);
     }
 
-    if(i>=max) { 
+    if(i>=max) {
        printf("ERROR READING %s\n",file);
        fclose(fp);
        return NULL;
     }
-  }  
+  }
   /* Read all neurs  */
   double**props=malloc(sizeof(props) * (*nobj_props).num_of_neurs);
   int n =0;
@@ -358,14 +386,14 @@ void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****var
     printf("ERROR - failed to malloc nobj\n");
     return;
   }
-  
+
   unsigned int i = 0;
   printf(" I vs non : %u v %u\n",i,obj_prop.num_of_neurs);
   for(i;i<obj_prop.num_of_neurs;++i) {
     (*vars)[no][i]=malloc(sizeof(double*)*obj_prop.num_of_var_properties);
     //printf(":::--------:%u\n",obj_prop.num_of_var_properties);
     int j = 0;
-    for(j;j<obj_prop.num_of_var_properties;++j) {  
+    for(j;j<obj_prop.num_of_var_properties;++j) {
       ((*vars)[no][i][j])=props[i][j];
       //printf(" varp:%lf\n",((*vars)[no][i][j]));
     }
@@ -380,7 +408,7 @@ void init_vars(int no, double** props, struct nobj_meta obj_prop, double ****var
 
 }
 void free_vars(int no, struct nobj_meta obj_prop, double ****vars){
- 
+
   int i = 0;
   for(i;i<obj_prop.num_of_neurs;++i) {
     free((*vars)[no][i]);
@@ -389,17 +417,17 @@ void free_vars(int no, struct nobj_meta obj_prop, double ****vars){
 }
 void display_vars_props(double**vars,struct nobj_meta np) {
   unsigned int i =0,j=0;
-  
+
   printf("  Total neurs: %u\n",np.num_of_neurs);
 
   for(i;i<np.num_of_neurs;++i) {
     j=0;
     for(j;j<np.num_of_var_properties;++j){
       printf("  Neur[%u] var[%u] val:%lf\n",i,j,vars[i][j]);
-      
+
     }
   }
-} 
+}
 int verify_obj_vars(double **vars,struct nobj_meta np) {
   unsigned int i =0,j=0;
   int err=0;
@@ -423,7 +451,7 @@ int verify_obj_vars(double **vars,struct nobj_meta np) {
       err++;
     }
   }
- 
+
   return err;
 
 }
@@ -432,7 +460,7 @@ int verify_obj_vars(double **vars,struct nobj_meta np) {
   must know number of environments
   must know number of streams in each environmnet
   this can init clients portion of that array
-  
+
 
 */
 int parse_i_file(char * file, struct i_map **im, struct nobj_meta *nobj_props) {
@@ -445,7 +473,7 @@ int parse_i_file(char * file, struct i_map **im, struct nobj_meta *nobj_props) {
   }
   int buff_size=256;
   char *buff=malloc(buff_size);
-  
+
   int num_of_inputs=0;
   int max_head=1,i=0;//only check for this num of header lines
   char found=0;
@@ -456,7 +484,7 @@ int parse_i_file(char * file, struct i_map **im, struct nobj_meta *nobj_props) {
       printf("HERE2\n");
       if(sscanf(buff,"num_of_inputs: %d",&num_of_inputs) > 0) {
        found++;
-      } 
+      }
       if(i==max_head) { //have max number of headers, exit loop
         break;
       }
@@ -517,9 +545,9 @@ void copy_stim_param(struct stim_param from, struct stim_param *to) {
 void stim(struct stim_param *sp) {
       if( sp->vars[sp->neur_to][2] == 0) {
       fprintf(stderr,"nobj%u:stim:neur%u:fire_strength = 0\n",sp->nobj_props->nobj_id,sp->neur_to);
-     
+
     }
-  
+
 
   //printf("behviors index: %u\n",(*sp).nobj[(*sp).neur_to][0]);
   (*sp->bp).behaviors[ sp->nobj[sp->neur_to][0]  ](sp);//PRE
@@ -530,11 +558,11 @@ void stim(struct stim_param *sp) {
   */
   if(sp->conid != UINT_MAX) {
     (*sp).vars[(*sp).neur_to][0]+= ((*sp).stim * (*sp).weights[(*sp).neur_to][(*sp).conid] );
-   
+
   }
   else {
     sp->vars[sp->neur_to][0]+= sp->stim;
-   // printf("  OBJ[%u] STIM:%lf!!!!!!!\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_to][0]);  
+   // printf("  OBJ[%u] STIM:%lf!!!!!!!\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_to][0]);
    }
 
 
@@ -564,7 +592,7 @@ void fire_downstream(struct stim_param *sp) {
   int t = (int)(sp->vars[sp->neur_from][4]);
   if(set_output(sp->nobj_props->nobj_id,sp->vars[sp->neur_from][5],
     sp->stim,(int)(sp->vars[sp->neur_from][4])  ) != 0) {
-     
+
     char err_buff[100];
     sprintf(err_buff,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
     proc_err(err_buff,2);
@@ -575,7 +603,7 @@ void fire_downstream(struct stim_param *sp) {
 /*
 
 */
- 
+
   //iterate from index 1 to index 1+num_to_send - first index holds length of array
   for(i=1; i < num_to_send+1;++i) {
      sp->conid=sp->conids[sp->neur_from][i];
@@ -588,4 +616,3 @@ void fire_downstream(struct stim_param *sp) {
 }
 //int check_nobj_props(struct nobj_meta props);
 //void stim_from_env(int obj_id, unsigned int neur_id, double dat);
-
