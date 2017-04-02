@@ -1,1 +1,4 @@
 #!/usr/bin/env sh
+#check for gcc
+#check for python
+#check for cython

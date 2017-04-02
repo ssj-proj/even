@@ -2,3 +2,5 @@
 *.log
 even
 eve.log
+build/*
+*.o
