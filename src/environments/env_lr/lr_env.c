@@ -75,6 +75,7 @@ void *main_loop_lr(void *state){
     fprintf(stderr,"ERR : init_env_lr : called main environment loop before init.\n");
     exit(-1);
   } 
+
   //Variables for env api
   struct job* work;
   int *main_state = (int *)state;
@@ -107,31 +108,34 @@ void *main_loop_lr(void *state){
 
 
 
-      //set next input at time step
-      if( ((  get_nobj_progress(work->nobj_id)-progress )/get_nobj_progress_step(work->nobj_id)) > 10 ) {
-     
-        progress=get_nobj_progress(work->nobj_id);
-        dir_3=dir_2;
-        dir_2=dir_1;
-        dir_1=cur_dir;
-        cur_dir=rand()%9;//todo change 9 to equal number of ostream
-        for(i = 0; i < 9; ++i){
-          printf("[ %lf ]",istream[i]);
-          istream[i]=0;
-        }
-        printf("\n");
-        istream[cur_dir]=100;
-        //sleep
-      }
-    }
 
     for(i=0; i < env_api_dat->num_of_objs; ++i) {
       //printf("| %lf |",util[i]);
       util[i]--;
     }
-    printf("\n");
     usleep(100);//--should be same as stimpool sleep time 
+  } 
+  
+  //printf("env_lr: global progress %lf 	vs 	local progress %lf",get_nobj_progress(0),progress);
+  //set next input at time step TODO [1] - fix nobj_progress so it does not need to rely on static object or work -
+  if( ((  get_nobj_progress(0)-progress )/get_nobj_progress_step(0)) > 10 ) {
+    progress=get_nobj_progress(0);
+    dir_3=dir_2;
+    dir_2=dir_1;
+    dir_1=cur_dir;
+    cur_dir=rand()%9;//todo change 9 to equal number of ostream
+    for(i = 0; i < 9; ++i){
+       printf("[ %lf ]",istream[i]);
+       istream[i]=0;
+    }
+    printf("\n");
+    istream[cur_dir]=100;
+    //sleep
+    }
   }
+
+printf("exit env_lr loop\n");
+exit(0);
 }
 
 

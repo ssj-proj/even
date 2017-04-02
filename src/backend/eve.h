@@ -23,7 +23,7 @@ struct nobj_summary {
   int active;
 };
 void start_program(int argv,char *const *args, struct main_control *control);
-struct main_control *create_control();
+struct main_control *create_control(void);
 double get_obj_util(int obj_id);//called by front end to get util of an obj
 
 #endif

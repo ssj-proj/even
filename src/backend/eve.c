@@ -282,7 +282,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     
     parse_i_file(file,&i_maps[nobj_id],&nobj_props[nobj_id]);
 
-     /* base values for sim param fro nobj -- rethink this design TODO */
+     /* base values for sim param fro nobj TODO[10] - rethink this design TODO - */
     (*param[nobj_id]).bp=&behaviors;
     (*param[nobj_id]).nobj=nobjs[nobj_id];  
     (*param[nobj_id]).cons=cons[nobj_id];

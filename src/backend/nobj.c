@@ -265,10 +265,10 @@ void add_ocon(struct stim_param *sp, int num_of) {
 
   num_of = 1;
   unsigned int i =0;
-	//to neur
-	//find targets
+  //to neur
+  //find targets
   unsigned int connect_to[num_of];//neur id of new targets
-	unsigned int current_size = sp->cons[sp->neur_to][0];//get total number of connections
+  unsigned int current_size = sp->cons[sp->neur_to][0];//get total number of connections
 
   for(i;i<num_of;++i) {
     connect_to[i]=2;//TODO some algo to randomly chose neur weight for closeness with neurs represented in cube
@@ -278,20 +278,28 @@ void add_ocon(struct stim_param *sp, int num_of) {
   unsigned int *new_con_array = malloc(sizeof(unsigned int)* (current_size+num_of));
   unsigned int *new_conid_array = malloc(sizeof(unsigned int)* (current_size+num_of));
   double *new_weight_array;//malloced later
+ 
+  /* LOH
+      current_size isn't being set correctly, causing everything to work
+      the wrong array sizes.
+  */
 
-  //copy old array to nuew array
+  printf("current size = %u",current_size);
+  printf("nobj.c: copying con and conids memcpy\n");
+  //copy old array to new array
   memcpy(new_con_array,sp->cons[sp->neur_to],sizeof(unsigned int)*current_size );
   memcpy(new_conid_array,sp->conids[sp->neur_to],sizeof(unsigned int)*current_size );
   //change first value to reflect size of array
   new_con_array[0]=new_size;
-
+  printf("nobj.c: finish copying con and conids memcpy\n");
   //assign new values to new source con array
   for(i=0;i<new_size;++i) {
-    new_con_array[i]=connect_to[i-current_size];
+    new_con_array[i]=connect_to[current_size-i];
   }
 
   double * tempw;
   unsigned int to_weights_size;
+  printf("nobj.c: begin weights memcpy\n");
   //TODO[10] -> recognized innefficieny when creating multiple connection to same target
   //increase target weight array and update conid array of source
   for(i=0;i<num_of;++i) {
@@ -318,6 +326,8 @@ void add_ocon(struct stim_param *sp, int num_of) {
   free(temp);
 
   //integ check
+  printf("FINISHED ADD_OCON\n");
+
 
 }
 void display_con_props(int obj,unsigned int***cons,unsigned int***conids,double***weights,struct nobj_meta *np) {
