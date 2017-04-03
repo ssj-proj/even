@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include "env_api.h"
 #include <errno.h>
+#include <math.h>
 
 typedef int bool;
 #define true 1
@@ -263,12 +264,15 @@ void add_ocon(struct stim_param *sp, int num_of) {
   double initial_weight=1;//TODO -> dynamically set this somehow
   num_of = 1;
   unsigned int i =0;
-  //to neur
+  //to neur 
   //find targets
   unsigned int connect_to[num_of];//neur id of new targets
   unsigned int current_size = sp->cons[sp->neur_to][0];//get total number of connections
-
+ 
+  //standard deviation as a percentage -> 80% of new connections will be generated within std_dev_per_distance*2 of eachother
+  double std_dev_per_distance=.1;//TODO - Variabalize this - 
   for(i;i<num_of;++i) {
+    guassrand()
     connect_to[i]=2;//TODO some algo to randomly chose neur weight for closeness with neurs represented in cube
   }
   unsigned int new_size = sp->cons[sp->neur_to][0]+num_of;
@@ -651,5 +655,29 @@ void fire_downstream(struct stim_param *sp) {
     manager(sp);//put work on top of work queue
   }
 }
-//int check_nobj_props(struct nobj_meta props);
-//void stim_from_env(int obj_id, unsigned int neur_id, double dat);
+
+double gaussrand()
+{
+	static double V1, V2, S;
+	static int phase = 0;
+	double X;
+
+	if(phase == 0) {
+		do {
+			double U1 = (double)rand() / RAND_MAX;
+			double U2 = (double)rand() / RAND_MAX;
+
+			V1 = 2 * U1 - 1;
+			V2 = 2 * U2 - 1;
+			S = V1 * V1 + V2 * V2;
+			} while(S >= 1 || S == 0);
+
+		X = V1 * sqrt(-2 * log(S) / S);
+	} else
+		X = V2 * sqrt(-2 * log(S) / S);
+
+	phase = 1 - phase;
+
+	return X;
+}
+

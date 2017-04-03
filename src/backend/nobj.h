@@ -108,7 +108,7 @@ void stim_from_env(struct stim_param *sp);//10-3-16 TBI
   Fires to all connected neurs
 */
 void fire_downstream(struct stim_param *sp);
-
+double gaussrand();
 
 
 #endif
