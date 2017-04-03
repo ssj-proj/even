@@ -26,7 +26,7 @@ int thresh_hold(struct stim_param *sp) { //0
 }
 //these neurs require var7-8 - should have a cooldown after fire to limit fire frequency
 int regulated_thresh(struct stim_param *sp) { //1
-  printf(" Thresh 1!\n");
+  //printf(" Thresh 1!\n");
  //printf("[Threshold1(stim/thresh/v2)(%lf,%lf,%lf)\n",(*sp).vars[(*sp).neur_to][0], (*sp).vars[(*sp).neur_to][1],(*sp).vars[(*sp).neur_to][2]);
   double progress = get_progress(sp);
   double progress_step = get_progress_step(sp);
@@ -43,7 +43,7 @@ int regulated_thresh(struct stim_param *sp) { //1
     return 2;
   }
 
-  printf(" stim %lf vs thresh %lf",sp->vars[sp->neur_to][0],sp->vars[sp->neur_to][1]);
+  //printf(" stim %lf vs thresh %lf",sp->vars[sp->neur_to][0],sp->vars[sp->neur_to][1]);
   if(sp->vars[sp->neur_to][0] >= sp->vars[sp->neur_to][1] ) {//to fire
     sp->vars[sp->neur_to][8]=progress;//progress var grabbed from stimpool
     sp->vars[sp->neur_to][0]=0;//reset stim to 0
@@ -51,8 +51,8 @@ int regulated_thresh(struct stim_param *sp) { //1
     //printf("behav:fire depreciation:%lf\n",sp->vars[sp->neur_to][6]);
 
     //TEST//
-    printf("adding ocon\n");
-    add_ocon(sp,1);
+    //printf("adding ocon\n");
+    add_ocon(sp,2);
     return 0;
   }
   //printf("Threshold1(stim/thresh/v2)[%u] - (%lf,%lf,%lf)\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_to][0],

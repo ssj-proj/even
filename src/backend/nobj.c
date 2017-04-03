@@ -277,36 +277,35 @@ void add_ocon(struct stim_param *sp, int num_of) {
   unsigned int *new_conid_array = malloc(sizeof(unsigned int)* (current_size+num_of+1));
   double *new_weight_array;//malloced later
    
-  printf("current size = %u new size = %u\n",current_size,new_size);
-  printf("nobj.c: copying con and conids memcpy\n");
+  ///printf("current size = %u new size = %u\n",current_size,new_size);
+  //printf("nobj.c: copying con and conids memcpy\n");
   //copy old array to new array
   memcpy(new_con_array,sp->cons[sp->neur_to],sizeof(unsigned int)*(current_size+1) );
   memcpy(new_conid_array,sp->conids[sp->neur_to],sizeof(unsigned int)*(current_size+1) );
   //change first value to reflect size of array
   new_con_array[0]=new_size;
-  printf("nobj.c: finish copying con and conids memcpy. new size in array: %u\n", new_con_array[0]);
+  //printf("nobj.c: finish copying con and conids memcpy. new size in array: %u\n", new_con_array[0]);
   //assign new values to new source con array
   for(i=0;i<num_of;++i) {
     
     new_con_array[current_size+i+1]=connect_to[i];
-printf("cur size: %u , i: %u , connect to: %u , con array[i]: %u\n",current_size,i,connect_to[i],new_con_array[current_size+i+1]);
+    //printf("cur size: %u , i: %u , connect to: %u , con array[i]: %u\n",current_size,i,connect_to[i],new_con_array[current_size+i+1]);
   }
 
   double * tempw;
   unsigned int to_weights_size;
-  printf("nobj.c: begin weights memcpy\n");
+  //printf("nobj.c: begin weights memcpy\n");
   //TODO[10] -> recognized innefficieny when creating multiple connection to same target
   //increase target weight array and update conid array of source
   for(i=0;i<num_of;++i) {
 
     to_weights_size = sp->weights[connect_to[i]][0]+1;
-    printf("to weights size: %u\n",to_weights_size);
+    //printf("to weights size: %u\n",to_weights_size);
     new_conid_array[i+current_size+1]=to_weights_size;//add last element index of weight array to conid array
     new_weight_array = malloc(sizeof(double)*(to_weights_size+1));
     memcpy(new_weight_array,sp->weights[connect_to[i]],sizeof(double)*(to_weights_size));//copy old weight array
     new_weight_array[to_weights_size]=initial_weight;//set last element in weight array to initial weight
     new_weight_array[0]=to_weights_size;
-    printf("==================================================@#$@#$@#$!\n");
     //set new array and free old array
     free(sp->weights[connect_to[i]]);//Freeing before can cause race condition if neur is ever accessed outside thread
     sp->weights[connect_to[i]]=new_weight_array;
@@ -325,7 +324,7 @@ printf("cur size: %u , i: %u , connect to: %u , con array[i]: %u\n",current_size
     exit(-1);
   }
   for(i=1;i<=sp->cons[sp->neur_to][0];++i) {
-    printf("nobj.c add_ocon: from %u to %u\n",sp->neur_to,sp->cons[sp->neur_to][i]);
+    //printf("nobj.c add_ocon: from %u to %u\n",sp->neur_to,sp->cons[sp->neur_to][i]);
     if(sp->cons[sp->neur_to][i]>sp->nobj_props->num_of_neurs){
       printf("nobj.c add_ocon: error add ocon - downstream neur invalid: %u\n",sp->cons[sp->neur_to][i]);
       printf("nobj.c add_ocon:     new_con_array[%u] %u\n",i,new_con_array[i]);
@@ -334,7 +333,7 @@ printf("cur size: %u , i: %u , connect to: %u , con array[i]: %u\n",current_size
 
   }
   sp->nobj_props->num_of_cons+=num_of;
-  printf("FINISHED ADD_OCON\n");
+  //printf("FINISHED ADD_OCON\n");
 }
 void display_con_props(int obj,unsigned int***cons,unsigned int***conids,double***weights,struct nobj_meta *np) {
   unsigned int i =0,j=1;
