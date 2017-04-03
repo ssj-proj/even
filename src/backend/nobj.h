@@ -47,6 +47,13 @@ struct stim_param {
   double**vars;
   struct nobj_meta *nobj_props;
 };
+/*
+  -1 = neur < 0
+   0 = all good
+   > 0 = the number of arrays that neur_id > arr size
+
+*/
+int neur_exist(struct stim_param *sp, unsigned int neur);
 void copy_stim_param(struct stim_param from, struct stim_param *to);
 //got rid of weight func
 /*
