@@ -599,29 +599,23 @@ void stim(struct stim_param *sp) {
 }
 void fire_downstream(struct stim_param *sp) {
 
-//set_output(int nobj_id,int stream_id,double data, struct env_control *client_work)
-//need env_id, stream_id, nobj-id, pointer to work struct
-
   int i;
   sp->neur_from = sp->neur_to;//last stimmed neur is now firing to
   sp->stim= sp->vars[sp->neur_from][2];//set outgoing stim to neur strength
   if(sp->stim==0){
     printf("nobj:Neur strength 0, non-functioning nuer.obj:%u,neur:%u\n",sp->nobj_props->nobj_id,sp->neur_from);
-
   }
+
   int num_to_send=sp->cons[sp->neur_from][0];
   //printf("  OBJ[%u] setting output\n",sp->nobj_props->nobj_id);
-  int t = (int)(sp->vars[sp->neur_from][4]);
-  if(set_output(sp->nobj_props->nobj_id,sp->vars[sp->neur_from][5],
-    sp->stim,(int)(sp->vars[sp->neur_from][4])  ) != 0) {
-
-    char err_buff[100];
-    sprintf(err_buff,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
-    proc_err(err_buff,2);
-    if(t!=(int)(sp->vars[sp->neur_from][4])){
-      proc_err("ERROR:nobj.c:ENV got corrupt!",1);
+  if(sp->vars[sp->neur_from][4]<0){//var env_id < 0 means this neur is not an output neur
+    if(set_output(sp->nobj_props->nobj_id, sp->vars[sp->neur_from][5],  sp->stim,  (int)(sp->vars[sp->neur_from][4])  ) != 0) {
+      char err_buff[100];
+      sprintf(err_buff,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
+      proc_err(err_buff,2);
     }
   }
+
 /*
 
 */
