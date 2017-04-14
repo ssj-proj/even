@@ -67,7 +67,14 @@ int init_env_oai(struct env_control *ec, struct env_dat *dat, int env) {
   return 0;
 }
 int get_oia_work(){
-  struct job* work;
+  struct job* work=get_next_output(env_id,env_control);
+  if(work) { //if theres any out work
+    return work->stream_id;
+
+  }
+  return -1;
+}
+void set_oai_input(double ins[4]){
 
 
 }
