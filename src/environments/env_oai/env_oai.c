@@ -68,16 +68,20 @@ int init_env_oai(struct env_control *ec, struct env_dat *dat, int env) {
 }
 
 //returns which stream ID has been stimmed, the strengh of the stim doesnt matter
-int get_oia_work(){
-  struct job* work=get_next_output(env_id,env_control);
+int get_oai_work(){
+  struct job* work=get_next_output(env_id,env_api_control);
   if(work) { //if theres any out work
-    return work->stream_id;
+    return work->sid;
 
   }
+  printf("No work\n")
   return -1;
 }
-void set_oai_input(double ins[4]){
+void set_oai_input(double *ins, int size){
+ /*
+  TODO - send input to net
 
+ */
 
 }
 void *main_loop_oai(void *state){

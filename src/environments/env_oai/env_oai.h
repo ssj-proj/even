@@ -3,7 +3,7 @@
 
 //should be an endless loop function of which the caller can invoke actioins with state
 void *main_loop_oai(void *state);
-void init_env_oai(struct env_control *ec, struct env_dat *dat, int env_id);
-int get_oia_work();
-void set_oai_input(double ins[4]);
+int init_env_oai(struct env_control *ec, struct env_dat *dat, int env);
+int get_oai_work();
+void set_oai_input(double *ins, int size);
 #endif

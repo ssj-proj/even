@@ -3,7 +3,7 @@
 #include "stimpool.h"
 #include "env_api.h"
 #include "../environments/env_c_random/random_env.h"
-#include "../environments/env_lr/lr_env.h"
+#include "../environments/env_oai/env_oai.h"
 #include "eve.h"
 #include "err.h"
 #include <unistd.h>
@@ -18,11 +18,11 @@ struct sigaction old_action;
 struct nobj_summary *nobj_sums;//made global so it could be easily shared with external api
 
 unsigned int** create_props(int neurs, int neur_props, struct main_control *control) {
- 
+
   unsigned int** props=malloc(sizeof(unsigned int*)*neurs);
   int i =0;
   for(i; i < neurs;++i){
-    props[i]=malloc(sizeof(unsigned int)*neur_props);  
+    props[i]=malloc(sizeof(unsigned int)*neur_props);
     int j =0;
     for(j;j<neur_props;++j){
       props[i][j]=(i+j);
@@ -37,7 +37,7 @@ void end_program(int sig_no){
   sigaction(SIGINT, &old_action, NULL);
   kill(0, SIGINT);
 
-} 
+}
 struct main_control * create_control() {
   struct main_control *control = malloc(sizeof(struct main_control));
   strcpy(control->obj_file_base,"./obj/obj_");
@@ -83,7 +83,7 @@ int check_control(struct main_control *control){
   if(control->num_of_threads<=0) {
     return -9;
   }
-  
+
 
 
 
@@ -105,7 +105,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
 
   //sets error log location and verbosity level
   //TODO - check this have been set, if not use default values
-  init_err(control->log_file,control->log_verbosity,control->screen_verbosity, control->console_mode);//file,file verbosity, screen verbosity 
+  init_err(control->log_file,control->log_verbosity,control->screen_verbosity, control->console_mode);//file,file verbosity, screen verbosity
 
   /*
     TODO - dynamic vars:
@@ -119,22 +119,22 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   printf("Obj_file_base: %s\n",control->log_file);
   int num_of_objs=control->num_of_objs;
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
-  //(ie: stim_pool and env):  
+  //(ie: stim_pool and env):
   int num_of_threads=control->num_of_threads;//number of nobj worker threads
-  
-  /*   
+
+  /*
     NOBJ VARS
   */
   //[object id][neur id][neur propert id]
   unsigned int ***nobjs;//should not change during obj runtime
 
-  struct nobj_meta *nobj_props; 
- 
+  struct nobj_meta *nobj_props;
+
 
   //[object id][neur id][to con neur id]
   unsigned int ***cons;//will change during runtime
   pthread_t **cons_lock;//lock per neur
-  /* 
+  /*
     conid is associated to sending neur
     conid is used by sending neur, sent to receiving neur along with sitm upon firing
     receiving neur using conid as an index to its weights array
@@ -153,11 +153,11 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
      By neur behavior. To Be planned and coded */
   double ***nvar;//will change during runtime
   pthread_t **nvar_lock;
-  
 
 
 
-  /*   
+
+  /*
     END NOBJ VARS
   */
 
@@ -193,7 +193,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     one entry for each object
   */
   struct stim_param **param = malloc(sizeof(*param)*num_of_objs);
-   
+
   //To do - more err checking
   if(weights==NULL) {
     proc_err("Error: failed to malloc weights. objs %d\n",num_of_objs);
@@ -202,7 +202,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
 
 
 
-  
+
   unsigned int **props;
   unsigned int nobj_id=0;
   char *objnum=malloc(4);
@@ -216,7 +216,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     Define possible behaviors, a part of stim param
     TODO - function to dynamically load this
   */
-  struct behav_pool behaviors; 
+  struct behav_pool behaviors;
   behaviors.behaviors = malloc(sizeof(behavior) * 1 );
   behaviors.behaviors[0]=&empty_behavior;
   behaviors.threshholds = malloc(sizeof(threshhold) * 2 );
@@ -225,7 +225,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
 
 
   /* load settings for obj from their init files */
-  for(nobj_id;nobj_id<num_of_objs;++nobj_id) { 
+  for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
     /*
        each obj file path:
 	obj_file_base + objnum + (type extension)
@@ -240,7 +240,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
     sprintf(objnum,"%d",nobj_id);
     strcat(file_without_ext,obj_file_base);
     strcat(file_without_ext,objnum);
-    
+
     strcpy(file,file_without_ext);
     strcat(file,des_extension);
     proc_err("   INIT OBJECT %u\n",4,nobj_id);
@@ -264,7 +264,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
       proc_err("ERROR parsing con file.\n",1);
       exit(-1);
     }
-    init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights); 
+    init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights);
     //display_con_props(nobj_id,cons,conids,weights,nobj_props);
 
     strcpy(file,file_without_ext);
@@ -279,12 +279,12 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
 
     strcpy(file,file_without_ext);
     strcat(file,".in");
-    
+
     parse_i_file(file,&i_maps[nobj_id],&nobj_props[nobj_id]);
 
      /* base values for sim param fro nobj TODO[10] - rethink this design TODO - */
     (*param[nobj_id]).bp=&behaviors;
-    (*param[nobj_id]).nobj=nobjs[nobj_id];  
+    (*param[nobj_id]).nobj=nobjs[nobj_id];
     (*param[nobj_id]).cons=cons[nobj_id];
     (*param[nobj_id]).conids=conids[nobj_id];
     (*param[nobj_id]).weights=weights[nobj_id];
@@ -315,8 +315,8 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   */
   envs[0].num_of_istream=3;
   int *state = malloc(sizeof(int));//sent to env
-  
-  if (init_env_lr(&envs[0],&env_data[0],0) != 0) {
+
+  if (init_env_oai(&envs[0],&env_data[0],0) != 0) {
      proc_err("main: error with initilization of environments.",1);
     exit(-2);
   }
@@ -324,14 +324,14 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
      proc_err("main: error with initilization: %d",1,init_errors);
     exit(-1);
   }
-  pthread_create(&env_t,NULL,main_loop_lr,state);//start env thread
+  pthread_create(&env_t,NULL,main_loop_oai,state);//start env thread
 
   int cur_obj_id=0;
   j=0;
   i =0;
   int loop_count=0;
   int errs = 0;
-  
+
   while(1) {
     for(cur_obj_id=0;cur_obj_id<num_of_objs;++cur_obj_id){//obj loop
       if(control->halt){
@@ -353,7 +353,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
         }
 
-       
+
 
       }//end stream loop
     }//end obj loop

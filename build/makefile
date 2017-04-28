@@ -1,11 +1,11 @@
 #admittedly poor build process - fix later
 root = ../
-env_src = ${root}src/environments/env_lr/
+env_src = ${root}src/environments/env_oai/
 backend_dir = ${root}src/backend/
 fronted_src =src/python-frontend/
 backend_files = behaviors.o stimpool.o nobj.o env_api.o main.o eve.o err.o
 backend_src = ${backend_dir}behaviors.c ${backend_dir}eve.c ${backend_dir}stimpool.c ${backend_dir}nobj.c ${backend_dir}env_api.c ${backend_dir}main.c  ${backend_dir}err.c
-environment_files = lr_env.o
+environment_files = env_oai.o
 
 all:
 	gcc -c -fpic -ggdb -pthread ${backend_src}
@@ -15,7 +15,7 @@ all:
 	#library for front end
 	gcc -shared -fstack-protector -o libeve.so ${backend_files} ${environment_files}
 	#build python front end
-	cd ${root} && touch ${fronted_src}evepy.pxd && python ${fronted_src}setup.py build_ext -i  
+	cd ${root} && touch ${fronted_src}evepy.pxd && python ${fronted_src}setup.py build_ext -i
 	mv ${root}*.so ./
 backend:
 	gcc -c -fpic -ggdb -pthread ${backend_src}
@@ -27,5 +27,5 @@ install:
 	cd ${root} && python ${fronted_src}setup.py install
 	cp libeve.so /usr/lib/
 	cp libeve.so /usr/lib64/
-test: 
+test:
 	${root}bin/even -O ../obj/ -t
