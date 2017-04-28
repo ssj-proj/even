@@ -66,6 +66,8 @@ int init_env_oai(struct env_control *ec, struct env_dat *dat, int env) {
   init=1;
   return 0;
 }
+
+//returns which stream ID has been stimmed, the strengh of the stim doesnt matter
 int get_oia_work(){
   struct job* work=get_next_output(env_id,env_control);
   if(work) { //if theres any out work

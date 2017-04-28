@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import gym
 from evepy import even
 
@@ -17,5 +18,8 @@ for _ in range(1000):
     print(observation)
     act = env.action_space.sample()
 
-    #observation, reward, done, info = env.step(0) # take a random action
-    print(observation)
+    observation, reward, done, info = env.step(1) # take a random action
+    print(observation[0])
+    print("reward"+str(reward))
+    #send observation[4]
+    #get env work

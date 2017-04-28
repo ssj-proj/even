@@ -11,7 +11,7 @@
 from string import printable
 from curses import erasechar, wrapper, KEY_BACKSPACE
 from evepy import even
-import csv,sys,getopt,threading,os
+import csv,sys,getopt,threading,os,gym
 
 PRINTABLE = map(ord, printable)
 

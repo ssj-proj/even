@@ -8,6 +8,9 @@ cdef extern from "../backend/eve.h":
 	void start_program(int argv, char *args, main_control *control)
 	double get_obj_util(int obj)
 	main_control * create_control() 
+	int get_oia_work()
+	void set_oai_input(double ins[4])
+	
 
 
 
