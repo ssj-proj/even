@@ -97,7 +97,7 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   struct sigaction action;
   memset(&action, 0, sizeof(action));
   action.sa_handler = &end_program;
-  sigaction(SIGINT, &action, &old_action);
+//  sigaction(SIGINT, &action, &old_action);
   if(check_control(control) <0) {
     printf("Obj_file_base: %s | control err: %d\n",control->obj_file_base,check_control(control));
     return;
@@ -332,14 +332,15 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
   int loop_count=0;
   int errs = 0;
 
-  while(1) {
+  while(!control->halt) {
     for(cur_obj_id=0;cur_obj_id<num_of_objs;++cur_obj_id){//obj loop
       if(control->halt){
          proc_err("\nHalting via control\n",0);
         return;
       }
       loop_count++;
-      //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[cur_obj_id].num_of_istreams);
+      //printf("MLC:%d\n",loop_count);
+      //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[cur_obj_id].num_of_istreams);python
       for(j=0;j<nobj_props[cur_obj_id].num_of_istreams;++j){//loop each stream foreach object
         param[cur_obj_id]->neur_to=i_maps[cur_obj_id][j].neur_to;
 
@@ -370,13 +371,16 @@ void start_program(int argc, char *const *argv, struct main_control *control) {
       }
     }
      proc_err("\n",4);
-    for(i=0;i<num_of_objs;++i) {
+    for(i=0;i<num_of_objs;++i) {//sum util
       nobj_sums[i].util=sum[i];
     }
     if(control->test && loop_count>=1000) {
       proc_err("End test loop. Exiting....\n",4);
       exit(0);//todo peform actual testing
     }
+    printf("==waiting==%d\n",loop_count);
+    usleep(1000000);
+
   }//main loop
   wait_for_threads();
   return;

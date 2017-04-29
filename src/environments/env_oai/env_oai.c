@@ -74,15 +74,21 @@ int get_oai_work(){
     return work->sid;
 
   }
-  printf("No work\n")
+  printf("No work\n");
   return -1;
 }
 void set_oai_input(double *ins, int size){
- /*
-  TODO - send input to net
 
- */
+  if(size>num_of_istream) {
+    fprintf(stderr,"ERROR: env_oai.c: env output larger than istream array\n");
 
+  }
+  int i = 0;
+  for(i;i<size;++i){
+    istream[i]=ins[i];
+    printf("||%lf||",istream[i]);
+  }
+  printf("\n");
 }
 void *main_loop_oai(void *state){
    if(!init){

@@ -32,15 +32,16 @@ max_lines = 0
 eve = even()
 
 def start_eve():
-	steve_thread = threading.Thread(target=eve.start())
-	
+	steve_thread = threading.Thread(target=eve.start)
+	steve_thread.start()
+
 def stop_eve():
 	eve.halt()
 
 def test_steve():
 	eve.test()
 	start_eve()
-	
+
 def change_all_rows(inputfile, replace_with,col,row_interest):
 	rowi=0
 	reader = csv.reader(open(inputfile ))
@@ -89,7 +90,7 @@ def fix_file_headers(inputfile):
 				content[i]="non: "+str(num_rows)+"\n"
 	with open(inputfile,'w') as file:
 		for line in content:
-			file.write(line)	
+			file.write(line)
 			printc(line)
 
 def append_column(inputfile, num, row_interest):
@@ -188,7 +189,7 @@ def process_input(line):
 	if cmd[0] == "show":
 		if cmd[1] == "util":
 			print_util(cmd[2])
-			return "adsdf"	
+			return "adsdf"
 	return "Invalid command"
 
 
@@ -223,7 +224,7 @@ def console(stdscr):
     stdscr.clear()
     if(os.path.exists(cfg_file)==False):
         printc("error opening config file "+cfg_file+" In directory: "+os.getcwd())
-	
+
     with open(cfg_file) as my_file:
         for line in my_file:
             process_input(line)
@@ -236,7 +237,7 @@ def console(stdscr):
 
 	printc(display)
 
-		
+
 def main(argv):
 	inputfile = ''
 	replace_with=""
@@ -289,10 +290,10 @@ def main(argv):
 		printc("-A append an column(S) to end of all rows")
 		printc("-V validate header of file")
 		printc("-h printc(help")
-		
+
 
 	if(no_args==1):
-		wrapper(console)		
+		wrapper(console)
 	if(replace_col==1):
 		change_all_rows(inputfile,replace_with,col,row_interest)
 	if(append_col==1):
@@ -301,6 +302,6 @@ def main(argv):
 		fix_file_headers(inputfile)
 	if(test==1):
 		test_steve()
-	
+
 if __name__ == "__main__":
    main(sys.argv[1:])

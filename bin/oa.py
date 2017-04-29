@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import gym
+import gym,threading
 from evepy import even
 
 #init eve
@@ -9,17 +9,22 @@ from evepy import even
 #sent input
 #manage reward and mutations
 
-
+eve = even()
+eve.test()
+eve.start()
+#quit()
+#steve_thread.halt()
+print("STARTED EVE")
 env = gym.make('CartPole-v0')
-print(env.action_space)
 observation=env.reset()
+eve.set_oai_work(observation,4)
 for _ in range(1000):
     env.render()
-    print(observation)
-    act = env.action_space.sample()
-
-    observation, reward, done, info = env.step(1) # take a random action
+    output = eve.get_work()
+    if output==-1:
+        output=0#if no output from net - default action
+    print("output"+str(output))
+    observation, reward, done, info = env.step(output) # take a random action
+    eve.set_oai_work(observation,4)
     print(observation[0])
     print("reward"+str(reward))
-    #send observation[4]
-    #get env work
