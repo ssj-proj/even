@@ -4,11 +4,12 @@
 #include <string.h>
 #include <unistd.h>
 
+
 int main(int argc, char *const *argv) {
   /*
     Perform initial preproccessing
   */
-  
+
   int c;
   struct main_control *control = create_control();
   control->test=0;
@@ -45,54 +46,9 @@ int main(int argc, char *const *argv) {
                    "Unknown option character `\\x%x'.\n",
                    optopt);
         return -1;
-       
+
       }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  start_program(argc,argv,control);
+  start_program((void*)control);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

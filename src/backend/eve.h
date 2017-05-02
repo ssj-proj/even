@@ -1,6 +1,6 @@
 #ifndef EVE_H
 #define EVE_H
-struct main_control { 
+struct main_control {
   int test;//opt
   int num_of_objs;//req
   int loop_iteration;
@@ -22,7 +22,7 @@ struct nobj_summary {
   //if set 1 -> being actively used if set to 0 -> skipped. Index in array could be re-used for future objects
   int active;
 };
-void start_program(int argv,char *const *args, struct main_control *control);
+void *start_program(void *control_ptr);
 struct main_control *create_control(void);
 double get_obj_util(int obj_id);//called by front end to get util of an obj
 

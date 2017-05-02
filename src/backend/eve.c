@@ -16,6 +16,8 @@
 
 struct sigaction old_action;
 struct nobj_summary *nobj_sums;//made global so it could be easily shared with external api
+static pthread_t program;
+
 
 unsigned int** create_props(int neurs, int neur_props, struct main_control *control) {
 
@@ -92,7 +94,12 @@ double get_obj_util(int obj_id) {
   return nobj_sums[obj_id].util;
 
 }
-void start_program(int argc, char *const *argv, struct main_control *control) {
+int spin_off(struct main_control *control){
+  pthread_create(&program,NULL,start_program,(void*)control);
+
+}
+void *start_program(void *control_ptr) {
+  struct main_control *control = (struct main_control*)control_ptr;
   //set up exit action
   struct sigaction action;
   memset(&action, 0, sizeof(action));

@@ -5,7 +5,8 @@ cdef extern from "../backend/eve.h":
 		int halt
 		int test
 
-	void start_program(int argv, char *args, main_control *control)
+	void *start_program(void *control)
+	int spin_off(main_control *control)
 	double get_obj_util(int obj)
 	main_control * create_control()
 	int get_oai_work()
