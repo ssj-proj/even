@@ -74,7 +74,7 @@ int get_oai_work(){
     return work->sid;
 
   }
-  printf("No work\n");
+//  printf("No work\n");
   return -1;
 }
 void set_oai_input(double *ins, int size){
@@ -86,9 +86,9 @@ void set_oai_input(double *ins, int size){
   int i = 0;
   for(i;i<size;++i){
     istream[i]=ins[i];
-    printf("||%lf||",istream[i]);
+    //printf("||%lf||",istream[i]);
   }
-  printf("\n");
+  //printf("\n");
 }
 void *main_loop_oai(void *state){
    if(!init){

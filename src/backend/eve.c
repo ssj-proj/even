@@ -17,8 +17,11 @@
 struct sigaction old_action;
 struct nobj_summary *nobj_sums;//made global so it could be easily shared with external api
 static pthread_t program;
+static const int period_wait=1000000;
 
-
+int get_period_wait() {
+  return period_wait;
+}
 unsigned int** create_props(int neurs, int neur_props, struct main_control *control) {
 
   unsigned int** props=malloc(sizeof(unsigned int*)*neurs);
@@ -357,12 +360,10 @@ printf("spun6\n");
       //printf(" Main: Obj loop %d\n  streams %d\n",i,nobj_props[cur_obj_id].num_of_istreams);python
       for(j=0;j<nobj_props[cur_obj_id].num_of_istreams;++j){//loop each stream foreach object
         param[cur_obj_id]->neur_to=i_maps[cur_obj_id][j].neur_to;
-
-
         //get input to objects and process them
         errs = get_istream(i_maps[cur_obj_id][j].env_id, i_maps[cur_obj_id][j].stream_id,&(*param[cur_obj_id]).stim);
         if(errs==0){
-          //printf("  istream value: %lf for stream_id: %d\n",(*param[cur_obj_id]).stim,i_maps[cur_obj_id][j].stream_id);
+          printf("  istream value for [%u]: %lf for stream_id: %d\n",param[cur_obj_id]->neur_to,(*param[cur_obj_id]).stim,i_maps[cur_obj_id][j].stream_id);
           manager(param[cur_obj_id]);//drop work into thread pool
         } else {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
@@ -393,7 +394,7 @@ printf("spun6\n");
       exit(0);//todo peform actual testing
     }
     printf("==waiting==%d\n",loop_count);
-    usleep(1000000);
+    usleep(period_wait);
 
   }//main loop
 printf("END");

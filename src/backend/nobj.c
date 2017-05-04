@@ -276,7 +276,7 @@ void add_ocon(struct stim_param *sp, int num_of) {
   unsigned int *new_con_array = malloc(sizeof(unsigned int)* (current_size+num_of+1));
   unsigned int *new_conid_array = malloc(sizeof(unsigned int)* (current_size+num_of+1));
   double *new_weight_array;//malloced later
-   
+
   ///printf("current size = %u new size = %u\n",current_size,new_size);
   //printf("nobj.c: copying con and conids memcpy\n");
   //copy old array to new array
@@ -287,7 +287,7 @@ void add_ocon(struct stim_param *sp, int num_of) {
   //printf("nobj.c: finish copying con and conids memcpy. new size in array: %u\n", new_con_array[0]);
   //assign new values to new source con array
   for(i=0;i<num_of;++i) {
-    
+
     new_con_array[current_size+i+1]=connect_to[i];
     //printf("cur size: %u , i: %u , connect to: %u , con array[i]: %u\n",current_size,i,connect_to[i],new_con_array[current_size+i+1]);
   }
@@ -309,13 +309,13 @@ void add_ocon(struct stim_param *sp, int num_of) {
     //set new array and free old array
     free(sp->weights[connect_to[i]]);//Freeing before can cause race condition if neur is ever accessed outside thread
     sp->weights[connect_to[i]]=new_weight_array;
-    
-    
+
+
   }
 
   free(sp->conids[sp->neur_to]);
   sp->conids[sp->neur_to]=new_conid_array;
-  
+
   free(sp->cons[sp->neur_to]);
   sp->cons[sp->neur_to]=new_con_array;
 
@@ -550,9 +550,9 @@ int parse_i_file(char * file, struct i_map **im, struct nobj_meta *nobj_props) {
 
       val = strtok(NULL, delim);
       sscanf(val,"%u",&stream_id);
-      (*im)->env_id=env_id;
-      (*im)->stream_id=stream_id;
-      (*im)->neur_to=neur_to;
+      (*im)[i].env_id=env_id;
+      (*im)[i].stream_id=stream_id;
+      (*im)[i].neur_to=neur_to;
       printf("to neur %u, from env %d from stream %d\n", neur_to,env_id,stream_id);
     }
 
