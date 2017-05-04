@@ -726,6 +726,14 @@ static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
 /* KeywordStringCheck.proto */
 static CYTHON_INLINE int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
 
+/* RaiseDoubleKeywords.proto */
+static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
+
+/* ParseKeywords.proto */
+static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
+    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
+    const char* function_name);
+
 /* PyObjectCall.proto */
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
@@ -924,8 +932,18 @@ static CYTHON_INLINE int resize_smart(arrayobject *self, Py_ssize_t n) {
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 
+/* Print.proto */
+static int __Pyx_Print(PyObject*, PyObject *, int);
+#if CYTHON_COMPILING_IN_PYPY || PY_MAJOR_VERSION >= 3
+static PyObject* __pyx_print = 0;
+static PyObject* __pyx_print_kwargs = 0;
+#endif
+
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
+
+/* PrintOne.proto */
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o);
 
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
@@ -1052,19 +1070,31 @@ int __pyx_module_is_main_evepy = 0;
 /* Implementation of 'evepy' */
 static PyObject *__pyx_builtin_MemoryError;
 static const char __pyx_k_d[] = "d";
+static const char __pyx_k_end[] = "end";
+static const char __pyx_k_file[] = "file";
 static const char __pyx_k_main[] = "__main__";
+static const char __pyx_k_size[] = "size";
 static const char __pyx_k_test[] = "__test__";
+static const char __pyx_k_print[] = "print";
+static const char __pyx_k_stuff[] = "stuff";
 static const char __pyx_k_Thread[] = "Thread";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_threading[] = "threading";
 static const char __pyx_k_MemoryError[] = "MemoryError";
+static const char __pyx_k_observation[] = "observation";
 static const char __pyx_k_steve_thread[] = "steve_thread";
 static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_n_s_Thread;
 static PyObject *__pyx_n_s_d;
+static PyObject *__pyx_n_s_end;
+static PyObject *__pyx_n_s_file;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_main;
+static PyObject *__pyx_n_s_observation;
+static PyObject *__pyx_n_s_print;
+static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_steve_thread;
+static PyObject *__pyx_n_s_stuff;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_threading;
 static int __pyx_pf_5evepy_4even___cinit__(struct __pyx_obj_5evepy_even *__pyx_v_self); /* proto */
@@ -1073,7 +1103,7 @@ static PyObject *__pyx_pf_5evepy_4even_4halt(struct __pyx_obj_5evepy_even *__pyx
 static PyObject *__pyx_pf_5evepy_4even_6test(struct __pyx_obj_5evepy_even *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5evepy_4even_8get_util(CYTHON_UNUSED struct __pyx_obj_5evepy_even *__pyx_v_self, int __pyx_v_obj); /* proto */
 static PyObject *__pyx_pf_5evepy_4even_10get_work(CYTHON_UNUSED struct __pyx_obj_5evepy_even *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5evepy_4even_12set_oai_work(struct __pyx_obj_5evepy_even *__pyx_v_observation, CYTHON_UNUSED int __pyx_v_size); /* proto */
+static PyObject *__pyx_pf_5evepy_4even_12set_oai_work2(CYTHON_UNUSED struct __pyx_obj_5evepy_even *__pyx_v_self, PyObject *__pyx_v_observation, int __pyx_v_size); /* proto */
 static int __pyx_pf_7cpython_5array_5array___getbuffer__(arrayobject *__pyx_v_self, Py_buffer *__pyx_v_info, CYTHON_UNUSED int __pyx_v_flags); /* proto */
 static void __pyx_pf_7cpython_5array_5array_2__releasebuffer__(CYTHON_UNUSED arrayobject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_5evepy_even(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -1364,7 +1394,7 @@ static PyObject *__pyx_pf_5evepy_4even_8get_util(CYTHON_UNUSED struct __pyx_obj_
  * 		return evepy.get_obj_util(obj)
  * 	def get_work(self):             # <<<<<<<<<<<<<<
  * 		return evepy.get_oai_work()
- * 	def set_oai_work(observation, int size):
+ * 	def set_oai_work2(self, observation, int size):
  */
 
 /* Python wrapper */
@@ -1390,8 +1420,8 @@ static PyObject *__pyx_pf_5evepy_4even_10get_work(CYTHON_UNUSED struct __pyx_obj
  * 		return evepy.get_obj_util(obj)
  * 	def get_work(self):
  * 		return evepy.get_oai_work()             # <<<<<<<<<<<<<<
- * 	def set_oai_work(observation, int size):
- * 		cdef array.array input= array.array('d', observation)
+ * 	def set_oai_work2(self, observation, int size):
+ * 		print("stuff")
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyInt_From_int(get_oai_work()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
@@ -1405,7 +1435,7 @@ static PyObject *__pyx_pf_5evepy_4even_10get_work(CYTHON_UNUSED struct __pyx_obj
  * 		return evepy.get_obj_util(obj)
  * 	def get_work(self):             # <<<<<<<<<<<<<<
  * 		return evepy.get_oai_work()
- * 	def set_oai_work(observation, int size):
+ * 	def set_oai_work2(self, observation, int size):
  */
 
   /* function exit code */
@@ -1422,68 +1452,119 @@ static PyObject *__pyx_pf_5evepy_4even_10get_work(CYTHON_UNUSED struct __pyx_obj
 /* "evepy.pyx":22
  * 	def get_work(self):
  * 		return evepy.get_oai_work()
- * 	def set_oai_work(observation, int size):             # <<<<<<<<<<<<<<
+ * 	def set_oai_work2(self, observation, int size):             # <<<<<<<<<<<<<<
+ * 		print("stuff")
  * 		cdef array.array input= array.array('d', observation)
- * 		#evepy.set_oai_input(input.data.as_doubles, size)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5evepy_4even_13set_oai_work(PyObject *__pyx_v_observation, PyObject *__pyx_arg_size); /*proto*/
-static PyObject *__pyx_pw_5evepy_4even_13set_oai_work(PyObject *__pyx_v_observation, PyObject *__pyx_arg_size) {
-  CYTHON_UNUSED int __pyx_v_size;
+static PyObject *__pyx_pw_5evepy_4even_13set_oai_work2(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_5evepy_4even_13set_oai_work2(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_observation = 0;
+  int __pyx_v_size;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("set_oai_work (wrapper)", 0);
-  assert(__pyx_arg_size); {
-    __pyx_v_size = __Pyx_PyInt_As_int(__pyx_arg_size); if (unlikely((__pyx_v_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
+  __Pyx_RefNannySetupContext("set_oai_work2 (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_observation,&__pyx_n_s_size,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_observation)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_size)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("set_oai_work2", 1, 2, 2, 1); __PYX_ERR(0, 22, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_oai_work2") < 0)) __PYX_ERR(0, 22, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_observation = values[0];
+    __pyx_v_size = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("set_oai_work2", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 22, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("evepy.even.set_oai_work", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("evepy.even.set_oai_work2", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5evepy_4even_12set_oai_work(((struct __pyx_obj_5evepy_even *)__pyx_v_observation), ((int)__pyx_v_size));
+  __pyx_r = __pyx_pf_5evepy_4even_12set_oai_work2(((struct __pyx_obj_5evepy_even *)__pyx_v_self), __pyx_v_observation, __pyx_v_size);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5evepy_4even_12set_oai_work(struct __pyx_obj_5evepy_even *__pyx_v_observation, CYTHON_UNUSED int __pyx_v_size) {
-  CYTHON_UNUSED arrayobject *__pyx_v_input = 0;
+static PyObject *__pyx_pf_5evepy_4even_12set_oai_work2(CYTHON_UNUSED struct __pyx_obj_5evepy_even *__pyx_v_self, PyObject *__pyx_v_observation, int __pyx_v_size) {
+  arrayobject *__pyx_v_input = 0;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
-  __Pyx_RefNannySetupContext("set_oai_work", 0);
+  __Pyx_RefNannySetupContext("set_oai_work2", 0);
 
   /* "evepy.pyx":23
  * 		return evepy.get_oai_work()
- * 	def set_oai_work(observation, int size):
- * 		cdef array.array input= array.array('d', observation)             # <<<<<<<<<<<<<<
- * 		#evepy.set_oai_input(input.data.as_doubles, size)
+ * 	def set_oai_work2(self, observation, int size):
+ * 		print("stuff")             # <<<<<<<<<<<<<<
+ * 		cdef array.array input= array.array('d', observation)
+ * 		evepy.set_oai_input(input.data.as_doubles, size)
  */
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (__Pyx_PrintOne(0, __pyx_n_s_stuff) < 0) __PYX_ERR(0, 23, __pyx_L1_error)
+
+  /* "evepy.pyx":24
+ * 	def set_oai_work2(self, observation, int size):
+ * 		print("stuff")
+ * 		cdef array.array input= array.array('d', observation)             # <<<<<<<<<<<<<<
+ * 		evepy.set_oai_input(input.data.as_doubles, size)
+ */
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_n_s_d);
   __Pyx_GIVEREF(__pyx_n_s_d);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_d);
-  __Pyx_INCREF(((PyObject *)__pyx_v_observation));
-  __Pyx_GIVEREF(((PyObject *)__pyx_v_observation));
-  PyTuple_SET_ITEM(__pyx_t_1, 1, ((PyObject *)__pyx_v_observation));
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __Pyx_INCREF(__pyx_v_observation);
+  __Pyx_GIVEREF(__pyx_v_observation);
+  PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_v_observation);
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_input = ((arrayobject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
+  /* "evepy.pyx":25
+ * 		print("stuff")
+ * 		cdef array.array input= array.array('d', observation)
+ * 		evepy.set_oai_input(input.data.as_doubles, size)             # <<<<<<<<<<<<<<
+ */
+  set_oai_input(__pyx_v_input->data.as_doubles, __pyx_v_size);
+
   /* "evepy.pyx":22
  * 	def get_work(self):
  * 		return evepy.get_oai_work()
- * 	def set_oai_work(observation, int size):             # <<<<<<<<<<<<<<
+ * 	def set_oai_work2(self, observation, int size):             # <<<<<<<<<<<<<<
+ * 		print("stuff")
  * 		cdef array.array input= array.array('d', observation)
- * 		#evepy.set_oai_input(input.data.as_doubles, size)
  */
 
   /* function exit code */
@@ -1492,7 +1573,7 @@ static PyObject *__pyx_pf_5evepy_4even_12set_oai_work(struct __pyx_obj_5evepy_ev
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("evepy.even.set_oai_work", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("evepy.even.set_oai_work2", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_input);
@@ -2165,7 +2246,7 @@ static PyMethodDef __pyx_methods_5evepy_even[] = {
   {"test", (PyCFunction)__pyx_pw_5evepy_4even_7test, METH_NOARGS, 0},
   {"get_util", (PyCFunction)__pyx_pw_5evepy_4even_9get_util, METH_O, 0},
   {"get_work", (PyCFunction)__pyx_pw_5evepy_4even_11get_work, METH_NOARGS, 0},
-  {"set_oai_work", (PyCFunction)__pyx_pw_5evepy_4even_13set_oai_work, METH_O, 0},
+  {"set_oai_work2", (PyCFunction)__pyx_pw_5evepy_4even_13set_oai_work2, METH_VARARGS|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
 
@@ -2253,9 +2334,15 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
   {&__pyx_n_s_Thread, __pyx_k_Thread, sizeof(__pyx_k_Thread), 0, 0, 1, 1},
   {&__pyx_n_s_d, __pyx_k_d, sizeof(__pyx_k_d), 0, 0, 1, 1},
+  {&__pyx_n_s_end, __pyx_k_end, sizeof(__pyx_k_end), 0, 0, 1, 1},
+  {&__pyx_n_s_file, __pyx_k_file, sizeof(__pyx_k_file), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
+  {&__pyx_n_s_observation, __pyx_k_observation, sizeof(__pyx_k_observation), 0, 0, 1, 1},
+  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
+  {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
   {&__pyx_n_s_steve_thread, __pyx_k_steve_thread, sizeof(__pyx_k_steve_thread), 0, 0, 1, 1},
+  {&__pyx_n_s_stuff, __pyx_k_stuff, sizeof(__pyx_k_stuff), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_threading, __pyx_k_threading, sizeof(__pyx_k_threading), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
@@ -2559,6 +2646,122 @@ invalid_keyword:
         function_name, key);
     #endif
     return 0;
+}
+
+/* RaiseDoubleKeywords */
+static void __Pyx_RaiseDoubleKeywordsError(
+    const char* func_name,
+    PyObject* kw_name)
+{
+    PyErr_Format(PyExc_TypeError,
+        #if PY_MAJOR_VERSION >= 3
+        "%s() got multiple values for keyword argument '%U'", func_name, kw_name);
+        #else
+        "%s() got multiple values for keyword argument '%s'", func_name,
+        PyString_AsString(kw_name));
+        #endif
+}
+
+/* ParseKeywords */
+static int __Pyx_ParseOptionalKeywords(
+    PyObject *kwds,
+    PyObject **argnames[],
+    PyObject *kwds2,
+    PyObject *values[],
+    Py_ssize_t num_pos_args,
+    const char* function_name)
+{
+    PyObject *key = 0, *value = 0;
+    Py_ssize_t pos = 0;
+    PyObject*** name;
+    PyObject*** first_kw_arg = argnames + num_pos_args;
+    while (PyDict_Next(kwds, &pos, &key, &value)) {
+        name = first_kw_arg;
+        while (*name && (**name != key)) name++;
+        if (*name) {
+            values[name-argnames] = value;
+            continue;
+        }
+        name = first_kw_arg;
+        #if PY_MAJOR_VERSION < 3
+        if (likely(PyString_CheckExact(key)) || likely(PyString_Check(key))) {
+            while (*name) {
+                if ((CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**name) == PyString_GET_SIZE(key))
+                        && _PyString_Eq(**name, key)) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    if ((**argname == key) || (
+                            (CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**argname) == PyString_GET_SIZE(key))
+                             && _PyString_Eq(**argname, key))) {
+                        goto arg_passed_twice;
+                    }
+                    argname++;
+                }
+            }
+        } else
+        #endif
+        if (likely(PyUnicode_Check(key))) {
+            while (*name) {
+                int cmp = (**name == key) ? 0 :
+                #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                    (PyUnicode_GET_SIZE(**name) != PyUnicode_GET_SIZE(key)) ? 1 :
+                #endif
+                    PyUnicode_Compare(**name, key);
+                if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                if (cmp == 0) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    int cmp = (**argname == key) ? 0 :
+                    #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                        (PyUnicode_GET_SIZE(**argname) != PyUnicode_GET_SIZE(key)) ? 1 :
+                    #endif
+                        PyUnicode_Compare(**argname, key);
+                    if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                    if (cmp == 0) goto arg_passed_twice;
+                    argname++;
+                }
+            }
+        } else
+            goto invalid_keyword_type;
+        if (kwds2) {
+            if (unlikely(PyDict_SetItem(kwds2, key, value))) goto bad;
+        } else {
+            goto invalid_keyword;
+        }
+    }
+    return 0;
+arg_passed_twice:
+    __Pyx_RaiseDoubleKeywordsError(function_name, key);
+    goto bad;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    goto bad;
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+bad:
+    return -1;
 }
 
 /* PyObjectCall */
@@ -3124,6 +3327,112 @@ bad:
     }
 }
 
+/* Print */
+      #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static PyObject *__Pyx_GetStdout(void) {
+    PyObject *f = PySys_GetObject((char *)"stdout");
+    if (!f) {
+        PyErr_SetString(PyExc_RuntimeError, "lost sys.stdout");
+    }
+    return f;
+}
+static int __Pyx_Print(PyObject* f, PyObject *arg_tuple, int newline) {
+    int i;
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    for (i=0; i < PyTuple_GET_SIZE(arg_tuple); i++) {
+        PyObject* v;
+        if (PyFile_SoftSpace(f, 1)) {
+            if (PyFile_WriteString(" ", f) < 0)
+                goto error;
+        }
+        v = PyTuple_GET_ITEM(arg_tuple, i);
+        if (PyFile_WriteObject(v, f, Py_PRINT_RAW) < 0)
+            goto error;
+        if (PyString_Check(v)) {
+            char *s = PyString_AsString(v);
+            Py_ssize_t len = PyString_Size(v);
+            if (len > 0) {
+                switch (s[len-1]) {
+                    case ' ': break;
+                    case '\f': case '\r': case '\n': case '\t': case '\v':
+                        PyFile_SoftSpace(f, 0);
+                        break;
+                    default:  break;
+                }
+            }
+        }
+    }
+    if (newline) {
+        if (PyFile_WriteString("\n", f) < 0)
+            goto error;
+        PyFile_SoftSpace(f, 0);
+    }
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+}
+#else
+static int __Pyx_Print(PyObject* stream, PyObject *arg_tuple, int newline) {
+    PyObject* kwargs = 0;
+    PyObject* result = 0;
+    PyObject* end_string;
+    if (unlikely(!__pyx_print)) {
+        __pyx_print = PyObject_GetAttr(__pyx_b, __pyx_n_s_print);
+        if (!__pyx_print)
+            return -1;
+    }
+    if (stream) {
+        kwargs = PyDict_New();
+        if (unlikely(!kwargs))
+            return -1;
+        if (unlikely(PyDict_SetItem(kwargs, __pyx_n_s_file, stream) < 0))
+            goto bad;
+        if (!newline) {
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                goto bad;
+            if (PyDict_SetItem(kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                goto bad;
+            }
+            Py_DECREF(end_string);
+        }
+    } else if (!newline) {
+        if (unlikely(!__pyx_print_kwargs)) {
+            __pyx_print_kwargs = PyDict_New();
+            if (unlikely(!__pyx_print_kwargs))
+                return -1;
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                return -1;
+            if (PyDict_SetItem(__pyx_print_kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                return -1;
+            }
+            Py_DECREF(end_string);
+        }
+        kwargs = __pyx_print_kwargs;
+    }
+    result = PyObject_Call(__pyx_print, arg_tuple, kwargs);
+    if (unlikely(kwargs) && (kwargs != __pyx_print_kwargs))
+        Py_DECREF(kwargs);
+    if (!result)
+        return -1;
+    Py_DECREF(result);
+    return 0;
+bad:
+    if (kwargs != __pyx_print_kwargs)
+        Py_XDECREF(kwargs);
+    return -1;
+}
+#endif
+
 /* CIntFromPy */
       static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
     const int neg_one = (int) -1, const_zero = (int) 0;
@@ -3312,6 +3621,43 @@ raise_neg_overflow:
         "can't convert negative value to int");
     return (int) -1;
 }
+
+/* PrintOne */
+      #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static int __Pyx_PrintOne(PyObject* f, PyObject *o) {
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    if (PyFile_SoftSpace(f, 0)) {
+        if (PyFile_WriteString(" ", f) < 0)
+            goto error;
+    }
+    if (PyFile_WriteObject(o, f, Py_PRINT_RAW) < 0)
+        goto error;
+    if (PyFile_WriteString("\n", f) < 0)
+        goto error;
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+    /* the line below is just to avoid C compiler
+     * warnings about unused functions */
+    return __Pyx_Print(f, NULL, 0);
+}
+#else
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o) {
+    int res;
+    PyObject* arg_tuple = PyTuple_Pack(1, o);
+    if (unlikely(!arg_tuple))
+        return -1;
+    res = __Pyx_Print(stream, arg_tuple, 1);
+    Py_DECREF(arg_tuple);
+    return res;
+}
+#endif
 
 /* CIntToPy */
       static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {

@@ -17,7 +17,7 @@ eve.start()
 print("STARTED EVE")
 env = gym.make('CartPole-v0')
 observation=env.reset()
-eve.set_oai_work(observation,4)
+eve.set_oai_work2(observation,4)
 for _ in range(1000):
     env.render()
     output = eve.get_work()
@@ -25,6 +25,6 @@ for _ in range(1000):
         output=0#if no output from net - default action
     print("output"+str(output))
     observation, reward, done, info = env.step(output) # take a random action
-    eve.set_oai_work(observation,4)
+    eve.set_oai_work2(observation,4)
     print(observation[0])
     print("reward"+str(reward))

@@ -50,5 +50,7 @@ int main(int argc, char *const *argv) {
       }
   }
 
-  start_program((void*)control);
+  spin_off(control);
+  printf("main thread doing things....");
+  usleep(500000000);
 }

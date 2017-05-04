@@ -95,25 +95,32 @@ double get_obj_util(int obj_id) {
 
 }
 int spin_off(struct main_control *control){
+  printf("spinning off\n");
   pthread_create(&program,NULL,start_program,(void*)control);
 
 }
 void *start_program(void *control_ptr) {
+
+
   struct main_control *control = (struct main_control*)control_ptr;
   //set up exit action
   struct sigaction action;
   memset(&action, 0, sizeof(action));
   action.sa_handler = &end_program;
 //  sigaction(SIGINT, &action, &old_action);
+  printf("spun\n");
+  printf("spun\n");
+
   if(check_control(control) <0) {
     printf("Obj_file_base: %s | control err: %d\n",control->obj_file_base,check_control(control));
+
     return;
   }
-
+printf("spun3\n");
   //sets error log location and verbosity level
   //TODO - check this have been set, if not use default values
   init_err(control->log_file,control->log_verbosity,control->screen_verbosity, control->console_mode);//file,file verbosity, screen verbosity
-
+printf("spun4\n");
   /*
     TODO - dynamic vars:
       num_of_environments
@@ -137,7 +144,7 @@ void *start_program(void *control_ptr) {
 
   struct nobj_meta *nobj_props;
 
-
+printf("spun5\n");
   //[object id][neur id][to con neur id]
   unsigned int ***cons;//will change during runtime
   pthread_t **cons_lock;//lock per neur
@@ -193,14 +200,14 @@ void *start_program(void *control_ptr) {
   i_maps      =malloc( num_of_objs * sizeof(*i_maps));
   envs = malloc(sizeof(struct env_control)*num_of_environments);
   env_data = malloc(sizeof(struct env_control)*num_of_environments);
-
+printf("spun6\n");
   /*
     used for neur thread distribution - stim parameters
     an array of pointers to stim_param objs
     one entry for each object
   */
   struct stim_param **param = malloc(sizeof(*param)*num_of_objs);
-
+ // usleep(500000000);
   //To do - more err checking
   if(weights==NULL) {
     proc_err("Error: failed to malloc weights. objs %d\n",num_of_objs);
@@ -389,6 +396,8 @@ void *start_program(void *control_ptr) {
     usleep(1000000);
 
   }//main loop
+printf("END");
+
   wait_for_threads();
   return;
 
