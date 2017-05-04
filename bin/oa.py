@@ -26,6 +26,7 @@ for _ in range(1000):
     output = eve.get_work()
     if output==-1:
         output=0#if no output from net - default action
+        print("no output")
     #print("output"+str(output))
     observation, reward, done, info = env.step(output) # take a random action
     eve.set_oai_work2(observation,4)
