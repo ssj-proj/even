@@ -17,7 +17,7 @@
 struct sigaction old_action;
 struct nobj_summary *nobj_sums;//made global so it could be easily shared with external api
 static pthread_t program;
-static const int period_wait=1000000;
+static const int period_wait=1000;
 
 int get_period_wait() {
   return period_wait;

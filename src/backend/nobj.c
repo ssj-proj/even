@@ -584,7 +584,7 @@ void stim(struct stim_param *sp) {
       fprintf(stderr,"nobj%u:stim:neur%u:fire_strength = 0\n",sp->nobj_props->nobj_id,sp->neur_to);
 
     }
-
+  //printf("stimmed %u cur stim / thres  [ %lf / %lf ]h\n",sp->neur_to,sp->vars[sp->neur_to][0],sp->vars[sp->neur_to][1]);
 
   //printf("behviors index: %u\n",(*sp).nobj[(*sp).neur_to][0]);
   (*sp->bp).behaviors[ sp->nobj[sp->neur_to][0]  ](sp);//PRE
@@ -613,7 +613,7 @@ void stim(struct stim_param *sp) {
   }
 }
 void fire_downstream(struct stim_param *sp) {
-
+  printf("FIRE! %u  -- %lf\n", sp->neur_to,sp->vars[sp->neur_to][4]);
   int i;
   sp->neur_from = sp->neur_to;//last stimmed neur is now firing to
   sp->stim= sp->vars[sp->neur_from][2];//set outgoing stim to neur strength
@@ -623,11 +623,12 @@ void fire_downstream(struct stim_param *sp) {
 
   int num_to_send=sp->cons[sp->neur_from][0];
   //printf("  OBJ[%u] setting output\n",sp->nobj_props->nobj_id);
-  if(sp->vars[sp->neur_from][4]<0){//var env_id < 0 means this neur is not an output neur
+  if(sp->vars[sp->neur_from][4]>=0){//var env_id < 0 means this neur is not an output neur
+    //printf("SETTING OUTPUT\n");
     if(set_output(sp->nobj_props->nobj_id, sp->vars[sp->neur_from][5],  sp->stim,  (int)(sp->vars[sp->neur_from][4])  ) != 0) {
       char err_buff[100];
-      sprintf(err_buff,"  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
-      proc_err(err_buff,2);
+      printf("  nobj[%u]:fire_downstream:Failure to set_out to env_id[%lf] stream[%lf]\n",sp->nobj_props->nobj_id,sp->vars[sp->neur_from][4],(sp->vars[sp->neur_from][5]));
+      //proc_err(err_buff,2);
     }
   }
 
