@@ -17,11 +17,34 @@
 struct sigaction old_action;
 struct nobj_summary *nobj_sums;//made global so it could be easily shared with external api
 static pthread_t program;
-static const int period_wait=1000;
+static const int period_wait=100000;
+
+
+
 
 int get_period_wait() {
   return period_wait;
 }
+
+/*
+  TODO - de-activate object to be re-used later
+*/
+int kill_nobj(int nobj) {
+
+
+
+}
+/*
+  issue where nobj_id in array does not match file nobj_id
+*/
+int load_nobj(int nobj){
+
+
+}
+
+
+
+
 unsigned int** create_props(int neurs, int neur_props, struct main_control *control) {
 
   unsigned int** props=malloc(sizeof(unsigned int*)*neurs);
@@ -102,55 +125,22 @@ int spin_off(struct main_control *control){
   pthread_create(&program,NULL,start_program,(void*)control);
 
 }
-void *start_program(void *control_ptr) {
 
-
-  struct main_control *control = (struct main_control*)control_ptr;
-  //set up exit action
-  struct sigaction action;
-  memset(&action, 0, sizeof(action));
-  action.sa_handler = &end_program;
-//  sigaction(SIGINT, &action, &old_action);
-  printf("spun\n");
-  printf("spun\n");
-
-  if(check_control(control) <0) {
-    printf("Obj_file_base: %s | control err: %d\n",control->obj_file_base,check_control(control));
-
-    return;
-  }
-printf("spun3\n");
-  //sets error log location and verbosity level
-  //TODO - check this have been set, if not use default values
-  init_err(control->log_file,control->log_verbosity,control->screen_verbosity, control->console_mode);//file,file verbosity, screen verbosity
-printf("spun4\n");
-  /*
-    TODO - dynamic vars:
-      num_of_environments
-  */
-  char *obj_file_base=control->obj_file_base;
-  char *des_extension=control->des_extension;
-  char *con_extension=control->con_extension;
-  char *var_extension=control->var_extension;
-  printf("Obj_file_base: %s\n",obj_file_base);
-  printf("Obj_file_base: %s\n",control->log_file);
-  int num_of_objs=control->num_of_objs;
-  //also dictates number of buffer arrays-be sure to pass this around where neccessary
-  //(ie: stim_pool and env):
-  int num_of_threads=control->num_of_threads;//number of nobj worker threads
-
+struct init_var_struct{
+  char *obj_file_base;
+  char *des_extension;
+  char *con_extension;
+  char *var_extension;
+  int num_of_objs;
+  int num_of_threads;
   /*
     NOBJ VARS
   */
-  //[object id][neur id][neur propert id]
+    //[object id][neur id][neur propert id]
   unsigned int ***nobjs;//should not change during obj runtime
-
   struct nobj_meta *nobj_props;
-
-printf("spun5\n");
-  //[object id][neur id][to con neur id]
+    //[object id][neur id][to con neur id]
   unsigned int ***cons;//will change during runtime
-  pthread_t **cons_lock;//lock per neur
   /*
     conid is associated to sending neur
     conid is used by sending neur, sent to receiving neur along with sitm upon firing
@@ -159,26 +149,18 @@ printf("spun5\n");
   */
   //[object id][neur id][to con conid]
   unsigned int ***conids;//will change during runtime
-  pthread_t **conids_lock;//lock per neuer
-
   //[object id][neur id][receiving weights]
   double ***weights;//will change during runtime
-  pthread_t **weights_lock;
-
   //[object id][neur id][variable] -- TBDOC / TBI
   /* A variable length list that holds variables for the neurs that are affected
      By neur behavior. To Be planned and coded */
   double ***nvar;//will change during runtime
-  pthread_t **nvar_lock;
-
-
-
-
   /*
     END NOBJ VARS
   */
-
-  /* ENV VARS */
+  /*
+    ENV VARS
+  */
   int num_of_environments=1;
   //array of struct, element per env
   struct env_control *envs;// = malloc(sizeof(struct env_control));
@@ -188,43 +170,99 @@ printf("spun5\n");
     1D array [obj_id] = struct map { stream_id, neur_id] };
   */
   struct i_map **i_maps;
-  int num_of_envs=1;
-
-
-  /* END ENV VARS */
-  //malloc nobj vars
-  nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
-  nobj_sums   =malloc( num_of_objs * sizeof(struct nobj_summary));
-  weights     =malloc( num_of_objs * sizeof(double**));
-  nobjs       =malloc( num_of_objs * sizeof(unsigned int**));
-  cons        =malloc( num_of_objs * sizeof(unsigned int**));
-  conids      =malloc( num_of_objs * sizeof(unsigned int**));
-  nvar        =malloc( num_of_objs * sizeof(double**));
-  i_maps      =malloc( num_of_objs * sizeof(*i_maps));
-  envs = malloc(sizeof(struct env_control)*num_of_environments);
-  env_data = malloc(sizeof(struct env_control)*num_of_environments);
-printf("spun6\n");
+  /*
+    END ENV VARS
+  */
   /*
     used for neur thread distribution - stim parameters
     an array of pointers to stim_param objs
     one entry for each object
   */
-  struct stim_param **param = malloc(sizeof(*param)*num_of_objs);
+  struct stim_param **param;
+  unsigned int **props;
+  struct behav_pool *behaviors;
+
+};
+
+int init_program(struct *main_control control, struct init_var_struct *vars){
+  /*
+    TODO - dynamic vars:
+      num_of_environments
+  */
+  vars->obj_file_base=control->obj_file_base;
+  vars->des_extension=control->des_extension;
+  vars->con_extension=control->con_extension;
+  vars->var_extension=control->var_extension;
+  vars->num_of_objs=control->num_of_objs;
+  //also dictates number of buffer arrays-be sure to pass this around where neccessary
+  //(ie: stim_pool and env):
+  vars->num_of_threads=control->num_of_threads;//number of nobj worker threads
+  printf("eve.c:Init: Obj_file_base: %s\n",obj_file_base);
+  printf("eve.c:Init: Obj_file_base: %s\n",control->log_file);
+  //malloc nobj vars
+  vars->nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
+  vars->nobj_sums   =malloc( num_of_objs * sizeof(struct nobj_summary));
+  vars->weights     =malloc( num_of_objs * sizeof(double**));
+  vars->nobjs       =malloc( num_of_objs * sizeof(unsigned int**));
+  vars->cons        =malloc( num_of_objs * sizeof(unsigned int**));
+  vars->conids      =malloc( num_of_objs * sizeof(unsigned int**));
+  vars->nvar        =malloc( num_of_objs * sizeof(double**));
+  vars->i_maps      =malloc( num_of_objs * sizeof(*i_maps));
+  vars->envs = malloc(sizeof(struct env_control)*num_of_environments);
+  vars->env_data = malloc(sizeof(struct env_control)*num_of_environments);
+  vars->param = malloc(sizeof(*param)*num_of_objs);
+  vars->nobj_id=0;
+  vars->objnum=malloc(4);
+  vars->file_without_ext=malloc(255);
+  vars->file=malloc(255);
+  vars->behaviors = malloc(sizeof(struct behav_pool));
+
+
+
+  /*
+    Load behaviors
+    TODO - dynamically load this
+  */
+  behaviors.behaviors = malloc(sizeof(behavior) * 1 );
+  behaviors.behaviors[0]=&empty_behavior;
+  behaviors.threshholds = malloc(sizeof(threshhold) * 2 );
+  behaviors.threshholds[1]=&thresh_hold;
+  behaviors.threshholds[0]=&regulated_thresh;
+}
+void *start_program(void *control_ptr) {
+  /*
+    init
+    main loop
+    object load/unload
+  */
+  //set up exit action
+  struct sigaction action;
+  memset(&action, 0, sizeof(action));
+  action.sa_handler = &end_program;
+  sigaction(SIGINT, &action, &old_action);
+
+  struct main_control *control = (struct main_control*)control_ptr;
+  struct init_var_struct *program_vars = malloc(sizeof(struct program_vars));
+
+  if(check_control(control) <0) {
+    printf("Obj_file_base: %s | control err: %d\n",control->obj_file_base,check_control(control));
+    return;
+  }
+
+  //sets error log location and verbosity level
+  //TODO - check this have been set, if not use default values
+  init_err(control->log_file,control->log_verbosity,control->screen_verbosity, control->console_mode);//file,file verbosity, screen verbosity
+
+
+
  // usleep(500000000);
-  //To do - more err checking
+  //To do - Move to init var err check function
   if(weights==NULL) {
     proc_err("Error: failed to malloc weights. objs %d\n",num_of_objs);
     exit(-1);
   }
 
 
-
-
-  unsigned int **props;
-  unsigned int nobj_id=0;
-  char *objnum=malloc(4);
-  char *file_without_ext=malloc(255);
-  char *file=malloc(255);
 
   /*
     BEGIN INITILIZATION
@@ -233,7 +271,7 @@ printf("spun6\n");
     Define possible behaviors, a part of stim param
     TODO - function to dynamically load this
   */
-  struct behav_pool behaviors;
+
   behaviors.behaviors = malloc(sizeof(behavior) * 1 );
   behaviors.behaviors[0]=&empty_behavior;
   behaviors.threshholds = malloc(sizeof(threshhold) * 2 );
@@ -363,7 +401,7 @@ printf("spun6\n");
         //get input to objects and process them
         errs = get_istream(i_maps[cur_obj_id][j].env_id, i_maps[cur_obj_id][j].stream_id,&(*param[cur_obj_id]).stim);
         if(errs==0){
-          printf("  istream value for [%u]: %lf for stream_id: %d\n",param[cur_obj_id]->neur_to,(*param[cur_obj_id]).stim,i_maps[cur_obj_id][j].stream_id);
+          //printf("  istream value for [%u]: %lf for stream_id: %d\n",param[cur_obj_id]->neur_to,(*param[cur_obj_id]).stim,i_maps[cur_obj_id][j].stream_id);
           manager(param[cur_obj_id]);//drop work into thread pool
         } else {
           fprintf(stderr,"Error with gettng istreams: err#%d\n",errs);
@@ -393,7 +431,7 @@ printf("spun6\n");
       proc_err("End test loop. Exiting....\n",4);
       exit(0);//todo peform actual testing
     }
-    printf("==waiting==%d\n",loop_count);
+    //printf("==waiting==%d\n",loop_count);
     usleep(period_wait);
 
   }//main loop

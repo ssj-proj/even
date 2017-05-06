@@ -14,6 +14,16 @@ typedef int bool;
 #define true 1
 #define false 0
 
+/*
+  TODO - de-activate object to be re-used later
+*/
+int kill_nobj(int nobj) {
+
+
+
+}
+
+
 unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
 
   printf("INFO: trying to open %s\n", file);
@@ -497,8 +507,6 @@ int verify_obj_vars(double **vars,struct nobj_meta np) {
   must know number of environments
   must know number of streams in each environmnet
   this can init clients portion of that array
-
-
 */
 int parse_i_file(char * file, struct i_map **im, struct nobj_meta *nobj_props) {
   printf("PARSE I FILE %s\n",file);
@@ -613,7 +621,7 @@ void stim(struct stim_param *sp) {
   }
 }
 void fire_downstream(struct stim_param *sp) {
-  printf("FIRE! %u  -- %lf\n", sp->neur_to,sp->vars[sp->neur_to][4]);
+  //printf("FIRE! %u  -- %lf\n", sp->neur_to,sp->vars[sp->neur_to][4]);
   int i;
   sp->neur_from = sp->neur_to;//last stimmed neur is now firing to
   sp->stim= sp->vars[sp->neur_from][2];//set outgoing stim to neur strength

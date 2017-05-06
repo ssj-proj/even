@@ -24,15 +24,24 @@ for _ in range(1000):
     i=i+1
     env.render()
     output = eve.get_work()
-    print("Net Out: "+str(output))
+    #print("Net Out: "+str(output))
     if output==-1:
-        output=0#if no output from net - default action
-    #print("output"+str(output))
+        output=1#if no output from net - default action
+    print("output"+str(output))
     observation, reward, done, info = env.step(output) # take a random action
     for i in range(4):
         observation[i]=observation[i]*100
 
+    print("Reward: "+str(reward))
+    if done == 1:
+        break
+    #if done
+    #fitness function
+    #change
+    #repeat
     eve.set_oai_work2(observation,4)
     #print(i)
     time.sleep(wait_time/1000000)
     #print("reward"+str(reward))
+
+eve.halt()
