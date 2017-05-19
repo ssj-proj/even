@@ -14,7 +14,7 @@ struct nobj_meta{
 };
 struct i_map {
   int env_id;
-  int stream_id; 
+  int stream_id;
   unsigned int neur_to;
   unsigned int conid;
 };
@@ -69,9 +69,9 @@ struct behav_pool {
 
 
 
-//Reads file and generates prop array (read - File to read,Set - nobj meta dat:single object not 
+//Reads file and generates prop array (read - File to read,Set - nobj meta dat:single object not
 //											array);
-unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props);
+unsigned int ** parse_nobj_file(int nobj_id,char * file, struct nobj_meta *nobj_props);
 void init_nobj(int no, unsigned int **props,struct nobj_meta obj_prop, unsigned int ****nobj);
 void free_nobj(int no, struct nobj_meta obj_prop, unsigned int ****nobj);
 void display_neur_props(unsigned int**nobjs,struct nobj_meta np);
@@ -94,7 +94,7 @@ void free_io(int no, struct nobj_meta obj_prop, double ****nvar);
 void display_io_props(double **vars,struct nobj_meta np);
 
 
-//Adds an outbound connection to the 'to' neur 
+//Adds an outbound connection to the 'to' neur
 void add_ocon(struct stim_param *sp, int num_of);
 
 //nobject id, from, to, conid (index in weights array of receiving neur), stim
@@ -102,7 +102,7 @@ void stim(struct stim_param *sp);
 /*
   - act as a wrapper fo stim when sending input from env to nobj
 */
-void stim_from_env(struct stim_param *sp);//10-3-16 TBI 
+void stim_from_env(struct stim_param *sp);//10-3-16 TBI
 
 /*
   Fires to all connected neurs
