@@ -161,7 +161,7 @@ struct init_var_struct{
   /*
     ENV VARS
   */
-  int num_of_environments=1;
+  int num_of_environments;
   //array of struct, element per env
   struct env_control *envs;// = malloc(sizeof(struct env_control));
   //aray of struct, element per env
@@ -184,7 +184,16 @@ struct init_var_struct{
 
 };
 
-int init_program(struct *main_control control, struct init_var_struct *vars){
+
+
+/*
+	LOH 8-6-17 - fixing compile err
+
+*/
+
+
+
+int init_program(struct main_control *control, struct init_var_struct *vars){
   /*
     TODO - dynamic vars:
       num_of_environments
