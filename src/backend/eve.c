@@ -170,24 +170,18 @@ struct init_var_struct{
     1D array [obj_id] = struct map { stream_id, neur_id] };
   */
   struct i_map **i_maps;
+  struct behav_pool *behaviors;
   /*
     END ENV VARS
   */
-  /*
-    used for neur thread distribution - stim parameters
-    an array of pointers to stim_param objs
-    one entry for each object
-  */
-  struct stim_param **param;
-  unsigned int **props;
-  struct behav_pool *behaviors;
+
 
 };
 
 
 
 /*
-	LOH 8-6-17 - fixing compile err
+	LOH 8-6-17 - fixing compile -- putting vars into a struct
 
 */
 
@@ -206,37 +200,32 @@ int init_program(struct main_control *control, struct init_var_struct *vars){
   //also dictates number of buffer arrays-be sure to pass this around where neccessary
   //(ie: stim_pool and env):
   vars->num_of_threads=control->num_of_threads;//number of nobj worker threads
-  printf("eve.c:Init: Obj_file_base: %s\n",obj_file_base);
+  printf("eve.c:Init: Obj_file_base: %s\n",vars->obj_file_base);
   printf("eve.c:Init: Obj_file_base: %s\n",control->log_file);
   //malloc nobj vars
-  vars->nobj_props  =malloc( num_of_objs * sizeof(struct nobj_meta));
-  vars->nobj_sums   =malloc( num_of_objs * sizeof(struct nobj_summary));
-  vars->weights     =malloc( num_of_objs * sizeof(double**));
-  vars->nobjs       =malloc( num_of_objs * sizeof(unsigned int**));
-  vars->cons        =malloc( num_of_objs * sizeof(unsigned int**));
-  vars->conids      =malloc( num_of_objs * sizeof(unsigned int**));
-  vars->nvar        =malloc( num_of_objs * sizeof(double**));
-  vars->i_maps      =malloc( num_of_objs * sizeof(*i_maps));
-  vars->envs = malloc(sizeof(struct env_control)*num_of_environments);
-  vars->env_data = malloc(sizeof(struct env_control)*num_of_environments);
-  vars->param = malloc(sizeof(*param)*num_of_objs);
-  vars->nobj_id=0;
-  vars->objnum=malloc(4);
-  vars->file_without_ext=malloc(255);
-  vars->file=malloc(255);
-  vars->behaviors = malloc(sizeof(struct behav_pool));
+  vars->nobj_props  =malloc(vars->num_of_objs * sizeof(struct nobj_meta));
+  //vars->nobj_sums   =malloc(vars->num_of_objs * sizeof(struct nobj_summary));
+  vars->weights     =malloc(vars->num_of_objs * sizeof(double**));
+  vars->nobjs       =malloc(vars->num_of_objs * sizeof(unsigned int**));
+  vars->cons        =malloc(vars->num_of_objs * sizeof(unsigned int**));
+  vars->conids      =malloc(vars->num_of_objs * sizeof(unsigned int**));
+  vars->nvar        =malloc(vars->num_of_objs * sizeof(double**));
+  vars->i_maps      =malloc(vars->num_of_objs * sizeof(*(vars->i_maps)));
+  vars->envs = malloc(sizeof(struct env_control)*(vars->num_of_environments));
+  vars->env_data = malloc(sizeof(struct env_control)*(vars->num_of_environments));
 
+  vars->behaviors = malloc(sizeof(struct behav_pool));
 
 
   /*
     Load behaviors
     TODO - dynamically load this
   */
-  behaviors.behaviors = malloc(sizeof(behavior) * 1 );
-  behaviors.behaviors[0]=&empty_behavior;
-  behaviors.threshholds = malloc(sizeof(threshhold) * 2 );
-  behaviors.threshholds[1]=&thresh_hold;
-  behaviors.threshholds[0]=&regulated_thresh;
+  (vars->behaviors)->behaviors = malloc(sizeof(behavior) * 1 );
+  (vars->behaviors)->behaviors[0]=&empty_behavior;
+  (vars->behaviors)->threshholds = malloc(sizeof(threshhold) * 2 );
+  (vars->behaviors)->threshholds[1]=&thresh_hold;
+  (vars->behaviors)->threshholds[0]=&regulated_thresh;
 }
 void *start_program(void *control_ptr) {
   /*
@@ -250,8 +239,28 @@ void *start_program(void *control_ptr) {
   action.sa_handler = &end_program;
   sigaction(SIGINT, &action, &old_action);
 
+
+
+  int nobj_id=0;
+  char *objnum =malloc(4);
+  char *file_without_ext=malloc(255);
+  char *file=malloc(255);
+  /*
+    used for neur thread distribution - stim parameters
+    an array of pointers to stim_param objs
+    one entry for each object
+  */
+  struct stim_param **param;
+  unsigned int **props;
+
+
+
+
   struct main_control *control = (struct main_control*)control_ptr;
-  struct init_var_struct *program_vars = malloc(sizeof(struct program_vars));
+  struct init_var_struct *program_vars = malloc(sizeof(struct init_var_struct));//create struct to hold all global vars
+
+  init_program(control, program_vars);
+
 
   if(check_control(control) <0) {
     printf("Obj_file_base: %s | control err: %d\n",control->obj_file_base,check_control(control));
@@ -266,8 +275,8 @@ void *start_program(void *control_ptr) {
 
  // usleep(500000000);
   //To do - Move to init var err check function
-  if(weights==NULL) {
-    proc_err("Error: failed to malloc weights. objs %d\n",num_of_objs);
+  if(program_vars->weights==NULL) {
+    proc_err("Error: failed to malloc weights. objs %d\n",program_vars->num_of_objs);
     exit(-1);
   }
 
@@ -276,20 +285,10 @@ void *start_program(void *control_ptr) {
   /*
     BEGIN INITILIZATION
   */
-  /*
-    Define possible behaviors, a part of stim param
-    TODO - function to dynamically load this
-  */
-
-  behaviors.behaviors = malloc(sizeof(behavior) * 1 );
-  behaviors.behaviors[0]=&empty_behavior;
-  behaviors.threshholds = malloc(sizeof(threshhold) * 2 );
-  behaviors.threshholds[1]=&thresh_hold;
-  behaviors.threshholds[0]=&regulated_thresh;
 
 
   /* load settings for obj from their init files */
-  for(nobj_id;nobj_id<num_of_objs;++nobj_id) {
+  for(nobj_id;nobj_id<program_vars->num_of_objs;++nobj_id) {
     /*
        each obj file path:
 	obj_file_base + objnum + (type extension)
@@ -302,43 +301,43 @@ void *start_program(void *control_ptr) {
     nobj_sums[nobj_id].active=1;
 
     sprintf(objnum,"%d",nobj_id);
-    strcat(file_without_ext,obj_file_base);
+    strcat(file_without_ext,program_vars->obj_file_base);
     strcat(file_without_ext,objnum);
 
     strcpy(file,file_without_ext);
-    strcat(file,des_extension);
+    strcat(file,program_vars->des_extension);
     proc_err("   INIT OBJECT %u\n",4,nobj_id);
     param[nobj_id] = malloc(sizeof(struct stim_param));
-    props = parse_nobj_file(file,&nobj_props[nobj_id]);
+    props = parse_nobj_file(file,&(program_vars->nobj_props[nobj_id]));
     if(!props) {
       proc_err("ERROR parsing des file: ",1,strerror(errno));
       continue;//error init this obj, skip to next object
     }
-    nobj_props[nobj_id].nobj_id=nobj_id;//probably should be moved into parse_nobj_file()
+    program_vars->nobj_props[nobj_id].nobj_id=nobj_id;//probably should be moved into parse_nobj_file()
 
-    init_nobj(nobj_id,props,nobj_props[nobj_id],&nobjs);
+    init_nobj(nobj_id,props,program_vars->nobj_props[nobj_id],&(program_vars->nobjs));
     //display_neur_props(nobj_id,nobjs,nobj_props);
     //free_nobj(nobj_id,nobj_props[nobj_id],&nobjs);
 
-    strcpy(file,file_without_ext);
-    strcat(file,con_extension);
+    strcpy(file,program_vars->file_without_ext);
+    strcat(file,program_vars->con_extension);
     unsigned int **con_props = parse_con_file(file,&nobj_props[nobj_id]);
     nobj_props[nobj_id].nobj_id=nobj_id;
     if(con_props==NULL) {
       proc_err("ERROR parsing con file.\n",1);
       exit(-1);
     }
-    init_cons(nobj_id, con_props, nobj_props[nobj_id], &cons, &conids, &weights);
+    init_cons(nobj_id, con_props, nobj_props[nobj_id], &(program_vars->cons), &(program_vars->conids), &(program_vars->weights));
     //display_con_props(nobj_id,cons,conids,weights,nobj_props);
 
     strcpy(file,file_without_ext);
-    strcat(file,var_extension);
-    double **var_props = parse_vars_file(file,&nobj_props[nobj_id]);
+    strcat(file,program_vars->var_extension);
+    double **var_props = parse_vars_file(file,&(program_vars->nobj_props[nobj_id]));
     if(con_props==NULL) {
        proc_err("ERROR parsing var file.\n",1);
       exit(-1);
     }
-    init_vars(nobj_id,var_props,nobj_props[nobj_id],&nvar);
+    init_vars(nobj_id,var_props,nobj_props[nobj_id],&(program_vars->nvar));
     //display_vars_props(nvar[nobj_id],nobj_props[nobj_id]);
 
     strcpy(file,file_without_ext);
@@ -347,13 +346,13 @@ void *start_program(void *control_ptr) {
     parse_i_file(file,&i_maps[nobj_id],&nobj_props[nobj_id]);
 
      /* base values for sim param fro nobj TODO[10] - rethink this design TODO - */
-    (*param[nobj_id]).bp=&behaviors;
-    (*param[nobj_id]).nobj=nobjs[nobj_id];
-    (*param[nobj_id]).cons=cons[nobj_id];
-    (*param[nobj_id]).conids=conids[nobj_id];
-    (*param[nobj_id]).weights=weights[nobj_id];
-    (*param[nobj_id]).vars=nvar[nobj_id];
-    (*param[nobj_id]).nobj_props=&(nobj_props[nobj_id]);
+    (*param[nobj_id]).bp=&(program_vars->behaviors);
+    (*param[nobj_id]).nobj=program_vars->nobjs[nobj_id];
+    (*param[nobj_id]).cons=program_vars->cons[nobj_id];
+    (*param[nobj_id]).conids=program_vars->conids[nobj_id];
+    (*param[nobj_id]).weights=program_vars->weights[nobj_id];
+    (*param[nobj_id]).vars=program_vars->nvar[nobj_id];
+    (*param[nobj_id]).nobj_props=&(program_vars->nobj_props[nobj_id]);
     (*param[nobj_id]).neur_from=UINT_MAX;//When stim from anything but another nuer, from neur_id = max usigned int
     (*param[nobj_id]).conid=UINT_MAX;
   }
@@ -371,7 +370,7 @@ void *start_program(void *control_ptr) {
    init_errors+=init_api(1,envs,env_data);//send number of total envs so it can allocate arrays
 
    init_errors+=init_env(num_of_threads,100, &envs[0], &env_data[0]);//call init env for each env(1)
-   env_data->num_of_objs = num_of_objs;
+   env_data->num_of_objs =vars->num_of_objs;
 
   /*
     init the env side, this should call hook_env
