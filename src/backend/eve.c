@@ -344,7 +344,7 @@ void *start_program(void *control_ptr) {
     strcat(file,".in");
 
     parse_i_file(file,&i_maps[nobj_id],&nobj_props[nobj_id]);
-
+ 
      /* base values for sim param fro nobj TODO[10] - rethink this design TODO - */
     (*param[nobj_id]).bp=&(program_vars->behaviors);
     (*param[nobj_id]).nobj=program_vars->nobjs[nobj_id];
@@ -352,7 +352,7 @@ void *start_program(void *control_ptr) {
     (*param[nobj_id]).conids=program_vars->conids[nobj_id];
     (*param[nobj_id]).weights=program_vars->weights[nobj_id];
     (*param[nobj_id]).vars=program_vars->nvar[nobj_id];
-    (*param[nobj_id]).nobj_props=&(program_vars->nobj_props[nobj_id]);
+    (*param[nobj_id]).nobj_props=&(program_vars->nobj_props[nobj_id]);   
     (*param[nobj_id]).neur_from=UINT_MAX;//When stim from anything but another nuer, from neur_id = max usigned int
     (*param[nobj_id]).conid=UINT_MAX;
   }

@@ -14,17 +14,8 @@ typedef int bool;
 #define true 1
 #define false 0
 
-/*
-  TODO - de-activate object to be re-used later
-*/
-int kill_nobj(int nobj) {
 
-
-
-}
-
-
-unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
+unsigned int ** parse_nobj_file(int nobj_id,char * file, struct nobj_meta *nobj_props) {
 
   printf("INFO: trying to open %s\n", file);
   FILE *fp = fopen(file,"r");
@@ -34,6 +25,7 @@ unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
   return NULL;
 
   }
+  nobj_props->nobj_id=nobj_id;
   char buff[255];
   int t;
   bool has_neur_settings=false;
@@ -47,10 +39,10 @@ unsigned int ** parse_nobj_file(char * file, struct nobj_meta *nobj_props) {
     fscanf(fp,"%[^:]:%u ",buff,&t);//reads string:value into buff:t
     printf(" READ (%s) %s %d\n",file,buff,t);
     if(strcmp(buff,"non")==0) {
-      (*nobj_props).num_of_neurs=t;
+      nobj_props->num_of_neurs=t;
       has_neur_count=true;
     } else if(strcmp(buff,"np")==0){
-      (*nobj_props).num_of_neur_properties=t;
+      nobj_props->num_of_neur_properties=t;
       has_neur_settings=true;
     } else {
       printf("Unkown setting %s in %s\n",buff,file);
